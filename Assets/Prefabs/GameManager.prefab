@@ -44,3 +44,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7120eeaef417bfc4ab5ae6c274dea00f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  BoardView: {fileID: 0}
+  Bridge: {fileID: 11400000, guid: 4697982161cc9b14f8a1fb8f503b0503, type: 2}

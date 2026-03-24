@@ -1,15 +1,14 @@
+using System;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public BoardView BoardView;
-    public PieceDefinition Bridge;
-
-    public static GameManager Instance { get; private set; }
-
-    BoardState board;
-    PathAnalyzer pathAnalyzer;
-    StabilityAnalyzer stabilityAnalyzer;
+    public float CameraDistance;
+    public float BackgroundDistance;
+    public BoardGrid Board;
+    public Camera Camera;
+    public GameObject BackgroundPrefab;
+    public static GameManager Instance;
 
     void Awake()
     {
@@ -31,22 +30,21 @@ public class GameManager : MonoBehaviour
 
     void Initialize()
     {
-        board = new BoardState();
-        pathAnalyzer = new PathAnalyzer();
-        stabilityAnalyzer = new StabilityAnalyzer();
+        Board.Initialized += OnBoardInitialized;
+    }
+
+    void OnBoardInitialized()
+    {
+        GameObject background = Instantiate(BackgroundPrefab);
+        Vector3 center = Board.GetGridCenter();
+        float boardSize = Board.Width * Board.Height;
+
+        Camera.transform.position = center + new Vector3(0f, 0f, boardSize * -CameraDistance);
+        background.transform.position = center + new Vector3(0f, 0f, boardSize * BackgroundDistance);
     }
 
     void RunTest()
     {
-        board.AddPiece(new PieceInstance(Bridge, new(0, 0, 0)));
-        board.AddPiece(new PieceInstance(Bridge, new(1, 0, 0)));
-        board.AddPiece(new PieceInstance(Bridge, new(2, 0, 0)));
 
-        BoardView.Render(board);
-
-        bool hasPath = pathAnalyzer.HasPath(board, new Vector3Int(0, 0, 0), new Vector3Int(2, 0, 0));
-        bool isStable = stabilityAnalyzer.IsStable(board);
-
-        Debug.Log($"Path: {hasPath} | Stable: {isStable}");
     }
 }
