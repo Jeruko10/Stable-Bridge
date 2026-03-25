@@ -13,6 +13,14 @@ public class BoardGrid : MonoBehaviour
     public Dictionary<Vector2Int, GameObject> TileVisuals = new();
     public event Action Initialized;
 
+    public enum Rotation
+    {
+        Deg0,
+        Deg90,
+        Deg180,
+        Deg270
+    }
+
     void Start()
     {
         InitializeTiles();
@@ -37,6 +45,18 @@ public class BoardGrid : MonoBehaviour
             }
 
         Initialized?.Invoke();
+    }
+
+    static public Quaternion GetDiscreteRotation(Rotation rotation)
+    {
+        return rotation switch
+        {
+            Rotation.Deg0 => Quaternion.Euler(0, 0, 0),
+            Rotation.Deg90 => Quaternion.Euler(0, 90, 0),
+            Rotation.Deg180 => Quaternion.Euler(0, 180, 0),
+            Rotation.Deg270 => Quaternion.Euler(0, 270, 0),
+            _ => Quaternion.identity
+        };
     }
 
     public Vector3 TileToWorld(Vector2Int tile) => new(tile.x * TileSize, tile.y * TileSize);
