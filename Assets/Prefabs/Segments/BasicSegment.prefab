@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 538579023512713160}
   - component: {fileID: 4148841249573305342}
   - component: {fileID: 4246016528045782285}
-  - component: {fileID: 8081973494838926406}
   m_Layer: 0
   m_Name: BasicSegment
   m_TagString: Untagged
@@ -166,15 +165,4 @@ MonoBehaviour:
     bottomLeft: 0
     bottomCenter: 0
     bottomRight: 0
---- !u!114 &8081973494838926406
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1968057699252462157}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dda5857ba3accfb4e80f66c8bf1d1a96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SimpleSegment
+  MobilityType: 0

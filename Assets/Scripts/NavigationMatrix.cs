@@ -5,16 +5,8 @@ public class NavigationMatrix
 {
     [SerializeField] bool topLeft, topCenter, topRight, left, center, right, bottomLeft, bottomCenter, bottomRight;
 
-    public bool[] Values
+    public bool[] Values => new[]
     {
-        get
-        {
-            return new bool[]
-            {
-                topLeft, topCenter, topRight,
-                left, center, right,
-                bottomLeft, bottomCenter, bottomRight
-            };
-        }
-    }
+        topLeft, topCenter, topRight, left, center, right, bottomLeft, bottomCenter, bottomRight
+    };
 }
