@@ -49,7 +49,6 @@ MonoBehaviour:
   <Mirrored>k__BackingField: 0
   <MobilityType>k__BackingField: 0
   <MobilityPivot>k__BackingField: {x: 0, y: 0}
-  <Snapped>k__BackingField: 1
   <UnsnappedZOffset>k__BackingField: 5
 --- !u!54 &7818674925971748769
 Rigidbody:
