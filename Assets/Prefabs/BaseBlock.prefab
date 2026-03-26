@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2289287630873148278}
   - component: {fileID: 2853534257233814302}
   - component: {fileID: 7818674925971748769}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BaseBlock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,8 +45,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cd297e4e6fd2d041a6e7ec486aeaac2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Block
-  Segments: []
-  Mirrored: 0
+  <Segments>k__BackingField: []
+  <Mirrored>k__BackingField: 0
+  <MobilityType>k__BackingField: 0
+  <MobilityPivot>k__BackingField: {x: 0, y: 0}
+  <Snapped>k__BackingField: 1
+  <UnsnappedZOffset>k__BackingField: 5
 --- !u!54 &7818674925971748769
 Rigidbody:
   m_ObjectHideFlags: 0

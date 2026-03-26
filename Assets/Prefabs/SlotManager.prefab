@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &462602498517123602
+--- !u!1 &3903568178584764889
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,22 +8,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6456184192651465739}
-  - component: {fileID: 4807977670398035616}
+  - component: {fileID: 636182832855364874}
+  - component: {fileID: 2334933693303020174}
   m_Layer: 0
-  m_Name: BoardGrid
+  m_Name: SlotManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6456184192651465739
+--- !u!4 &636182832855364874
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 462602498517123602}
+  m_GameObject: {fileID: 3903568178584764889}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -32,19 +32,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4807977670398035616
+--- !u!114 &2334933693303020174
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 462602498517123602}
+  m_GameObject: {fileID: 3903568178584764889}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01d307e32ade26e4aa09a95355e78d2a, type: 3}
+  m_Script: {fileID: 11500000, guid: 440c495aa28737f4b93ac46297138799, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BoardGrid
-  <Width>k__BackingField: 6
-  <Height>k__BackingField: 5
-  <TileSize>k__BackingField: 1
-  <TileVisualPrefab>k__BackingField: {fileID: 8755368726349719585, guid: 2e08f22502a36c3479d0cad2333aa45b, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::BlockSlots
+  <Board>k__BackingField: {fileID: 0}
+  <HorizontalMargin>k__BackingField: 3
+  <TotalVerticalSpace>k__BackingField: 8

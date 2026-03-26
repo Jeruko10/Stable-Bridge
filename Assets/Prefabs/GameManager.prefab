@@ -44,5 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7120eeaef417bfc4ab5ae6c274dea00f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  BoardView: {fileID: 0}
-  Bridge: {fileID: 11400000, guid: 4697982161cc9b14f8a1fb8f503b0503, type: 2}
+  <CameraDistance>k__BackingField: 1
+  <BackgroundDistance>k__BackingField: 1
+  <Board>k__BackingField: {fileID: 0}
+  <MainCamera>k__BackingField: {fileID: 0}
+  <BackgroundPrefab>k__BackingField: {fileID: 1394306270247616176, guid: 83efb9dae6ebd454e9ca18fff561af48, type: 3}
+  <BaseBlockPrefab>k__BackingField: {fileID: 5211579415055609634, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
+  <BasicSegmentPrefab>k__BackingField: {fileID: 1968057699252462157, guid: 3c5b83b058b43f641b1fe416936d9123, type: 3}

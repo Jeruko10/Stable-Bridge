@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 538579023512713160}
   - component: {fileID: 4148841249573305342}
   - component: {fileID: 4246016528045782285}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BasicSegment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -165,4 +165,3 @@ MonoBehaviour:
     bottomLeft: 0
     bottomCenter: 0
     bottomRight: 0
-  MobilityType: 0

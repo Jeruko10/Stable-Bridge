@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BoardGrid : MonoBehaviour
@@ -40,9 +41,9 @@ public class BoardGrid : MonoBehaviour
     public static Quaternion GetDiscreteRotation(Rotation rotation) => rotation switch
     {
         Rotation.Deg0 => Quaternion.Euler(0, 0, 0),
-        Rotation.Deg90 => Quaternion.Euler(0, 90, 0),
-        Rotation.Deg180 => Quaternion.Euler(0, 180, 0),
-        Rotation.Deg270 => Quaternion.Euler(0, 270, 0),
+        Rotation.Deg90 => Quaternion.Euler(0, 0, 90),
+        Rotation.Deg180 => Quaternion.Euler(0, 0, 180),
+        Rotation.Deg270 => Quaternion.Euler(0, 0, 270),
         _ => Quaternion.identity
     };
 
@@ -50,12 +51,12 @@ public class BoardGrid : MonoBehaviour
 
     public Vector2Int WorldToTile(Vector3 worldPos)
     {
-        Vector2Int tile = new(Mathf.RoundToInt(worldPos.x / TileSize), Mathf.RoundToInt(worldPos.z / TileSize));
+        Vector2Int tile = new(Mathf.RoundToInt(worldPos.x / TileSize), Mathf.RoundToInt(worldPos.y / TileSize));
         if (!IsValidTile(tile)) Debug.LogWarning($"Tile {tile} is out of bounds!");
         return tile;
     }
 
-    public Vector3 GetGridCenter() => new(Width / 2, Height / 2);
+    public Vector3 GetGridCenter() => new(Width * TileSize / 2, Height * TileSize / 2);
 
     public bool IsValidTile(Vector2Int tile) => tile.x >= 0 && tile.x < Width && tile.y >= 0 && tile.y < Height;
 
@@ -75,6 +76,39 @@ public class BoardGrid : MonoBehaviour
 
         tiles.TryGetValue(tile, out var block);
         return block;
+    }
+
+    public void RemoveBlock(Block block)
+    {
+        List<Vector2Int> tilesToClear = new();
+
+        foreach (var kvp in tiles)
+            if (kvp.Value != null && block.Segments.Contains(kvp.Value))
+                tilesToClear.Add(kvp.Key);
+        
+        foreach (var tile in tilesToClear)
+            tiles[tile] = null;
+    }
+
+    public bool CanPlaceBlock(Block block, Vector2Int pivotTile, BlockSegment pivotSegment)
+    {
+        Vector3 requiredMovement = TileToWorld(pivotTile) - pivotSegment.transform.position;
+
+        foreach (BlockSegment segment in block.Segments)
+        {
+            Vector2Int tile = WorldToTile(segment.transform.position + requiredMovement);
+            
+            if (!IsValidTile(tile) || (tiles.TryGetValue(tile, out BlockSegment existing) && existing != null && !block.Segments.Contains(existing)))
+                return false;
+        }
+
+        return true;
+    }
+
+    public void PlaceBlock(Block block, Vector2Int pivotTile, BlockSegment pivotSegment)
+    {
+        block.transform.position += TileToWorld(pivotTile) - pivotSegment.transform.position;
+        foreach (BlockSegment segment in block.Segments) tiles[WorldToTile(segment.transform.position)] = segment;
     }
 
     public bool IsBlockOnGrid(BlockSegment block, out Vector2Int tileCoord)
