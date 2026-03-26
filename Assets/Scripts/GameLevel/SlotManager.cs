@@ -7,18 +7,22 @@ public class SlotManager : MonoBehaviour
     [field: SerializeField] public float HorizontalMargin { get; set; } = 3f;
     [field: SerializeField] public float TotalVerticalSpace { get; set; } = 5f;
 
-    BoardGrid board;
-    readonly Dictionary<Vector3, Block> slots = new();
-
-    void Awake()
+    class Slot
     {
-        board = GetComponent<BoardGrid>();
+        public Vector3 Position { get; set; }
+        public Block Occupant { get; set; }
+        public Slot(Vector3 position) => Position = position;
     }
+
+    BoardGrid board;
+    readonly List<Slot> slots = new();
+
+    void Awake() => board = GetComponent<BoardGrid>();
     
     void OnDrawGizmos()
     {
         Gizmos.color = Color.limeGreen;
-        foreach (var pos in slots.Keys) Gizmos.DrawSphere(pos, 0.05f);
+        foreach (var slot in slots) Gizmos.DrawSphere(slot.Position, 0.05f);
     }
 
     public void GenerateSlots(int totalBlocks)
@@ -37,14 +41,33 @@ public class SlotManager : MonoBehaviour
         float leftX = center.x - (gridRealWidth / 2f) - HorizontalMargin;
         float rightX = center.x + (gridRealWidth / 2f) + HorizontalMargin;
 
-        for (int i = 0; i < leftCount; i++) slots.Add(new(leftX, CalculateY(i, leftCount, center.y)), null);
-        for (int i = 0; i < rightCount; i++) slots.Add(new(rightX, CalculateY(i, rightCount, center.y)), null);
+        for (int i = 0; i < leftCount; i++) slots.Add(new(new Vector3(leftX, CalculateY(i, leftCount, center.y))));
+        for (int i = 0; i < rightCount; i++) slots.Add(new(new Vector3(rightX, CalculateY(i, rightCount, center.y))));
     }
 
-    public Vector3? GetAvailableSlot()
+    public void AsignAvailableSlot(Block block)
     {
-        foreach (var pair in slots) if (pair.Value == null) return pair.Key;
-        return null;
+        foreach (Slot slot in slots)
+        {
+            if (slot.Occupant != null) continue;
+
+            slot.Occupant = block;
+            block.transform.position = slot.Position;
+            return;
+        }
+        Debug.LogWarning("No available slots to assign!");
+    }
+
+    public void FreeSlot(Block block)
+    {
+        foreach (var slot in slots)
+        {
+            if (slot.Occupant == block)
+            {
+                slot.Occupant = null;
+                return;
+            }
+        }
     }
 
     float CalculateY(int index, int totalInSide, float centerY) =>

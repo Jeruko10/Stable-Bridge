@@ -8,12 +8,12 @@ public class GameActions : MonoBehaviour
 
     Block draggedBlock;
     BlockSegment grabbedSegment;
-    SlotManager outsideSlots;
+    SlotManager slotManager;
     BoardGrid board;
 
     void Awake()
     {
-        outsideSlots = GetComponent<SlotManager>();
+        slotManager = GetComponent<SlotManager>();
         board = GetComponent<BoardGrid>();
     }
     
@@ -21,7 +21,8 @@ public class GameActions : MonoBehaviour
     {
         draggedBlock = block;
         grabbedSegment = segment;
-        board.RemoveBlock(draggedBlock);
+        board.RemoveBlock(block);
+        slotManager.FreeSlot(block);
     }
 
     public void MoveBlock(Vector3 targetPosition)
@@ -47,14 +48,7 @@ public class GameActions : MonoBehaviour
         if (draggedBlock == null) return;
 
         if (!board.TryPlaceBlock(draggedBlock, targetTile, grabbedSegment))
-        {
-            // Return block to outside slots if placement fails
-            
-            Vector3? slot = outsideSlots.GetAvailableSlot();
-            if (slot.HasValue) draggedBlock.transform.position = slot.Value;
-            else
-                draggedBlock.transform.position = grabbedSegment.transform.position;
-        }
+            slotManager.AsignAvailableSlot(draggedBlock);
 
         draggedBlock = null;
         grabbedSegment = null;

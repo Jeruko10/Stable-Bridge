@@ -1,19 +1,25 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class Block : MonoBehaviour
 {
     [field: SerializeField] public List<BlockSegment> Segments { get; set; } = new();
-    [field: SerializeField] public bool Mirrored { get; set; } = false;
-    [field: SerializeField] public Mobility MobilityType { get; set; } = Mobility.Free;
     [field: SerializeField] public Vector2Int MobilityPivot { get; set; } = Vector2Int.zero;
     [field: SerializeField] public float UnsnappedZOffset { get; set; } = 5f;
-
+    public Mobility MobilityType { get; set; } = Mobility.Free;
+    public bool Mirrored { get; set; } = false;
+    
     public enum Mobility { Free, RotateOnly, SlideOnly, Pinned }
 
     BoardGrid.Rotation rotation = BoardGrid.Rotation.Deg0;
 
-    void Awake() => FetchSegments();
+    void Awake()
+    {
+        FetchSegments();
+        GetComponent<Rigidbody>().isKinematic = true;
+    }
 
     void Update()
     {

@@ -16,7 +16,6 @@ public class LevelManager : MonoBehaviour
     GameObject blocksFolder;
     BoardGrid board;
     SlotManager slotManager;
-    GameActions actions;
     List<LevelData> levels;
     readonly HashSet<Block> activeBlocks = new();
     int currentLevelIndex = 0;
@@ -25,7 +24,6 @@ public class LevelManager : MonoBehaviour
     {
         board = GetComponent<BoardGrid>();
         slotManager = GetComponent<SlotManager>();
-        actions = GetComponent<GameActions>();
         blocksFolder = new("Blocks");
         
         levels = Resources.LoadAll<LevelData>("Levels").ToList();
@@ -38,7 +36,7 @@ public class LevelManager : MonoBehaviour
 
     void LoadLevel(int levelIndex)
     {
-        actions.DropBlock(Vector2Int.zero);
+        // actions.DropBlock(Vector2Int.zero); TODO: Fixes a bug where the player could be dragging a block while loading a new level, causing it to be lost in the scene. This is a temporary solution and should be replaced with a more robust handling of dragging state during level transitions.
         DestroyAllBlocks();
 
         LevelData level = levels[levelIndex];
@@ -47,11 +45,16 @@ public class LevelManager : MonoBehaviour
         slotManager.GenerateSlots(level.Blocks.Count);
         SetLevelAesthetic();
         
-        foreach (BlockPlacement bplace in level.Blocks)
+        foreach (BlockPlacement data in level.Blocks)
         {
-            Block newBlock = Instantiate(bplace.BlockPrefab, blocksFolder.transform);
-            newBlock.transform.position = slotManager.GetAvailableSlot().Value;
-            newBlock.GetComponent<Rigidbody>().isKinematic = true;
+            Block block = Instantiate(data.BlockPrefab, blocksFolder.transform);
+            
+            activeBlocks.Add(block);
+            block.MobilityType = data.MobilityType;
+            block.Mirrored = data.Mirrored;
+
+            if (data.MobilityType == Block.Mobility.Free) slotManager.AsignAvailableSlot(block);
+            else board.TryPlaceBlock(block, data.StartingTile, block.Segments[0]);
         }
 
         CreateGround();
@@ -59,7 +62,9 @@ public class LevelManager : MonoBehaviour
 
     void DestroyAllBlocks()
     {
-        foreach (Block block in activeBlocks) Destroy(block.gameObject);
+        foreach (Block block in activeBlocks)
+            Destroy(block.gameObject);
+        
         activeBlocks.Clear();
     }
 
