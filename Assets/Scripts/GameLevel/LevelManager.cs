@@ -13,9 +13,10 @@ public class LevelManager : MonoBehaviour
     [field: SerializeField] GameObject baseBlockPrefab;
     [field: SerializeField] GameObject basicSegmentPrefab;
 
+    GameObject blocksFolder;
     BoardGrid board;
     SlotManager slotManager;
-    GameActions blockController;
+    GameActions actions;
     List<LevelData> levels;
     readonly HashSet<Block> activeBlocks = new();
     int currentLevelIndex = 0;
@@ -24,7 +25,8 @@ public class LevelManager : MonoBehaviour
     {
         board = GetComponent<BoardGrid>();
         slotManager = GetComponent<SlotManager>();
-        blockController = GetComponent<GameActions>();
+        actions = GetComponent<GameActions>();
+        blocksFolder = new("Blocks");
         
         levels = Resources.LoadAll<LevelData>("Levels").ToList();
     }
@@ -36,7 +38,7 @@ public class LevelManager : MonoBehaviour
 
     void LoadLevel(int levelIndex)
     {
-        blockController.DropBlock(Vector2Int.zero);
+        actions.DropBlock(Vector2Int.zero);
         DestroyAllBlocks();
 
         LevelData level = levels[levelIndex];
@@ -47,7 +49,7 @@ public class LevelManager : MonoBehaviour
         
         foreach (BlockPlacement bplace in level.Blocks)
         {
-            Block newBlock = Instantiate(bplace.BlockPrefab);
+            Block newBlock = Instantiate(bplace.BlockPrefab, blocksFolder.transform);
             newBlock.transform.position = slotManager.GetAvailableSlot().Value;
             newBlock.GetComponent<Rigidbody>().isKinematic = true;
         }
@@ -66,7 +68,7 @@ public class LevelManager : MonoBehaviour
         GameObject background = Instantiate(backgroundPrefab);
         Vector3 center = board.GetGridCenter();
         float boardSize = board.Size.x * board.Size.y;
-
+        
         Camera.main.transform.position = center + new Vector3(0f, 0f, boardSize * -CameraDistance);
         background.transform.position = center + new Vector3(0f, 0f, boardSize * BackgroundDistance);
     }
@@ -74,7 +76,7 @@ public class LevelManager : MonoBehaviour
     void CreateGround()
     {
         Vector3 startPos = board.TileToWorld(new(0, -1));
-        GameObject groundObj = Instantiate(baseBlockPrefab, startPos, Quaternion.identity);
+        GameObject groundObj = Instantiate(baseBlockPrefab, startPos, Quaternion.identity, blocksFolder.transform);
         
         groundObj.name = "Ground";
         groundObj.GetComponent<Rigidbody>().isKinematic = true;

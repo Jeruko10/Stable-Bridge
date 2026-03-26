@@ -10,11 +10,14 @@ public class PlayerInput : MonoBehaviour
 
     BoardGrid board;
     GameActions actions;
+    Camera mainCamera;
+    readonly Plane interactionPlane = new(Vector3.forward, Vector3.zero);
 
     void Awake()
     {
         board = GetComponent<BoardGrid>();
         actions = GetComponent<GameActions>();
+        mainCamera = Camera.main;
     }
 
     void Update()
@@ -27,42 +30,45 @@ public class PlayerInput : MonoBehaviour
         if (actions.IsDragging) UpdateDragging();
     }
 
+    Ray GetMouseRay() => mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+
+    bool TryGetWorldPosition(out Vector3 worldPos)
+    {
+        Ray ray = GetMouseRay();
+        if (interactionPlane.Raycast(ray, out float distance))
+        {
+            worldPos = ray.GetPoint(distance);
+            return true;
+        }
+        
+        worldPos = Vector3.zero;
+        return false;
+    }
+
     void HandleLeftClick()
     {
         if (actions.IsDragging)
         {
-            Vector2Int clickedTile = board.WorldToTile(Mouse.current.position.ReadValue());
-            actions.DropBlock(clickedTile);
+            if (TryGetWorldPosition(out Vector3 pos))
+                actions.DropBlock(board.WorldToTile(pos));
         }
-        else
-        {
-            ThrowClickRaycast();
-        }
+        else ThrowClickRaycast();
     }
 
     void ThrowClickRaycast()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-
-        if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance, BlockLayer)) return;
+        if (!Physics.Raycast(GetMouseRay(), out RaycastHit hit, rayDistance, BlockLayer)) return;
         if (!hit.collider.TryGetComponent(out BlockSegment segment)) return;
         
         Block block = segment.GetComponentInParent<Block>();
-
         if (block == null) return;
 
-        if (block.MobilityType == Block.Mobility.Free)
-            actions.SelectBlock(block, segment);
-        else if (block.MobilityType == Block.Mobility.RotateOnly)
-            block.Rotate(segment);
+        if (block.MobilityType == Block.Mobility.Free) actions.SelectBlock(block, segment);
+        else if (block.MobilityType == Block.Mobility.RotateOnly) block.Rotate(segment);
     }
 
     void UpdateDragging()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-        Plane plane = new(Vector3.forward, Vector3.zero);
-
-        if (plane.Raycast(ray, out float distance))
-            actions.MoveBlock(ray.GetPoint(distance));
+        if (TryGetWorldPosition(out Vector3 pos)) actions.MoveBlock(pos);
     }
 }

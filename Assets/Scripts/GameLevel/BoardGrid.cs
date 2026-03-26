@@ -10,11 +10,18 @@ public class BoardGrid : MonoBehaviour
     public Vector2Int Size { get; private set; }
     public enum Rotation { Deg0, Deg90, Deg180, Deg270 }
 
+    GameObject visualsFolder;
     readonly Dictionary<Vector2Int, BlockSegment> tiles = new();
     readonly Dictionary<Vector2Int, GameObject> tileVisuals = new();
 
+    void Awake()
+    {
+        visualsFolder = new("Visuals");
+    }
+
     public void Initialize(Vector2Int size)
     {
+        Size = size;
         tiles.Clear();
         tileVisuals.Clear();
 
@@ -24,7 +31,7 @@ public class BoardGrid : MonoBehaviour
             {
                 Vector2Int tileCoord = new(x, y);
                 tiles[tileCoord] = null;
-                GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, transform);
+                GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, visualsFolder.transform);
                 tileVisuals.Add(tileCoord, instance);
             }
         }

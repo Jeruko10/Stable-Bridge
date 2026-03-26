@@ -46,22 +46,16 @@ public class GameActions : MonoBehaviour
     {
         if (draggedBlock == null) return;
 
-        if (board.TryPlaceBlock(draggedBlock, targetTile, grabbedSegment))
+        if (!board.TryPlaceBlock(draggedBlock, targetTile, grabbedSegment))
         {
-            // Snapping block into the grid
-            board.TryPlaceBlock(draggedBlock, targetTile, grabbedSegment);
-        }
-        else
-        {
-            // Returning block to an outside slot
+            // Return block to outside slots if placement fails
+            
             Vector3? slot = outsideSlots.GetAvailableSlot();
             if (slot.HasValue) draggedBlock.transform.position = slot.Value;
             else
-            {
                 draggedBlock.transform.position = grabbedSegment.transform.position;
-            }
         }
-        
+
         draggedBlock = null;
         grabbedSegment = null;
     }
