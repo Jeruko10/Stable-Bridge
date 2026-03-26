@@ -5,29 +5,22 @@ using UnityEngine;
 
 public class BoardGrid : MonoBehaviour
 {
-    [field: SerializeField] public int Width { get; set; } = 6;
-    [field: SerializeField] public int Height { get; set; } = 5;
-    [field: SerializeField] public float TileSize { get; set; } = 1.1f;
+    [field: SerializeField] public float TileSize { get; set; } = 1f;
     [field: SerializeField] public GameObject TileVisualPrefab { get; set; }
+    public Vector2Int Size { get; private set; }
+    public enum Rotation { Deg0, Deg90, Deg180, Deg270 }
 
     readonly Dictionary<Vector2Int, BlockSegment> tiles = new();
     readonly Dictionary<Vector2Int, GameObject> tileVisuals = new();
-    public event Action Initialized;
 
-    public enum Rotation { Deg0, Deg90, Deg180, Deg270 }
-
-    void Start() => InitializeTiles();
-
-    void Update()
+    public void Initialize(Vector2Int size)
     {
-        foreach (var pair in tileVisuals) pair.Value.transform.position = TileToWorld(pair.Key);
-    }
+        tiles.Clear();
+        tileVisuals.Clear();
 
-    void InitializeTiles()
-    {
-        for (int x = 0; x < Width; x++)
+        for (int x = 0; x < size.x; x++)
         {
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < size.y; y++)
             {
                 Vector2Int tileCoord = new(x, y);
                 tiles[tileCoord] = null;
@@ -35,7 +28,6 @@ public class BoardGrid : MonoBehaviour
                 tileVisuals.Add(tileCoord, instance);
             }
         }
-        Initialized?.Invoke();
     }
 
     public static Quaternion GetDiscreteRotation(Rotation rotation) => rotation switch
@@ -56,9 +48,9 @@ public class BoardGrid : MonoBehaviour
         return tile;
     }
 
-    public Vector3 GetGridCenter() => new(Width * TileSize / 2, Height * TileSize / 2);
+    public Vector3 GetGridCenter() => new(Size.x * TileSize / 2, Size.y * TileSize / 2);
 
-    public bool IsValidTile(Vector2Int tile) => tile.x >= 0 && tile.x < Width && tile.y >= 0 && tile.y < Height;
+    public bool IsValidTile(Vector2Int tile) => tile.x >= 0 && tile.x < Size.x && tile.y >= 0 && tile.y < Size.y;
 
     public void SetBlockAtTile(Vector2Int tile, BlockSegment block)
     {
@@ -90,7 +82,7 @@ public class BoardGrid : MonoBehaviour
             tiles[tile] = null;
     }
 
-    public bool CanPlaceBlock(Block block, Vector2Int pivotTile, BlockSegment pivotSegment)
+    public bool TryPlaceBlock(Block block, Vector2Int pivotTile, BlockSegment pivotSegment)
     {
         Vector3 requiredMovement = TileToWorld(pivotTile) - pivotSegment.transform.position;
 
@@ -102,13 +94,12 @@ public class BoardGrid : MonoBehaviour
                 return false;
         }
 
-        return true;
-    }
-
-    public void PlaceBlock(Block block, Vector2Int pivotTile, BlockSegment pivotSegment)
-    {
         block.transform.position += TileToWorld(pivotTile) - pivotSegment.transform.position;
-        foreach (BlockSegment segment in block.Segments) tiles[WorldToTile(segment.transform.position)] = segment;
+    
+        foreach (BlockSegment segment in block.Segments)
+            tiles[WorldToTile(segment.transform.position)] = segment;
+        
+        return true;
     }
 
     public bool IsBlockOnGrid(BlockSegment block, out Vector2Int tileCoord)
