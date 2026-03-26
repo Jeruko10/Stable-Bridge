@@ -64,7 +64,7 @@ public class PlayerInput : MonoBehaviour
         if (block == null) return;
 
         if (block.MobilityType == Block.Mobility.Free) actions.SelectBlock(block, segment);
-        else if (block.MobilityType == Block.Mobility.RotateOnly) block.Rotate(segment);
+        // else if (block.MobilityType == Block.Mobility.RotateOnly) block.Rotate(segment); TODO
     }
 
     void UpdateDragging()
