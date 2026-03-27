@@ -3,6 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(BoardGrid))]
 [RequireComponent(typeof(SlotManager))]
+[RequireComponent(typeof(PathSolver))]
 public class Level : MonoBehaviour
 {
     [field: SerializeField] public float CameraDistance { get; set; } = 1f;
@@ -13,6 +14,7 @@ public class Level : MonoBehaviour
 
     public BoardGrid Grid { get; private set; }
     public SlotManager Slots { get; private set; }
+    public PathSolver PathSolver { get; private set; }
     
     GameObject blocksFolder;
 
@@ -22,6 +24,7 @@ public class Level : MonoBehaviour
 
         Grid = GetComponent<BoardGrid>();
         Slots = GetComponent<SlotManager>();
+        PathSolver = GetComponent<PathSolver>();
 
         Grid.Initialize(layout.LevelSize);
         Slots.Initialize(layout.Blocks.Count);

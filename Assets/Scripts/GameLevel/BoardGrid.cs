@@ -38,6 +38,8 @@ public class BoardGrid : MonoBehaviour
         }
     }
 
+    public IEnumerable<BlockSegment> GetAllSegments() => tiles.Values.Where(segment => segment != null);
+
     public static Quaternion GetDiscreteRotation(Rotation rotation) => rotation switch
     {
         Rotation.Deg0 => Quaternion.Euler(0, 0, 0),

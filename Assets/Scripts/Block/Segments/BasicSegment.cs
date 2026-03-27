@@ -16,14 +16,18 @@ public class BasicSegment : BlockSegment
 
     public override IEnumerable<Vector2Int> GetNavigableTiles()
     {
-        IEnumerable<Vector2Int> navigable = GetNavigableForRotation(parent.Rotation);
+        IEnumerable<Vector2Int> navigableTiles = GetNavigableForRotation(parent.Rotation);
         Dictionary<Vector2Int, BlockSegment> blocked = LevelManager.Current.Grid.GetNeighbors(this);
     
-        foreach (Vector2Int navigableLocal in navigable)
+        foreach (Vector2Int tile in navigableTiles)
         {
-            if (!blocked.ContainsKey(navigableLocal))
-                yield return navigableLocal;
+            if (blocked[tile] != null) // There is a segment
+            {
+                Debug.Log("Adding");
+                yield return tile;
+            }
         }
+
     }
 
     IEnumerable<Vector2Int> GetNavigableForRotation(BoardGrid.Rotation rotation)

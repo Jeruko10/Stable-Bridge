@@ -32,7 +32,7 @@ public class Block : MonoBehaviour
 
     public void Initialize(int pivotIndex, Mobility mobilityType)
     {
-        FetchSegments();
+        InitializeSegments();
 
         Pivot = segments[pivotIndex];
         MobilityType = mobilityType;
@@ -69,11 +69,14 @@ public class Block : MonoBehaviour
         transform.Rotate(0f, 180f, 0f);
     }
 
-    void FetchSegments()
+    void InitializeSegments()
     {
         segments.Clear();
         foreach (BlockSegment segment in GetComponentsInChildren<BlockSegment>())
+        {
             segments.Add(segment);
+            segment.Initialize(this);
+        }
     }
 
     void CreateRotateVisual()
