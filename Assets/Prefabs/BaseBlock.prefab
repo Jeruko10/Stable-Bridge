@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cd297e4e6fd2d041a6e7ec486aeaac2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Block
+  pivotPrefab: {fileID: 715457472745899262, guid: bdea75e4a66706b4bbb2910554acdc5d, type: 3}
   <UnsnappedZOffset>k__BackingField: -2
   <SnapAnimSpeed>k__BackingField: 10
   <MoveLerpSpeed>k__BackingField: 40

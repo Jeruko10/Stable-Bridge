@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Block : MonoBehaviour
 {
+    [field: SerializeField] GameObject pivotPrefab;
     [field: SerializeField] public float UnsnappedZOffset { get; set; } = -2f;
     [field: SerializeField] public float SnapAnimSpeed { get; set; } = 10f;
     [field: SerializeField] public float MoveLerpSpeed { get; set; } = 10f;
@@ -25,6 +26,11 @@ public class Block : MonoBehaviour
     {
         FetchSegments();
         GetComponent<Rigidbody>().isKinematic = true;
+    }
+
+    void Start()
+    {
+        if (MobilityType == Mobility.RotateOnly) CreatePivotVisual();
     }
 
     void Update()
@@ -57,5 +63,12 @@ public class Block : MonoBehaviour
         segments.Clear();
         foreach (BlockSegment segment in GetComponentsInChildren<BlockSegment>())
             segments.Add(segment);
+    }
+
+    void CreatePivotVisual()
+    {
+        GameObject pivot = Instantiate(pivotPrefab, Pivot.transform);
+        pivot.name = "Pivot";
+        pivot.transform.Rotate(90f, 0f, 0f);
     }
 }
