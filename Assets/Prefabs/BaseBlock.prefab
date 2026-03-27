@@ -45,11 +45,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cd297e4e6fd2d041a6e7ec486aeaac2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Block
-  <Segments>k__BackingField: []
-  <Mirrored>k__BackingField: 0
-  <MobilityType>k__BackingField: 0
-  <MobilityPivot>k__BackingField: {x: 0, y: 0}
-  <UnsnappedZOffset>k__BackingField: 5
+  <UnsnappedZOffset>k__BackingField: -2
+  <SnapAnimSpeed>k__BackingField: 10
+  <MoveLerpSpeed>k__BackingField: 40
 --- !u!54 &7818674925971748769
 Rigidbody:
   m_ObjectHideFlags: 0

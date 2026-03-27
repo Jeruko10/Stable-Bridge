@@ -79,6 +79,7 @@ public class BoardGrid : MonoBehaviour
 
     public void RemoveBlock(Block block)
     {
+        block.IsInGrid = false;
         List<Vector2Int> tilesToClear = new();
 
         foreach (var kvp in tiles)
@@ -101,10 +102,11 @@ public class BoardGrid : MonoBehaviour
                 return false;
         }
 
-        block.transform.position += TileToWorld(pivotTile) - pivotSegment.transform.position;
-    
         foreach (BlockSegment segment in block.Segments)
-            tiles[WorldToTile(segment.transform.position)] = segment;
+            tiles[WorldToTile(segment.transform.position + requiredMovement)] = segment;
+        
+        block.Position2D = block.transform.position + requiredMovement;
+        block.IsInGrid = true;
         
         return true;
     }
@@ -128,21 +130,6 @@ public class BoardGrid : MonoBehaviour
     public bool TrySlideBlock(Block block)
     {
         // TODO
-        return false;
-    }
-
-    public bool IsBlockOnGrid(BlockSegment block, out Vector2Int tileCoord)
-    {
-        foreach (var kvp in tiles)
-        {
-            if (kvp.Value == block)
-            {
-                tileCoord = kvp.Key;
-                return true;
-            }
-        }
-
-        tileCoord = new Vector2Int(-1, -1);
         return false;
     }
 }

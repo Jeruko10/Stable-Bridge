@@ -38,14 +38,13 @@ public class GameActions : MonoBehaviour
         }
     }
 
-    public void MoveSelectedBlock(Vector3 targetPosition)
+    public void MoveSelectedBlock(Vector2 targetPosition)
     {
         if (!IsDragging) return;
         
-        Vector3 offset = draggedBlock.transform.position - grabbedSegment.transform.position;
+        Vector2 offset = draggedBlock.transform.position - grabbedSegment.transform.position;
         targetPosition += offset;
-        targetPosition.z = draggedBlock.transform.position.z;
-        draggedBlock.transform.position = targetPosition;
+        draggedBlock.Position2D = targetPosition;
     }
 
     public void RotateSelectedBlock(bool clockwise)

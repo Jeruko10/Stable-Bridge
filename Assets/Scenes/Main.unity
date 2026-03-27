@@ -179,8 +179,8 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
-  orthographic: 0
+  field of view: 10
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -482,7 +482,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6357654014350272442, guid: 565349de2962d744fa77427b39fccdb6, type: 3}
       propertyPath: <CameraDistance>k__BackingField
-      value: 0.3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6357654014350272442, guid: 565349de2962d744fa77427b39fccdb6, type: 3}
       propertyPath: <BlockController>k__BackingField

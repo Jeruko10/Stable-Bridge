@@ -113,5 +113,6 @@ public class LevelManager : MonoBehaviour
         Block groundBlock = groundObj.GetComponent<Block>();
         groundBlock.FetchSegments();
         groundBlock.MobilityType = Block.Mobility.Fixed;
+        groundBlock.IsInGrid = true;
     }
 }
