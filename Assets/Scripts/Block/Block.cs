@@ -5,11 +5,15 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Block : MonoBehaviour
 {
-    [field: SerializeField] GameObject pivotPrefab;
+    [field: SerializeField] GameObject rotatePivotPrefab;
+    [field: SerializeField] GameObject slidePivotPrefab;
+    [field: SerializeField] GameObject fixedPivotPrefab;
     [field: SerializeField] public float UnsnappedZOffset { get; set; } = -2f;
     [field: SerializeField] public float SnapAnimSpeed { get; set; } = 10f;
     [field: SerializeField] public float MoveLerpSpeed { get; set; } = 10f;
     public BlockSegment[] Segments => segments.ToArray();
+    public Vector2Int[] SlidePositions { get; set; }
+    public int SlideIndex { get; set; } = 0;
     public BlockSegment Pivot { get; set; }
     public Mobility MobilityType { get; set; } = Mobility.Free;
     public bool IsInGrid { get; set; } = false;
@@ -30,7 +34,9 @@ public class Block : MonoBehaviour
 
     void Start()
     {
-        if (MobilityType == Mobility.RotateOnly) CreatePivotVisual();
+        if (MobilityType == Mobility.RotateOnly) CreateRotateVisual();
+        else if (MobilityType == Mobility.SlideOnly) CreateSlideVisual();
+        else if (MobilityType == Mobility.Fixed) CreateFixedVisual();
     }
 
     void Update()
@@ -65,10 +71,24 @@ public class Block : MonoBehaviour
             segments.Add(segment);
     }
 
-    void CreatePivotVisual()
+    void CreateRotateVisual()
     {
-        GameObject pivot = Instantiate(pivotPrefab, Pivot.transform);
-        pivot.name = "Pivot";
+        GameObject pivot = Instantiate(rotatePivotPrefab, Pivot.transform);
         pivot.transform.Rotate(90f, 0f, 0f);
+    }
+
+    void CreateSlideVisual()
+    {
+        GameObject pivot = Instantiate(slidePivotPrefab, Pivot.transform);
+        pivot.transform.Rotate(90f, 0f, 0f);
+    }
+
+    void CreateFixedVisual()
+    {
+        foreach (BlockSegment segment in segments)
+        {
+            GameObject pivot = Instantiate(fixedPivotPrefab, segment.transform);
+            pivot.transform.Rotate(90f, 0f, 0f);
+        }
     }
 }

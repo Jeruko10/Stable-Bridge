@@ -19,13 +19,19 @@ MonoBehaviour:
     <PivotIndex>k__BackingField: 0
     <Mirrored>k__BackingField: 0
     <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
   - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 74089fc4b62d7dc40aafcc1d72a9cb11, type: 3}
-    <MobilityType>k__BackingField: 0
+    <MobilityType>k__BackingField: 2
     <PivotIndex>k__BackingField: 0
     <Mirrored>k__BackingField: 0
     <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField:
+    - {x: 1, y: 1}
+    - {x: 3, y: 4}
+    - {x: 2, y: 0}
   - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 74089fc4b62d7dc40aafcc1d72a9cb11, type: 3}
     <MobilityType>k__BackingField: 1
     <PivotIndex>k__BackingField: 0
     <Mirrored>k__BackingField: 0
     <StartingTile>k__BackingField: {x: 2, y: 2}
+    <SlideTiles>k__BackingField: []

@@ -67,10 +67,18 @@ public class LevelManager : MonoBehaviour
             Debug.LogWarning($"Invalid PivotIndex {data.PivotIndex} for block {block.name}. It should be between 0 and {block.Segments.Length - 1}.");
 
         if (data.MobilityType != Block.Mobility.Free)
-            if (board.TryPlaceBlock(block, data.StartingTile, block.Segments.First()))
+        {
+            if (data.MobilityType == Block.Mobility.SlideOnly)
+            {
+                block.SlidePositions = data.SlideTiles.ToArray();
+                data.StartingTile = data.SlideTiles.FirstOrDefault();
+            }
+
+            if (board.TryPlaceBlock(block, data.StartingTile, block.Segments.FirstOrDefault()))
                 return;
             else
                 Debug.LogWarning($"Failed to place block {block.name} at {data.StartingTile} during level load. Check if the tile is valid and unoccupied.");
+        }
         
         slotManager.AsignAvailableSlot(block);
     }
@@ -114,5 +122,6 @@ public class LevelManager : MonoBehaviour
         groundBlock.FetchSegments();
         groundBlock.MobilityType = Block.Mobility.Fixed;
         groundBlock.IsInGrid = true;
+        groundBlock.Position2D = startPos;
     }
 }

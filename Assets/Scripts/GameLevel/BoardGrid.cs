@@ -119,17 +119,29 @@ public class BoardGrid : MonoBehaviour
         block.Rotate(block.Pivot, clockwise);
 
         if (TryPlaceBlock(block, pivotTile, block.Pivot)) return true;
-        else
-        {
-            // Revert the rotation if placement fails
-            block.Rotate(block.Pivot, !clockwise);
-            return false;
-        }
+
+        block.Rotate(block.Pivot, !clockwise);
+        TryPlaceBlock(block, pivotTile, block.Pivot);
+
+        return false;
     }
 
     public bool TrySlideBlock(Block block)
     {
-        // TODO
+        if (block.SlidePositions == null || block.SlidePositions.Length <= 1) return false;
+
+        Vector2Int pivotTile = WorldToTile(block.Pivot.transform.position);
+        int length = block.SlidePositions.Length;
+
+        RemoveBlock(block);
+
+        for (int i = 1; i < length; i++)
+        {
+            int targetIndex = (block.SlideIndex + i) % length;
+            if (TryPlaceBlock(block, block.SlidePositions[targetIndex], block.Pivot)) { block.SlideIndex = targetIndex; return true; }
+        }
+
+        TryPlaceBlock(block, pivotTile, block.Pivot);
         return false;
     }
 }
