@@ -14,9 +14,8 @@ public class Block : MonoBehaviour
     public BlockSegment[] Segments => segments.ToArray();
     public Vector2Int[] SlidePositions { get; set; }
     public int SlideIndex { get; set; } = 0;
-    public BlockSegment Pivot { get; set; }
-    public Mobility MobilityType { get; set; } = Mobility.Free;
-    public bool IsInGrid { get; set; } = false;
+    public BlockSegment Pivot { get; private set; }
+    public Mobility MobilityType { get; private set; } = Mobility.Free;
     public Vector2 Position2D { get => targetPosition2D; set => targetPosition2D = value; }
     
     public enum Mobility { Free, RotateOnly, SlideOnly, Fixed }
@@ -28,12 +27,17 @@ public class Block : MonoBehaviour
 
     void Awake()
     {
-        FetchSegments();
         GetComponent<Rigidbody>().isKinematic = true;
     }
 
-    void Start()
+    public void Initialize(int pivotIndex, Mobility mobilityType)
     {
+        FetchSegments();
+
+        Pivot = segments[pivotIndex];
+        MobilityType = mobilityType;
+
+
         if (MobilityType == Mobility.RotateOnly) CreateRotateVisual();
         else if (MobilityType == Mobility.SlideOnly) CreateSlideVisual();
         else if (MobilityType == Mobility.Fixed) CreateFixedVisual();
@@ -41,7 +45,8 @@ public class Block : MonoBehaviour
 
     void Update()
     {
-        float targetZ = IsInGrid ? 0f : UnsnappedZOffset;
+        bool beingDragged = !LevelManager.Current.Grid.ContainsBlock(this) && MobilityType == Mobility.Free;
+        float targetZ = beingDragged ? UnsnappedZOffset : 0f;
         float newZ = Mathf.Lerp(transform.position.z, targetZ, Time.deltaTime * SnapAnimSpeed);
         Vector2 newPos2D = Vector2.Lerp(transform.position, targetPosition2D, Time.deltaTime * MoveLerpSpeed);
 
@@ -64,7 +69,7 @@ public class Block : MonoBehaviour
         transform.Rotate(0f, 180f, 0f);
     }
 
-    public void FetchSegments()
+    void FetchSegments()
     {
         segments.Clear();
         foreach (BlockSegment segment in GetComponentsInChildren<BlockSegment>())

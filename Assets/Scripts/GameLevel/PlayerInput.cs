@@ -2,20 +2,17 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(GameActions))]
-[RequireComponent(typeof(BoardGrid))]
 public class PlayerInput : MonoBehaviour
 {
     [field: SerializeField] public LayerMask BlockLayer { get; private set; }
     [field: SerializeField] float rayDistance = 100f;
 
-    BoardGrid board;
     GameActions actions;
     Camera mainCamera;
     readonly Plane interactionPlane = new(Vector3.forward, Vector3.zero);
 
     void Awake()
     {
-        board = GetComponent<BoardGrid>();
         actions = GetComponent<GameActions>();
         mainCamera = Camera.main;
     }
@@ -55,7 +52,7 @@ public class PlayerInput : MonoBehaviour
         if (actions.IsDragging)
         {
             if (TryGetWorldPosition(out Vector3 pos))
-                actions.DropSelectedBlock(board.WorldToTile(pos));
+                actions.DropSelectedBlock(pos);
         }
         else ThrowClickRaycast();
     }

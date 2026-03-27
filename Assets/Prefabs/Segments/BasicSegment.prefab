@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7466333739969925198}
   - component: {fileID: 538579023512713160}
   - component: {fileID: 4148841249573305342}
-  - component: {fileID: 4246016528045782285}
+  - component: {fileID: 7398631970883079042}
   m_Layer: 6
   m_Name: BasicSegment
   m_TagString: Untagged
@@ -113,7 +113,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4246016528045782285
+--- !u!114 &7398631970883079042
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,46 +122,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1968057699252462157}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e53a76d1c7f5cf442b4049638496af62, type: 3}
+  m_Script: {fileID: 11500000, guid: b6e44849aae04fb4783f6aa47dfb1837, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SegmentDefinition
-  mobilityAt0Degrees:
-    topLeft: 0
-    topCenter: 0
-    topRight: 0
-    left: 0
-    center: 0
-    right: 0
-    bottomLeft: 0
-    bottomCenter: 0
-    bottomRight: 0
-  mobilityAt90Degrees:
-    topLeft: 0
-    topCenter: 0
-    topRight: 0
-    left: 0
-    center: 0
-    right: 0
-    bottomLeft: 0
-    bottomCenter: 0
-    bottomRight: 0
-  mobilityAt270Degrees:
-    topLeft: 0
-    topCenter: 0
-    topRight: 0
-    left: 0
-    center: 0
-    right: 0
-    bottomLeft: 0
-    bottomCenter: 0
-    bottomRight: 0
-  mobilityAt360Degrees:
-    topLeft: 0
-    topCenter: 0
-    topRight: 0
-    left: 0
-    center: 0
-    right: 0
-    bottomLeft: 0
-    bottomCenter: 0
-    bottomRight: 0
+  m_EditorClassIdentifier: Assembly-CSharp::BasicSegment

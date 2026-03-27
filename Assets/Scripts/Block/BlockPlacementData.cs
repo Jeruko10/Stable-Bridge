@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class BlockPlacement
+public class BlockPlacementData
 {
     [field: SerializeField] public Block BlockPrefab { get; set; }
     [field: SerializeField] public Block.Mobility MobilityType { get; set; } = Block.Mobility.Free;

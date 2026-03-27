@@ -11,6 +11,7 @@ public class BoardGrid : MonoBehaviour
     public enum Rotation { Deg0, Deg90, Deg180, Deg270 }
 
     GameObject visualsFolder;
+    readonly HashSet<Block> blocks = new();
     readonly Dictionary<Vector2Int, BlockSegment> tiles = new();
     readonly Dictionary<Vector2Int, GameObject> tileVisuals = new();
 
@@ -77,9 +78,13 @@ public class BoardGrid : MonoBehaviour
         return block;
     }
 
+    public bool ContainsBlock(Block block) => blocks.Contains(block);
+
+    public bool ContainsSegment(BlockSegment block) => tiles.Values.Contains(block);
+
     public void RemoveBlock(Block block)
     {
-        block.IsInGrid = false;
+        blocks.Remove(block);
         List<Vector2Int> tilesToClear = new();
 
         foreach (var kvp in tiles)
@@ -106,8 +111,8 @@ public class BoardGrid : MonoBehaviour
             tiles[WorldToTile(segment.transform.position + requiredMovement)] = segment;
         
         block.Position2D = block.transform.position + requiredMovement;
-        block.IsInGrid = true;
-        
+        blocks.Add(block);
+
         return true;
     }
 

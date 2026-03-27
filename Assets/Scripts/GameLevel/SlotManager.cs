@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(BoardGrid))]
 public class SlotManager : MonoBehaviour
 {
     [field: SerializeField] public float HorizontalMargin { get; set; } = 3f;
@@ -14,29 +13,27 @@ public class SlotManager : MonoBehaviour
         public Slot(Vector2 position) => Position = position;
     }
 
-    BoardGrid board;
     readonly List<Slot> slots = new();
 
-    void Awake() => board = GetComponent<BoardGrid>();
-    
     void OnDrawGizmos()
     {
         Gizmos.color = Color.limeGreen;
         foreach (var slot in slots) Gizmos.DrawSphere(slot.Position, 0.05f);
     }
 
-    public void GenerateSlots(int totalBlocks)
+    public void Initialize(int totalBlocks)
     {
         slots.Clear();
 
         if (totalBlocks <= 0) return;
 
+        BoardGrid grid = LevelManager.Current.Grid;
         int leftCount = Mathf.CeilToInt(totalBlocks / 2f);
         int rightCount = totalBlocks / 2;
 
-        float gridRealWidth = board.Size.x * board.TileSize;
-        float gridRealHeight = board.Size.y * board.TileSize;
-        Vector2 center = new(gridRealWidth / 2f - (board.TileSize / 2f), gridRealHeight / 2f - (board.TileSize / 2f));
+        float gridRealWidth = grid.Size.x * grid.TileSize;
+        float gridRealHeight = grid.Size.y * grid.TileSize;
+        Vector2 center = new(gridRealWidth / 2f - (grid.TileSize / 2f), gridRealHeight / 2f - (grid.TileSize / 2f));
 
         float leftX = center.x - (gridRealWidth / 2f) - HorizontalMargin;
         float rightX = center.x + (gridRealWidth / 2f) + HorizontalMargin;

@@ -1,7 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(SlotManager))]
-[RequireComponent(typeof(BoardGrid))]
 public class GameActions : MonoBehaviour
 {
     public bool IsDragging => draggedBlock != null;
@@ -11,10 +9,10 @@ public class GameActions : MonoBehaviour
     SlotManager slotManager;
     BoardGrid board;
 
-    void Awake()
+    void Start()
     {
-        slotManager = GetComponent<SlotManager>();
-        board = GetComponent<BoardGrid>();
+        slotManager = LevelManager.Current.Slots;
+        board = LevelManager.Current.Grid;
     }
 
     public void TriggerBlockInteraction(Block block, BlockSegment segment)
@@ -61,11 +59,13 @@ public class GameActions : MonoBehaviour
         draggedBlock.Mirror();
     }
 
-    public void DropSelectedBlock(Vector2Int targetTile)
+    public void DropSelectedBlock(Vector2 worldPosition)
     {
         if (!IsDragging) return;
 
-        if (!board.TryPlaceBlock(draggedBlock, targetTile, grabbedSegment))
+        Vector2Int tile = board.WorldToTile(worldPosition);
+
+        if (!board.TryPlaceBlock(draggedBlock, tile, grabbedSegment))
             slotManager.AsignAvailableSlot(draggedBlock);
 
         draggedBlock = null;

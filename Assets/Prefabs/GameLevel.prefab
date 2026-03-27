@@ -9,11 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7352895058481562851}
-  - component: {fileID: 6357654014350272442}
   - component: {fileID: 4117199903356899918}
-  - component: {fileID: 9217953835509095002}
-  - component: {fileID: 1209636449942335587}
   - component: {fileID: 3576078010110399064}
+  - component: {fileID: 1451513084614940299}
   m_Layer: 0
   m_Name: GameLevel
   m_TagString: Untagged
@@ -36,23 +34,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6357654014350272442
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3182774261277865950}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7120eeaef417bfc4ab5ae6c274dea00f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  <CameraDistance>k__BackingField: 1
-  <BackgroundDistance>k__BackingField: 1
-  backgroundPrefab: {fileID: 1394306270247616176, guid: 83efb9dae6ebd454e9ca18fff561af48, type: 3}
-  baseBlockPrefab: {fileID: 5211579415055609634, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
-  basicSegmentPrefab: {fileID: 1968057699252462157, guid: 3c5b83b058b43f641b1fe416936d9123, type: 3}
 --- !u!114 &4117199903356899918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67,34 +48,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SlotManager
   <HorizontalMargin>k__BackingField: 3
   <TotalVerticalSpace>k__BackingField: 5
---- !u!114 &9217953835509095002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3182774261277865950}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fb39c33cb3c69747b64f9e062785cea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BlockController
---- !u!114 &1209636449942335587
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3182774261277865950}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29bbe6ff3dfb84d4fb5f8084372cddff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInput
-  <BlockLayer>k__BackingField:
-    serializedVersion: 2
-    m_Bits: 64
-  rayDistance: 1000
 --- !u!114 &3576078010110399064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109,3 +62,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BoardGrid
   <TileSize>k__BackingField: 1
   <TileVisualPrefab>k__BackingField: {fileID: 8755368726349719585, guid: 2e08f22502a36c3479d0cad2333aa45b, type: 3}
+--- !u!114 &1451513084614940299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3182774261277865950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54f4bd96da6e35b4ca7d36a31a515867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Level
+  <CameraDistance>k__BackingField: 3
+  <BackgroundDistance>k__BackingField: 0.05
+  backgroundPrefab: {fileID: 1394306270247616176, guid: 83efb9dae6ebd454e9ca18fff561af48, type: 3}
+  baseBlockPrefab: {fileID: 5211579415055609634, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
+  basicSegmentPrefab: {fileID: 1968057699252462157, guid: 3c5b83b058b43f641b1fe416936d9123, type: 3}
