@@ -16,13 +16,13 @@ public class Block : MonoBehaviour
     public int SlideIndex { get; set; } = 0;
     public BlockSegment Pivot { get; private set; }
     public Mobility MobilityType { get; private set; } = Mobility.Free;
+    public BoardGrid.Rotation Rotation { get; private set; } = BoardGrid.Rotation.Deg0;
     public Vector2 Position2D { get => targetPosition2D; set => targetPosition2D = value; }
     
     public enum Mobility { Free, RotateOnly, SlideOnly, Fixed }
 
     readonly List<BlockSegment> segments = new();
     Vector2 targetPosition2D;
-    BoardGrid.Rotation rotation = BoardGrid.Rotation.Deg0;
     bool isMirrored = false;
 
     void Awake()
@@ -57,8 +57,8 @@ public class Block : MonoBehaviour
 
     public void Rotate(BlockSegment pivotSegment, bool clockwise)
     {
-        rotation = (BoardGrid.Rotation)(((int)rotation + (clockwise ? 1 : 3)) % 4);
-        transform.SetPositionAndRotation(pivotSegment.transform.position, BoardGrid.GetDiscreteRotation(rotation));
+        Rotation = (BoardGrid.Rotation)(((int)Rotation + (clockwise ? 1 : 3)) % 4);
+        transform.SetPositionAndRotation(pivotSegment.transform.position, BoardGrid.GetDiscreteRotation(Rotation));
         Position2D = transform.position;
     }
 

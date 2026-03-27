@@ -78,6 +78,26 @@ public class BoardGrid : MonoBehaviour
         return block;
     }
 
+    public Dictionary<Vector2Int, BlockSegment> GetNeighbors(BlockSegment segment)
+    {
+        Dictionary<Vector2Int, BlockSegment> neighbors = new();
+        Vector2Int segmentTile = WorldToTile(segment.transform.position);
+
+        for (int x = -1; x <= 1; x++)
+            for (int y = -1; y <= 1; y++)
+            {
+                if (x == 0 && y == 0) continue; // Skip center tile
+
+                Vector2Int relativeDir = new(x, y);
+                Vector2Int neighborCoord = segmentTile + relativeDir;
+
+                if (IsValidTile(neighborCoord)) 
+                    neighbors.Add(relativeDir, GetBlockAtTile(neighborCoord));
+            }
+
+        return neighbors;
+    }
+
     public bool ContainsBlock(Block block) => blocks.Contains(block);
 
     public bool ContainsSegment(BlockSegment block) => tiles.Values.Contains(block);
