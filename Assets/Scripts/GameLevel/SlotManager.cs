@@ -55,7 +55,7 @@ public class SlotManager : MonoBehaviour
             block.transform.position = slot.Position;
             return;
         }
-        Debug.LogWarning("No available slots to assign!");
+        Debug.LogWarning("No available slots to assign.");
     }
 
     public void FreeSlot(Block block)

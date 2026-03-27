@@ -109,6 +109,28 @@ public class BoardGrid : MonoBehaviour
         return true;
     }
 
+    public bool TryRotateBlock(Block block, bool clockwise)
+    {
+        Vector2Int pivotTile = WorldToTile(block.Pivot.transform.position);
+        
+        RemoveBlock(block);
+        block.Rotate(block.Pivot, clockwise);
+
+        if (TryPlaceBlock(block, pivotTile, block.Pivot)) return true;
+        else
+        {
+            // Revert the rotation if placement fails
+            block.Rotate(block.Pivot, !clockwise);
+            return false;
+        }
+    }
+
+    public bool TrySlideBlock(Block block)
+    {
+        // TODO
+        return false;
+    }
+
     public bool IsBlockOnGrid(BlockSegment block, out Vector2Int tileCoord)
     {
         foreach (var kvp in tiles)

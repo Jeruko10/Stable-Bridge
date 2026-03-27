@@ -16,18 +16,31 @@ public class GameActions : MonoBehaviour
         slotManager = GetComponent<SlotManager>();
         board = GetComponent<BoardGrid>();
     }
-    
-    public void SelectBlock(Block block, BlockSegment segment)
+
+    public void TriggerBlockInteraction(Block block, BlockSegment segment)
     {
-        draggedBlock = block;
-        grabbedSegment = segment;
-        board.RemoveBlock(block);
-        slotManager.FreeSlot(block);
+        if (IsDragging) return;
+
+        switch (block.MobilityType)
+        {
+            case Block.Mobility.Free:
+                SelectBlock(block, segment);
+                break;
+            case Block.Mobility.RotateOnly:
+                board.TryRotateBlock(block, true);
+                break;
+            case Block.Mobility.SlideOnly:
+                board.TrySlideBlock(block);
+                break;
+            case Block.Mobility.Fixed:
+                // Fixed blocks cannot be moved
+                break;
+        }
     }
 
-    public void MoveBlock(Vector3 targetPosition)
+    public void MoveSelectedBlock(Vector3 targetPosition)
     {
-        if (draggedBlock == null) return;
+        if (!IsDragging) return;
         
         Vector3 offset = draggedBlock.transform.position - grabbedSegment.transform.position;
         targetPosition += offset;
@@ -35,22 +48,36 @@ public class GameActions : MonoBehaviour
         draggedBlock.transform.position = targetPosition;
     }
 
-    public bool TryRotateBlock()
+    public void RotateSelectedBlock(bool clockwise)
     {
-        if (draggedBlock == null) return false;
+        if (!IsDragging) return;
 
-        draggedBlock.Rotate(grabbedSegment);
-        return true;
+        draggedBlock.Rotate(grabbedSegment, clockwise);
     }
 
-    public void DropBlock(Vector2Int targetTile)
+    public void FlipSelectedBlock()
     {
-        if (draggedBlock == null) return;
+        if (!IsDragging) return;
+
+        draggedBlock.Mirror();
+    }
+
+    public void DropSelectedBlock(Vector2Int targetTile)
+    {
+        if (!IsDragging) return;
 
         if (!board.TryPlaceBlock(draggedBlock, targetTile, grabbedSegment))
             slotManager.AsignAvailableSlot(draggedBlock);
 
         draggedBlock = null;
         grabbedSegment = null;
+    }
+
+    void SelectBlock(Block block, BlockSegment segment)
+    {
+        draggedBlock = block;
+        grabbedSegment = segment;
+        board.RemoveBlock(block);
+        slotManager.FreeSlot(block);
     }
 }

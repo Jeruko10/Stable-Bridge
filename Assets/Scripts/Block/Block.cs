@@ -5,15 +5,16 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Block : MonoBehaviour
 {
-    [field: SerializeField] public List<BlockSegment> Segments { get; set; } = new();
-    [field: SerializeField] public Vector2Int MobilityPivot { get; set; } = Vector2Int.zero;
     [field: SerializeField] public float UnsnappedZOffset { get; set; } = 5f;
+    public BlockSegment[] Segments => segments.ToArray();
+    public BlockSegment Pivot { get; set; }
     public Mobility MobilityType { get; set; } = Mobility.Free;
-    public bool Mirrored { get; set; } = false;
     
-    public enum Mobility { Free, RotateOnly, SlideOnly, Pinned }
+    public enum Mobility { Free, RotateOnly, SlideOnly, Fixed }
 
+    readonly List<BlockSegment> segments = new();
     BoardGrid.Rotation rotation = BoardGrid.Rotation.Deg0;
+    bool isMirrored = false;
 
     void Awake()
     {
@@ -28,18 +29,25 @@ public class Block : MonoBehaviour
         // transform.position = pos;
     }
 
-    public bool ContainsSegment(BlockSegment segment) => Segments.Contains(segment);
+    public bool ContainsSegment(BlockSegment segment) => segments.Contains(segment);
 
-    public void Rotate(BlockSegment pivotSegment = null)
+    public void Rotate(BlockSegment pivotSegment, bool clockwise)
     {
-        Vector3 oldPos = pivotSegment != null ? pivotSegment.transform.position : transform.position;
-        rotation = rotation == BoardGrid.Rotation.Deg270 ? BoardGrid.Rotation.Deg0 : rotation + 1;
-        transform.SetPositionAndRotation(oldPos - (pivotSegment != null ? pivotSegment.transform.position : transform.position), BoardGrid.GetDiscreteRotation(rotation));
+        rotation = (BoardGrid.Rotation)(((int)rotation + (clockwise ? 1 : 3)) % 4);
+        transform.SetPositionAndRotation(pivotSegment.transform.position, BoardGrid.GetDiscreteRotation(rotation));
+    }
+
+    public void Mirror()
+    {
+        isMirrored = !isMirrored;
+
+        transform.Rotate(0f, 180f, 0f);
     }
 
     public void FetchSegments()
     {
-        Segments.Clear();
-        foreach (BlockSegment segment in GetComponentsInChildren<BlockSegment>()) Segments.Add(segment);
+        segments.Clear();
+        foreach (BlockSegment segment in GetComponentsInChildren<BlockSegment>())
+            segments.Add(segment);
     }
 }

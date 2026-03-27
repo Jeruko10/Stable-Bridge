@@ -15,14 +15,17 @@ MonoBehaviour:
   <LevelSize>k__BackingField: {x: 6, y: 5}
   <Blocks>k__BackingField:
   - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
-    <MobilityType>k__BackingField: 3
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
     <Mirrored>k__BackingField: 0
     <StartingTile>k__BackingField: {x: 0, y: 0}
-  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
-    <MobilityType>k__BackingField: 3
-    <Mirrored>k__BackingField: 0
-    <StartingTile>k__BackingField: {x: 5, y: 4}
   - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 74089fc4b62d7dc40aafcc1d72a9cb11, type: 3}
     <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
     <Mirrored>k__BackingField: 0
     <StartingTile>k__BackingField: {x: 0, y: 0}
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 74089fc4b62d7dc40aafcc1d72a9cb11, type: 3}
+    <MobilityType>k__BackingField: 1
+    <PivotIndex>k__BackingField: 0
+    <Mirrored>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 2, y: 2}

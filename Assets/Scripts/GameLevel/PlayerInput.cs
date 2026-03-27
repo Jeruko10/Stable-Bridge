@@ -24,9 +24,14 @@ public class PlayerInput : MonoBehaviour
     {
         if (Mouse.current == null) return;
 
-        if (Mouse.current.leftButton.wasPressedThisFrame) HandleLeftClick();
-        else if (Mouse.current.rightButton.wasPressedThisFrame) actions.TryRotateBlock();
+        float scrollY = Mouse.current.scroll.ReadValue().y;
+        bool scrollUp = scrollY > 0f;
+        bool scrollDown = scrollY < 0f;
 
+        if (Mouse.current.leftButton.wasPressedThisFrame) HandleLeftClick();
+        else if (Mouse.current.rightButton.wasPressedThisFrame) actions.FlipSelectedBlock();
+
+        if (scrollUp || scrollDown) actions.RotateSelectedBlock(scrollUp);
         if (actions.IsDragging) UpdateDragging();
     }
 
@@ -50,7 +55,7 @@ public class PlayerInput : MonoBehaviour
         if (actions.IsDragging)
         {
             if (TryGetWorldPosition(out Vector3 pos))
-                actions.DropBlock(board.WorldToTile(pos));
+                actions.DropSelectedBlock(board.WorldToTile(pos));
         }
         else ThrowClickRaycast();
     }
@@ -63,12 +68,11 @@ public class PlayerInput : MonoBehaviour
         Block block = segment.GetComponentInParent<Block>();
         if (block == null) return;
 
-        if (block.MobilityType == Block.Mobility.Free) actions.SelectBlock(block, segment);
-        // else if (block.MobilityType == Block.Mobility.RotateOnly) block.Rotate(segment); TODO
+        actions.TriggerBlockInteraction(block, segment);
     }
 
     void UpdateDragging()
     {
-        if (TryGetWorldPosition(out Vector3 pos)) actions.MoveBlock(pos);
+        if (TryGetWorldPosition(out Vector3 pos)) actions.MoveSelectedBlock(pos);
     }
 }

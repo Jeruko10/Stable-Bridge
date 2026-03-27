@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -46,18 +47,32 @@ public class LevelManager : MonoBehaviour
         SetLevelAesthetic();
         
         foreach (BlockPlacement data in level.Blocks)
-        {
-            Block block = Instantiate(data.BlockPrefab, blocksFolder.transform);
-            
-            activeBlocks.Add(block);
-            block.MobilityType = data.MobilityType;
-            block.Mirrored = data.Mirrored;
-
-            if (data.MobilityType == Block.Mobility.Free) slotManager.AsignAvailableSlot(block);
-            else board.TryPlaceBlock(block, data.StartingTile, block.Segments[0]);
-        }
+            LoadPlacementData(data);
 
         CreateGround();
+    }
+
+    void LoadPlacementData(BlockPlacement data)
+    {
+        Block block = Instantiate(data.BlockPrefab, blocksFolder.transform);
+        
+        activeBlocks.Add(block);
+        block.MobilityType = data.MobilityType;
+
+        if (data.Mirrored) block.Mirror();
+
+        if (data.PivotIndex >= 0 && data.PivotIndex < block.Segments.Length)
+            block.Pivot = block.Segments[data.PivotIndex];
+        else
+            Debug.LogWarning($"Invalid PivotIndex {data.PivotIndex} for block {block.name}. It should be between 0 and {block.Segments.Length - 1}.");
+
+        if (data.MobilityType != Block.Mobility.Free)
+            if (board.TryPlaceBlock(block, data.StartingTile, block.Segments.First()))
+                return;
+            else
+                Debug.LogWarning($"Failed to place block {block.name} at {data.StartingTile} during level load. Check if the tile is valid and unoccupied.");
+        
+        slotManager.AsignAvailableSlot(block);
     }
 
     void DestroyAllBlocks()
@@ -70,11 +85,14 @@ public class LevelManager : MonoBehaviour
 
     void SetLevelAesthetic()
     {
-        GameObject background = Instantiate(backgroundPrefab);
+        // Camera
         Vector3 center = board.GetGridCenter();
         float boardSize = board.Size.x * board.Size.y;
-        
         Camera.main.transform.position = center + new Vector3(0f, 0f, boardSize * -CameraDistance);
+
+        // Background
+        if (!Camera.main.orthographic) return;
+        GameObject background = Instantiate(backgroundPrefab);
         background.transform.position = center + new Vector3(0f, 0f, boardSize * BackgroundDistance);
     }
 
@@ -94,6 +112,6 @@ public class LevelManager : MonoBehaviour
 
         Block groundBlock = groundObj.GetComponent<Block>();
         groundBlock.FetchSegments();
-        groundBlock.MobilityType = Block.Mobility.Pinned;
+        groundBlock.MobilityType = Block.Mobility.Fixed;
     }
 }
