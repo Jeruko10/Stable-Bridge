@@ -1,45 +1,63 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PathSolver : MonoBehaviour
 {
-    [field: SerializeField] GameObject pathVisualPrefab;
+    [field: SerializeField] public GameObject PathVisualPrefab { get; set; }
 
-    IEnumerable<Vector2Int> path;
+    Dictionary<Vector2Int, List<Vector2Int>> navGraph;
     readonly List<GameObject> activeBlocks = new();
 
     void Update()
     {
         if (Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame)
         {
-            path = GetAllNavigableTiles();
-            DrawPath(path);
+            navGraph = GenerateGraph();
+            DrawGraphEdges(navGraph);
         }
     }
 
-    IEnumerable<Vector2Int> GetAllNavigableTiles()
+    Dictionary<Vector2Int, List<Vector2Int>> GenerateGraph()
     {
         BoardGrid grid = LevelManager.Current.Grid;
-        List<Vector2Int> path = new();
+        Dictionary<Vector2Int, List<Vector2Int>> graph = new();
 
         foreach (BlockSegment segment in grid.GetAllSegments())
-            path.AddRange(segment.GetNavigableTiles());
+        {
+            Vector2Int currentTile = grid.WorldToTile(segment.transform.position);
+            graph[currentTile] = new();
 
-        return path;
+            foreach (Vector2Int dir in segment.GetOutgoingDirections())
+            {
+                Vector2Int neighborTile = currentTile + dir;
+                BlockSegment neighbor = grid.GetBlockAtTile(neighborTile);
+                Vector2Int oppositeDir = new(-dir.x, -dir.y);
+
+                if (neighbor != null && neighbor.GetOutgoingDirections().Contains(oppositeDir)) graph[currentTile].Add(neighborTile);
+            }
+        }
+
+        return graph;
     }
 
-    void DrawPath(IEnumerable<Vector2Int> path)
+    void DrawGraphEdges(Dictionary<Vector2Int, List<Vector2Int>> graph)
     {
         foreach (GameObject block in activeBlocks) Destroy(block);
         activeBlocks.Clear();
 
         BoardGrid grid = LevelManager.Current.Grid;
+        HashSet<Vector2Int> drawnTiles = new();
 
-        foreach (Vector2Int tile in path)
+        foreach (var kvp in graph.Where(k => k.Value.Count > 0))
         {
-            GameObject instance = Instantiate(pathVisualPrefab, grid.TileToWorld(tile), Quaternion.identity, transform);
-            activeBlocks.Add(instance);
+            if (drawnTiles.Add(kvp.Key)) activeBlocks.Add(Instantiate(PathVisualPrefab, grid.TileToWorld(kvp.Key), Quaternion.identity, transform));
+            
+            foreach (Vector2Int connection in kvp.Value)
+                if (drawnTiles.Add(connection)) activeBlocks.Add(Instantiate(PathVisualPrefab, grid.TileToWorld(connection), Quaternion.identity, transform));
         }
+
+        Debug.Log($"Graph has {graph.Count} nodes and {graph.Sum(k => k.Value.Count)} edges.");
     }
 }
