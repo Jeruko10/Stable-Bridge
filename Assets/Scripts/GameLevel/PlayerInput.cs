@@ -59,8 +59,16 @@ public class PlayerInput : MonoBehaviour
 
     void ThrowClickRaycast()
     {
-        if (!Physics.Raycast(GetMouseRay(), out RaycastHit hit, rayDistance, BlockLayer)) return;
-        if (!hit.collider.TryGetComponent(out BlockSegment segment)) return;
+        if (!Physics.Raycast(GetMouseRay(), out RaycastHit hit, rayDistance, BlockLayer))
+        {
+            Debug.Log("Click ray missed anything");
+            return;
+        }
+        if (!hit.collider.TryGetComponent(out BlockSegment segment))
+        {
+            Debug.Log($"Hit {hit.collider.name} but no BlockSegment");
+            return;
+        }
         
         Block block = segment.GetComponentInParent<Block>();
         if (block == null) return;

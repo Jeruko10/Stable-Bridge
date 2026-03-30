@@ -12,7 +12,7 @@ public class Graph
         return newVertex;
     }
 
-    public void AddEdge(Vertex source, Vertex destination) => source.AddEdge(destination);
+    public Edge AddEdge(Vertex source, Vertex destination, string tag = "") => source.AddEdge(destination, tag);
 
     public Vertex FindVertex(Vector2Int coordinate) => Vertices.Find(v => v.Coordinate == coordinate);
 
@@ -23,18 +23,25 @@ public class Graph
 
         public Vertex(Vector2Int coordinate) => Coordinate = coordinate;
 
-        public void AddEdge(Vertex destination) => Edges.Add(new Edge(this, destination));
+        public Edge AddEdge(Vertex destination, string tag = "")
+        {
+            Edge newEdge = new(this, destination, tag);
+            Edges.Add(newEdge);
+            return newEdge;
+        }
     }
 
     public class Edge
     {
         public Vertex Source { get; }
         public Vertex Destination { get; }
+        public string Tag { get; set; }
 
-        public Edge(Vertex source, Vertex destination)
+        public Edge(Vertex source, Vertex destination, string tag = "")
         {
             Source = source;
             Destination = destination;
+            Tag = tag;
         }
     }
 }

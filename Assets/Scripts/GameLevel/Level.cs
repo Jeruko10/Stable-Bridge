@@ -26,7 +26,7 @@ public class Level : MonoBehaviour
         Slots = GetComponent<SlotManager>();
         PathSolver = GetComponent<PathSolver>();
 
-        Grid.Initialize(layout.LevelSize);
+        Grid.Initialize(layout.LevelSize + new Vector2Int(0, 1)); // One extra row for the ground
         Slots.Initialize(layout.Blocks.Count);
 
         SetLevelAesthetic();
@@ -76,7 +76,7 @@ public class Level : MonoBehaviour
 
     void CreateGround()
     {
-        Vector3 startPos = Grid.TileToWorld(new(0, -1));
+        Vector3 startPos = Grid.TileToWorld(Vector2Int.zero);
         GameObject groundObj = Instantiate(baseBlockPrefab, startPos, Quaternion.identity, blocksFolder.transform);
         
         groundObj.name = "Ground";
@@ -90,6 +90,6 @@ public class Level : MonoBehaviour
 
         Block groundBlock = groundObj.GetComponent<Block>();
         groundBlock.Initialize(0, Block.Mobility.Fixed);
-        groundBlock.Position2D = startPos;
+        Grid.TryPlaceBlock(groundBlock, Vector2Int.zero, groundBlock.Segments.FirstOrDefault());
     }
 }

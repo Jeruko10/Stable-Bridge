@@ -125,3 +125,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6e44849aae04fb4783f6aa47dfb1837, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BasicSegment
+  graph:
+    <Vertices>k__BackingField:
+    - <Coordinate>k__BackingField: {x: 0, y: 0}
+      <Edges>k__BackingField:
+      - <Source>k__BackingField:
+          <Coordinate>k__BackingField: {x: 0, y: 0}
+          <Edges>k__BackingField: []
+        <Destination>k__BackingField:
+          <Coordinate>k__BackingField: {x: 0, y: 0}
+          <Edges>k__BackingField: []
+    - <Coordinate>k__BackingField: {x: 0, y: 0}
+      <Edges>k__BackingField: []
+    - <Coordinate>k__BackingField: {x: 0, y: 0}
+      <Edges>k__BackingField: []

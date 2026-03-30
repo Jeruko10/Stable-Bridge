@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,57 +6,124 @@ public class PathSolver : MonoBehaviour
 {
     [field: SerializeField] public GameObject PathVisualPrefab { get; set; }
 
-    Dictionary<Vector2Int, List<Vector2Int>> navGraph;
-    readonly List<GameObject> activeBlocks = new();
+    BoardGrid grid;
+    const string voidEdgeTag = "void", blockEdgeTag = "solid", trueEdgeTag = "true";
 
     void Update()
     {
         if (Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame)
         {
-            navGraph = GenerateGraph();
-            DrawGraphEdges(navGraph);
+            CalculateSolution();
         }
     }
 
-    Dictionary<Vector2Int, List<Vector2Int>> GenerateGraph()
+    void CalculateSolution()
     {
-        BoardGrid grid = LevelManager.Current.Grid;
-        Dictionary<Vector2Int, List<Vector2Int>> graph = new();
+        grid = LevelManager.Current.Grid;
+        grid.AddRow(false);
+        Graph graph = CreateGraph();
+        AddVoidVertices(graph);
+        AddBlockTransitions(graph);
+        MarkTrueEdges(graph);
+        RemoveNonTrueEdges(graph);
 
-        foreach (BlockSegment segment in grid.GetAllSegments())
-        {
-            Vector2Int currentTile = grid.WorldToTile(segment.transform.position);
-            graph[currentTile] = new();
+        DebugDrawTrueConnections(graph);
+    }
 
-            foreach (Vector2Int dir in segment.GetOutgoingDirections())
+    void RemoveNonTrueEdges(Graph graph)
+    {
+        foreach (Graph.Vertex vertex in graph.Vertices)
+            vertex.Edges.RemoveAll(e => e.Tag != trueEdgeTag);
+    }
+
+    void MarkTrueEdges(Graph graph)
+    {
+        foreach (Graph.Vertex vertex in graph.Vertices)
+            foreach (Graph.Edge edge in vertex.Edges)
             {
-                Vector2Int neighborTile = currentTile + dir;
-                BlockSegment neighbor = grid.GetBlockAtTile(neighborTile);
-                Vector2Int oppositeDir = new(-dir.x, -dir.y);
+                // A edge is true if it connects to a vertex which leads back to the start vertex
+                // and one of the connected edges is a block edge.
 
-                if (neighbor != null && neighbor.GetOutgoingDirections().Contains(oppositeDir)) graph[currentTile].Add(neighborTile);
+                Graph.Edge returnEdge = edge.Destination.Edges.Find(e => e.Destination == vertex);
+                bool hasBlockEdge = vertex.Edges.Exists(e => e.Tag == blockEdgeTag);
+                bool destinationHasBlockEdge = edge.Destination.Edges.Exists(e => e.Tag == blockEdgeTag);
+
+                if (returnEdge != null && (hasBlockEdge || destinationHasBlockEdge))
+                {
+                    edge.Tag = trueEdgeTag;
+                    returnEdge.Tag = trueEdgeTag;
+                }
+            }
+    }
+
+    void AddBlockTransitions(Graph graph)
+    {
+        foreach (var pair in grid.GetAllTiles())
+        {
+            Vector2Int? tile = pair.Key;
+            BlockSegment block = pair.Value;
+
+            if (block == null || tile.Value == null) continue;
+
+            Vector2Int tilePos = tile.Value;
+
+            foreach (LocalTransition transition in block.GetAvailableTransitions(grid))
+            {
+                Vector2Int fromTile = tilePos + transition.From;
+                Vector2Int toTile = tilePos + transition.To;
+
+                Graph.Vertex fromVertex = graph.FindVertex(fromTile);
+                Graph.Vertex toVertex = graph.FindVertex(toTile);
+
+                if (fromVertex != null && toVertex != null)
+                    graph.AddEdge(fromVertex, toVertex, blockEdgeTag);
             }
         }
+    }
+
+    Graph CreateGraph()
+    {
+        Graph graph = new();
+
+        foreach (var pair in grid.GetAllTiles())
+            graph.AddVertex(pair.Key);
 
         return graph;
     }
 
-    void DrawGraphEdges(Dictionary<Vector2Int, List<Vector2Int>> graph)
+    void AddVoidVertices(Graph graph)
     {
-        foreach (GameObject block in activeBlocks) Destroy(block);
-        activeBlocks.Clear();
-
-        BoardGrid grid = LevelManager.Current.Grid;
-        HashSet<Vector2Int> drawnTiles = new();
-
-        foreach (var kvp in graph.Where(k => k.Value.Count > 0))
+        foreach (var pair in grid.GetAllTiles())
         {
-            if (drawnTiles.Add(kvp.Key)) activeBlocks.Add(Instantiate(PathVisualPrefab, grid.TileToWorld(kvp.Key), Quaternion.identity, transform));
-            
-            foreach (Vector2Int connection in kvp.Value)
-                if (drawnTiles.Add(connection)) activeBlocks.Add(Instantiate(PathVisualPrefab, grid.TileToWorld(connection), Quaternion.identity, transform));
-        }
+            Vector2Int? tile = pair.Key;
 
-        Debug.Log($"Graph has {graph.Count} nodes and {graph.Sum(k => k.Value.Count)} edges.");
+            if (tile.Value != null) continue; // Only connect void tiles
+
+            Graph.Vertex vertex = graph.FindVertex(tile.Value);
+
+            foreach (Vector2Int adjacent in grid.GetAdjacents(tile.Value))
+            {
+                Graph.Vertex destinationVertex = graph.FindVertex(adjacent);
+
+                if (destinationVertex != null) graph.AddEdge(vertex, destinationVertex, voidEdgeTag);
+            }
+        }
+    }
+
+    void DebugDrawTrueConnections(Graph graph)
+    {
+        foreach (Graph.Vertex vertex in graph.Vertices)
+        {
+            foreach (Graph.Edge edge in vertex.Edges)
+            {
+                if (edge.Tag == trueEdgeTag)
+                {
+                    Vector2 sourceCoord = grid.TileToWorld(vertex.Coordinate);
+                    Vector2 destinationCoord = grid.TileToWorld(edge.Destination.Coordinate);
+
+                    Debug.DrawLine(sourceCoord, destinationCoord, Color.green);
+                }
+            }
+        }
     }
 }

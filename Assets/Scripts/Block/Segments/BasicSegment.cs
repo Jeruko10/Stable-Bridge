@@ -3,21 +3,26 @@ using UnityEngine;
 
 public class BasicSegment : BlockSegment
 {
-    readonly IEnumerable<Vector2Int> deg0Navigable = NavigationMatrix.GetDirections(topLeft: true, topCenter: true, topRight: true);
-    readonly IEnumerable<Vector2Int> deg90Navigable = NavigationMatrix.GetDirections(topLeft: true, topCenter: true, topRight: true);
-    readonly IEnumerable<Vector2Int> deg180Navigable = NavigationMatrix.GetDirections(topLeft: true, topCenter: true, topRight: true);
-    readonly IEnumerable<Vector2Int> deg270Navigable = NavigationMatrix.GetDirections(topLeft: true, topCenter: true, topRight: true);
+    readonly LocalTransition[] transitions = new LocalTransition[]
+    {
+        new(from: new(0, 1), to: new(1, 1)),
+        new(from: new(0, 1), to: new(-1, 1))
+    };
     
     Block parent;
-
+    
     public override void Initialize(Block parent) => this.parent = parent;
 
-    public override IEnumerable<Vector2Int> GetOutgoingDirections() => parent.Rotation switch
+    public override IEnumerable<LocalTransition> GetAvailableTransitions(BoardGrid grid)
     {
-        BoardGrid.Rotation.Deg0 => deg0Navigable,
-        BoardGrid.Rotation.Deg90 => deg90Navigable,
-        BoardGrid.Rotation.Deg180 => deg180Navigable,
-        BoardGrid.Rotation.Deg270 => deg270Navigable,
-        _ => deg0Navigable
-    };
+        Vector2Int? myTile = grid.GetTileOfBlock(this);
+        if (!myTile.HasValue) yield break;
+
+        Vector2Int topTile = myTile.Value + Vector2Int.up;
+
+        if (grid.IsValidTile(topTile) && grid.GetBlockAtTile(topTile) != null)
+            yield break;
+
+        foreach (LocalTransition transition in transitions) yield return transition;
+    }
 }

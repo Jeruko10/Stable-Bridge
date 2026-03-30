@@ -12,7 +12,8 @@ public class BoardGrid : MonoBehaviour
 
     GameObject visualsFolder;
     readonly HashSet<Block> blocks = new();
-    readonly Dictionary<Vector2Int, BlockSegment> tiles = new();
+    readonly Dictionary<Vector2Int, BlockSegment> tileBlocks = new();
+    readonly Dictionary<BlockSegment, Vector2Int> blockTiles = new();
     readonly Dictionary<Vector2Int, GameObject> tileVisuals = new();
 
     void Awake()
@@ -23,22 +24,41 @@ public class BoardGrid : MonoBehaviour
     public void Initialize(Vector2Int size)
     {
         Size = size;
-        tiles.Clear();
+        tileBlocks.Clear();
+        blockTiles.Clear();
         tileVisuals.Clear();
+        blocks.Clear();
 
         for (int x = 0; x < size.x; x++)
         {
             for (int y = 0; y < size.y; y++)
             {
                 Vector2Int tileCoord = new(x, y);
-                tiles[tileCoord] = null;
+                tileBlocks[tileCoord] = null;
                 GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, visualsFolder.transform);
                 tileVisuals.Add(tileCoord, instance);
             }
         }
     }
 
-    public IEnumerable<BlockSegment> GetAllSegments() => tiles.Values.Where(segment => segment != null);
+    public void AddRow(bool isVisual)
+    {
+        int newY = Size.y;
+        Size += Vector2Int.up;
+
+        for (int x = 0; x < Size.x; x++)
+        {
+            Vector2Int tileCoord = new(x, newY);
+            tileBlocks[tileCoord] = null;
+
+            if (!isVisual) continue;
+
+            GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, visualsFolder.transform);
+            tileVisuals.Add(tileCoord, instance);
+        }
+    }
+
+    public Dictionary<Vector2Int, BlockSegment> GetAllTiles() => tileBlocks;
 
     public static Quaternion GetDiscreteRotation(Rotation rotation) => rotation switch
     {
@@ -65,7 +85,11 @@ public class BoardGrid : MonoBehaviour
     public void SetBlockAtTile(Vector2Int tile, BlockSegment block)
     {
         if (!IsValidTile(tile)) Debug.LogWarning($"Cannot place block on out-of-bounds tile {tile}");
-        else tiles[tile] = block;
+        else
+        {
+            tileBlocks[tile] = block;
+            blockTiles[block] = tile;
+        }
     }
 
     public BlockSegment GetBlockAtTile(Vector2Int tile)
@@ -76,45 +100,56 @@ public class BoardGrid : MonoBehaviour
             return null;
         }
 
-        tiles.TryGetValue(tile, out var block);
+        tileBlocks.TryGetValue(tile, out var block);
         return block;
     }
 
-    public Dictionary<Vector2Int, BlockSegment> GetNeighbors(BlockSegment segment)
+    public Vector2Int? GetTileOfBlock(BlockSegment block)
     {
-        Dictionary<Vector2Int, BlockSegment> neighbors = new();
-        Vector2Int segmentTile = WorldToTile(segment.transform.position);
+        if (!blockTiles.TryGetValue(block, out var tile))
+        {
+            Debug.LogWarning($"Block {block.name} is not placed on the grid");
+            return null;
+        }
 
-        for (int x = -1; x <= 1; x++)
-            for (int y = -1; y <= 1; y++)
-            {
-                if (x == 0 && y == 0) continue; // Skip center tile
+        return tile;
+    }
 
-                Vector2Int relativeDir = new(x, y);
-                Vector2Int neighborCoord = segmentTile + relativeDir;
+    public IEnumerable<Vector2Int> GetAdjacents(Vector2Int tile)
+    {
+        if (!IsValidTile(tile)) yield break;
 
-                if (IsValidTile(neighborCoord)) 
-                    neighbors.Add(relativeDir, GetBlockAtTile(neighborCoord));
-            }
+        Vector2Int[] directions = new Vector2Int[]
+        {
+            new(0, 1), // Up
+            new(1, 0), // Right
+            new(0, -1), // Down
+            new(-1, 0) // Left
+        };
 
-        return neighbors;
+        foreach (Vector2Int dir in directions)
+        {
+            Vector2Int neighborTile = tile + dir;
+
+            if (IsValidTile(neighborTile)) yield return neighborTile;
+        }
     }
 
     public bool ContainsBlock(Block block) => blocks.Contains(block);
 
-    public bool ContainsSegment(BlockSegment block) => tiles.Values.Contains(block);
+    public bool ContainsSegment(BlockSegment segment) => tileBlocks.Values.Contains(segment);
 
     public void RemoveBlock(Block block)
     {
         blocks.Remove(block);
         List<Vector2Int> tilesToClear = new();
 
-        foreach (var kvp in tiles)
+        foreach (var kvp in tileBlocks)
             if (kvp.Value != null && block.Segments.Contains(kvp.Value))
                 tilesToClear.Add(kvp.Key);
         
         foreach (var tile in tilesToClear)
-            tiles[tile] = null;
+            tileBlocks[tile] = null;
     }
 
     public bool TryPlaceBlock(Block block, Vector2Int pivotTile, BlockSegment pivotSegment)
@@ -125,12 +160,12 @@ public class BoardGrid : MonoBehaviour
         {
             Vector2Int tile = WorldToTile(segment.transform.position + requiredMovement);
             
-            if (!IsValidTile(tile) || (tiles.TryGetValue(tile, out BlockSegment existing) && existing != null && !block.Segments.Contains(existing)))
+            if (!IsValidTile(tile) || (tileBlocks.TryGetValue(tile, out BlockSegment existing) && existing != null && !block.Segments.Contains(existing)))
                 return false;
         }
 
         foreach (BlockSegment segment in block.Segments)
-            tiles[WorldToTile(segment.transform.position + requiredMovement)] = segment;
+            tileBlocks[WorldToTile(segment.transform.position + requiredMovement)] = segment;
         
         block.Position2D = block.transform.position + requiredMovement;
         blocks.Add(block);
