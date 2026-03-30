@@ -492,7 +492,7 @@ MonoBehaviour:
   <BlockLayer>k__BackingField:
     serializedVersion: 2
     m_Bits: 64
-  rayDistance: 100
+  rayDistance: 1000
 --- !u!4 &6495907753749679937
 Transform:
   m_ObjectHideFlags: 0
