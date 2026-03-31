@@ -12,6 +12,8 @@ public class BasicSegment : BlockSegment
     Block parent;
     
     public override void Initialize(Block parent) => this.parent = parent;
+    
+    public override Block GetParent() => parent;
 
     public override IEnumerable<LocalTransition> GetAvailableTransitions(BoardGrid grid)
     {

@@ -4,5 +4,6 @@ using UnityEngine;
 public abstract class BlockSegment : MonoBehaviour
 {
     public abstract void Initialize(Block parent);
+    public abstract Block GetParent();
     public abstract IEnumerable<LocalTransition> GetAvailableTransitions(BoardGrid grid);
 }

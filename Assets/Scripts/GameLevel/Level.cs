@@ -11,6 +11,9 @@ public class Level : MonoBehaviour
 {
     [field: SerializeField] public float CameraDistance { get; set; } = 1f;
     [field: SerializeField] public float BackgroundDistance { get; set; } = 1f;
+    [field: SerializeField] public float CharactersOffsetY { get; set; } = 0f;
+    [field: SerializeField] GameObject playerPrefab;
+    [field: SerializeField] GameObject goalPrefab;
     [field: SerializeField] GameObject backgroundPrefab;
     [field: SerializeField] GameObject baseBlockPrefab;
     [field: SerializeField] GameObject basicSegmentPrefab;
@@ -34,6 +37,9 @@ public class Level : MonoBehaviour
         Grid.Initialize(layout.LevelSize + new Vector2Int(0, 1)); // One extra row for the ground
         Slots.Initialize(layout.Blocks.Count);
 
+        StartPosition = layout.StartPosition + Vector2Int.up; // Adjust for extra ground row
+        EndPosition = layout.EndPosition + Vector2Int.up;
+
         SetLevelAesthetic();
         
         foreach (BlockPlacementData blockData in layout.Blocks)
@@ -41,6 +47,7 @@ public class Level : MonoBehaviour
 
         pathSolver = new(this);
         CreateGround();
+        CreateCharacters();
     }
 
     void Update()
@@ -52,7 +59,7 @@ public class Level : MonoBehaviour
     void ExitEditMode()
     {
         IsEditing = false;
-        
+
         IEnumerable<Vector2Int> path = pathSolver.FindShortestPath();
     }
 
@@ -89,8 +96,35 @@ public class Level : MonoBehaviour
 
         // Background
         if (!Camera.main.orthographic) return;
+
         GameObject background = Instantiate(backgroundPrefab);
         background.transform.position = center + new Vector3(0f, 0f, boardSize * BackgroundDistance);
+    }
+
+    void CreateCharacters()
+    {
+        Vector2 playerPos = Grid.TileToWorld(StartPosition) + new Vector3(0, CharactersOffsetY, 0);
+        Vector2 goalPos = Grid.TileToWorld(EndPosition) + new Vector3(0, CharactersOffsetY, 0);
+
+        GameObject player = Instantiate(playerPrefab, transform);
+        player.transform.position = playerPos;
+        player.name = "Player";
+
+        GameObject goal = Instantiate(goalPrefab, transform);
+        goal.transform.position = goalPos;
+        goal.name = "Goal";
+
+        Vector2Int playerGround = StartPosition + Vector2Int.down;
+        Vector2Int goalGround = EndPosition + Vector2Int.down;
+
+        if (Grid.IsValidTile(playerGround) && (Grid.GetBlockAtTile(playerGround) == null || Grid.GetBlockAtTile(playerGround).GetParent().MobilityType != Block.Mobility.Fixed))
+            Debug.LogWarning($"Player at {StartPosition} does not have a fixed ground.");
+
+        if (Grid.IsValidTile(goalGround) && (Grid.GetBlockAtTile(goalGround) == null || Grid.GetBlockAtTile(goalGround).GetParent().MobilityType != Block.Mobility.Fixed))
+            Debug.LogWarning($"Goal at {EndPosition} does not have a fixed ground.");
+
+        if (StartPosition == EndPosition)
+            Debug.LogWarning("Player and Goal are at the same position.");
     }
 
     void CreateGround()
