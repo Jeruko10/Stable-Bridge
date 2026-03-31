@@ -19,6 +19,7 @@ public class BoardGrid : MonoBehaviour
     void Awake()
     {
         visualsFolder = new("Visuals");
+        visualsFolder.transform.SetParent(transform);
     }
 
     public void Initialize(Vector2Int size)

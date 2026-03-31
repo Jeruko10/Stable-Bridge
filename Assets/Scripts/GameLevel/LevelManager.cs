@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -33,12 +34,34 @@ public class LevelManager : MonoBehaviour
         LoadLevel(currentLevelIndex);
     }
 
-    void LoadLevel(int levelIndex)
+    public static Level PassLevel()
     {
-        Current = Instantiate(levelPrefab);
+        instance.currentLevelIndex++;
 
-        LevelLayout lvlData = levels[levelIndex];
+        if (instance.currentLevelIndex >= instance.levels.Count)
+        {
+            TriggerVictory();
+            return null;
+        }
+
+        return LoadLevel(instance.currentLevelIndex);
+    }
+
+    public static void RestartLevel() => LoadLevel(instance.currentLevelIndex);
+
+    public static Level LoadLevel(int levelIndex)
+    {
+        Destroy(Current != null ? Current.gameObject : null);
+        Current = Instantiate(instance.levelPrefab);
+
+        LevelLayout lvlData = instance.levels[levelIndex];
 
         Current.Initialize(lvlData);
+        return Current;
+    }
+
+    static void TriggerVictory()
+    {
+        Debug.Log("All levels completed! Victory!");
     }
 }

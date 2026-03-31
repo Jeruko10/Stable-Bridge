@@ -64,6 +64,12 @@ public class Block : MonoBehaviour
         Position2D = transform.position;
     }
 
+    public void SetRotation(BoardGrid.Rotation newRotation)
+    {
+        Rotation = newRotation;
+        transform.rotation = BoardGrid.GetDiscreteRotation(Rotation);
+    }
+
     public void Mirror()
     {
         isMirrored = !isMirrored;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -15,66 +16,49 @@ public class PathSolver
         grid = level.Grid;
     }
 
-    public IEnumerable<Vector2Int> FindShortestPath()
+    public IEnumerable<Vector2Int> GetPath() =>
+        FollowTrueConnections(currentLevel.StartPosition, currentLevel.EndPosition, PrepareGraph());
+
+    Graph PrepareGraph()
     {
-        grid.AddRow(false);
         Graph graph = CreateGraph();
-        
         AddVoidVertices(graph);
         AddBlockTransitions(graph);
         MarkTrueEdges(graph);
         DebugDrawTrueConnections(graph);
-        return BreadthFirstSearch(currentLevel.StartPosition, currentLevel.EndPosition, graph);
+        return graph;
     }
 
-    IEnumerable<Vector2Int> BreadthFirstSearch(Vector2Int startTile, Vector2Int endTile, Graph graph)
+    IEnumerable<Vector2Int> FollowTrueConnections(Vector2Int startTile, Vector2Int endTile, Graph graph)
     {
-        Graph.Vertex startVertex = graph.FindVertex(startTile);
-        Graph.Vertex endVertex = graph.FindVertex(endTile);
+        var current = graph.FindVertex(startTile);
+        if (current == null) return new List<Vector2Int>();
+        var path = new List<Vector2Int> { startTile };
+        var seen = new HashSet<Graph.Vertex> { current };
 
-        if (startVertex == null || endVertex == null) return new List<Vector2Int>();
-        if (startTile == endTile) return new List<Vector2Int> { startTile };
-
-        Queue<Graph.Vertex> frontier = new();
-        Dictionary<Graph.Vertex, Graph.Vertex> parent = new();
-        HashSet<Graph.Vertex> visited = new() { startVertex };
-
-        frontier.Enqueue(startVertex);
-
-        while (frontier.Count > 0)
+        while (true)
         {
-            Graph.Vertex current = frontier.Dequeue();
+            var options = current.Edges
+                .Where(e => e.Tag == trueEdgeTag && !seen.Contains(e.Destination))
+                .ToList();
+            if (!options.Any()) break;
 
-            foreach (Graph.Edge edge in current.Edges)
-            {
-                if (edge.Tag != trueEdgeTag) continue;
+            current = options
+                .OrderBy(e => Manhattan(e.Destination.Coordinate, endTile))
+                .First()
+                .Destination;
 
-                Graph.Vertex next = edge.Destination;
-                if (visited.Contains(next)) continue;
+            seen.Add(current);
+            path.Add(current.Coordinate);
 
-                visited.Add(next);
-                parent[next] = current;
-
-                if (next == endVertex)
-                {
-                    // reconstruct path
-                    List<Vector2Int> path = new();
-                    Graph.Vertex node = endVertex;
-                    while (node != null)
-                    {
-                        path.Add(node.Coordinate);
-                        parent.TryGetValue(node, out node);
-                    }
-                    path.Reverse();
-                    return path;
-                }
-
-                frontier.Enqueue(next);
-            }
+            if (current.Coordinate == endTile) break;
         }
 
-        return new List<Vector2Int>();
+        return path;
     }
+
+    static int Manhattan(Vector2Int a, Vector2Int b) =>
+        Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
 
     void MarkTrueEdges(Graph graph)
     {
@@ -163,7 +147,7 @@ public class PathSolver
                 Vector3 sourcePos = new(sourceCoord.x, sourceCoord.y, -1);
                 Vector3 destinationPos = new(destinationCoord.x, destinationCoord.y, -1);
 
-                Debug.DrawLine(sourcePos, destinationPos, lineColor, 100000);
+                Debug.DrawLine(sourcePos, destinationPos, lineColor, 2f);
             }
         }
     }

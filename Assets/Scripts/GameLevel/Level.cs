@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,7 +11,7 @@ public class Level : MonoBehaviour
 {
     [field: SerializeField] public float CameraDistance { get; set; } = 1f;
     [field: SerializeField] public float BackgroundDistance { get; set; } = 1f;
-    [field: SerializeField] public float CharactersOffsetY { get; set; } = 0f;
+    [field: SerializeField] public float CharactersHeightOffset { get; set; } = 0f;
     [field: SerializeField] KnightBehaviour knightPrefab;
     [field: SerializeField] GoalBehaviour goalPrefab;
     [field: SerializeField] GameObject backgroundPrefab;
@@ -25,16 +26,18 @@ public class Level : MonoBehaviour
 
     PathSolver pathSolver;
     GameObject blocksFolder;
+    KnightBehaviour knight;
 
     public void Initialize(LevelLayout layout)
     {
         blocksFolder = new GameObject("Blocks");
+        blocksFolder.transform.SetParent(transform);
 
         Grid = GetComponent<BoardGrid>();
         Slots = GetComponent<SlotManager>();
 
         Grid.Initialize(layout.LevelSize + new Vector2Int(0, 1)); // One extra row for the ground
-        Slots.Initialize(layout.Blocks.Count);
+        Slots.Initialize(layout.Blocks.Count(b => b.MobilityType == Block.Mobility.Free));
 
         StartPosition = layout.StartPosition + Vector2Int.up; // Adjust for extra ground row
         EndPosition = layout.EndPosition + Vector2Int.up;
@@ -59,15 +62,29 @@ public class Level : MonoBehaviour
     {
         IsEditing = false;
 
-        IEnumerable<Vector2Int> path = pathSolver.FindShortestPath();
+        Grid.AddRow(false);
+        IEnumerable<Vector2Int> path = pathSolver.GetPath();
+        List<Vector2> worldPositions = new();
 
-        Debug.Log("Shortest path from " + StartPosition + " to " + EndPosition + ": " + string.Join(" -> ", path));
+        foreach (Vector2Int tile in pathSolver.GetPath())
+            worldPositions.Add(Grid.TileToWorld(tile));
+
+        knight.FollowPath(worldPositions, path.LastOrDefault() == EndPosition);
+        knight.GoalReached += OnKnightReachedGoal;
+    }
+
+    async void OnKnightReachedGoal(bool completed)
+    {
+        await Task.Delay(1000);
+        if (completed) LevelManager.PassLevel();
+        else LevelManager.RestartLevel();
     }
 
     void InterpretBlockData(BlockPlacementData data)
     {
         Block block = Instantiate(data.BlockPrefab, blocksFolder.transform);
         block.Initialize(data.PivotIndex, data.MobilityType);
+        block.SetRotation(data.StartingRotation);
 
         if (data.Mirrored) block.Mirror();
 
@@ -99,18 +116,19 @@ public class Level : MonoBehaviour
         // Background
         if (!Camera.main.orthographic) return;
 
-        GameObject background = Instantiate(backgroundPrefab);
+        GameObject background = Instantiate(backgroundPrefab, transform);
         background.transform.position = center + new Vector3(0f, 0f, boardSize * BackgroundDistance);
     }
 
     void CreateCharacters()
     {
-        Vector2 playerPos = Grid.TileToWorld(StartPosition) + new Vector3(0, CharactersOffsetY, 0);
-        Vector2 goalPos = Grid.TileToWorld(EndPosition) + new Vector3(0, CharactersOffsetY, 0);
+        Vector2 playerPos = Grid.TileToWorld(StartPosition) + new Vector3(0, CharactersHeightOffset, 0);
+        Vector2 goalPos = Grid.TileToWorld(EndPosition) + new Vector3(0, CharactersHeightOffset, 0);
 
-        KnightBehaviour player = Instantiate(knightPrefab, transform);
-        player.transform.position = playerPos;
-        player.name = "Player";
+        knight = Instantiate(knightPrefab, transform);
+        knight.transform.position = playerPos;
+        knight.name = "Player";
+        knight.HeightOffset = CharactersHeightOffset;
 
         GoalBehaviour goal = Instantiate(goalPrefab, transform);
         goal.transform.position = goalPos;
