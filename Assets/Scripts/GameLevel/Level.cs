@@ -1,9 +1,12 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(BoardGrid))]
 [RequireComponent(typeof(SlotManager))]
-[RequireComponent(typeof(PathSolver))]
 public class Level : MonoBehaviour
 {
     [field: SerializeField] public float CameraDistance { get; set; } = 1f;
@@ -14,8 +17,11 @@ public class Level : MonoBehaviour
 
     public BoardGrid Grid { get; private set; }
     public SlotManager Slots { get; private set; }
-    public PathSolver PathSolver { get; private set; }
-    
+    public Vector2Int StartPosition { get; private set; }
+    public Vector2Int EndPosition { get; private set; }
+    public bool IsEditing { get; private set; } = true;
+
+    PathSolver pathSolver;
     GameObject blocksFolder;
 
     public void Initialize(LevelLayout layout)
@@ -24,7 +30,6 @@ public class Level : MonoBehaviour
 
         Grid = GetComponent<BoardGrid>();
         Slots = GetComponent<SlotManager>();
-        PathSolver = GetComponent<PathSolver>();
 
         Grid.Initialize(layout.LevelSize + new Vector2Int(0, 1)); // One extra row for the ground
         Slots.Initialize(layout.Blocks.Count);
@@ -34,7 +39,21 @@ public class Level : MonoBehaviour
         foreach (BlockPlacementData blockData in layout.Blocks)
             InterpretBlockData(blockData);
 
+        pathSolver = new(this);
         CreateGround();
+    }
+
+    void Update()
+    {
+        if (IsEditing && Keyboard.current.enterKey.wasPressedThisFrame)
+            ExitEditMode();
+    }
+
+    void ExitEditMode()
+    {
+        IsEditing = false;
+        
+        IEnumerable<Vector2Int> path = pathSolver.FindShortestPath();
     }
 
     void InterpretBlockData(BlockPlacementData data)

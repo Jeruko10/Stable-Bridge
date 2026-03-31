@@ -8,7 +8,7 @@ public class BasicSegment : BlockSegment
         new(from: new(0, 1), to: new(1, 1)),
         new(from: new(0, 1), to: new(-1, 1))
     };
-    
+
     Block parent;
     
     public override void Initialize(Block parent) => this.parent = parent;

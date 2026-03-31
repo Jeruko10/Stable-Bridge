@@ -1,40 +1,79 @@
 using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-public class PathSolver : MonoBehaviour
+public class PathSolver
 {
-    [field: SerializeField] public GameObject PathVisualPrefab { get; set; }
-
-    BoardGrid grid;
+    readonly BoardGrid grid;
+    readonly Level currentLevel;
     const string voidEdgeTag = "void", blockEdgeTag = "solid", trueEdgeTag = "true";
 
-    void Update()
+    public PathSolver(Level level)
     {
-        if (Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame)
-        {
-            CalculateSolution();
-        }
+        currentLevel = level;
+        grid = level.Grid;
     }
 
-    void CalculateSolution()
+    public IEnumerable<Vector2Int> FindShortestPath()
     {
-        grid = LevelManager.Current.Grid;
         grid.AddRow(false);
         Graph graph = CreateGraph();
+        
         AddVoidVertices(graph);
         AddBlockTransitions(graph);
         MarkTrueEdges(graph);
-        // RemoveNonTrueEdges(graph);
-
         DebugDrawTrueConnections(graph);
+        return BreadthFirstSearch(currentLevel.StartPosition, currentLevel.EndPosition, graph);
     }
 
-    void RemoveNonTrueEdges(Graph graph)
+    IEnumerable<Vector2Int> BreadthFirstSearch(Vector2Int startTile, Vector2Int endTile, Graph graph)
     {
-        foreach (Graph.Vertex vertex in graph.Vertices)
-            vertex.Edges.RemoveAll(e => e.Tag != trueEdgeTag);
+        Graph.Vertex startVertex = graph.FindVertex(startTile);
+        Graph.Vertex endVertex = graph.FindVertex(endTile);
+
+        if (startVertex == null || endVertex == null) return new List<Vector2Int>();
+        if (startTile == endTile) return new List<Vector2Int> { startTile };
+
+        Queue<Graph.Vertex> frontier = new();
+        Dictionary<Graph.Vertex, Graph.Vertex> parent = new();
+        HashSet<Graph.Vertex> visited = new() { startVertex };
+
+        frontier.Enqueue(startVertex);
+
+        while (frontier.Count > 0)
+        {
+            Graph.Vertex current = frontier.Dequeue();
+
+            foreach (Graph.Edge edge in current.Edges)
+            {
+                if (edge.Tag != trueEdgeTag) continue;
+
+                Graph.Vertex next = edge.Destination;
+                if (visited.Contains(next)) continue;
+
+                visited.Add(next);
+                parent[next] = current;
+
+                if (next == endVertex)
+                {
+                    // reconstruct path
+                    List<Vector2Int> path = new();
+                    Graph.Vertex node = endVertex;
+                    while (node != null)
+                    {
+                        path.Add(node.Coordinate);
+                        parent.TryGetValue(node, out node);
+                    }
+                    path.Reverse();
+                    return path;
+                }
+
+                frontier.Enqueue(next);
+            }
+        }
+
+        return new List<Vector2Int>();
     }
 
     void MarkTrueEdges(Graph graph)
