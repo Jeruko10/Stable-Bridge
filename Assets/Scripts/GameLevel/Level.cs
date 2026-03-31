@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,11 +11,11 @@ public class Level : MonoBehaviour
     [field: SerializeField] public float CameraDistance { get; set; } = 1f;
     [field: SerializeField] public float BackgroundDistance { get; set; } = 1f;
     [field: SerializeField] public float CharactersOffsetY { get; set; } = 0f;
-    [field: SerializeField] GameObject playerPrefab;
-    [field: SerializeField] GameObject goalPrefab;
+    [field: SerializeField] KnightBehaviour knightPrefab;
+    [field: SerializeField] GoalBehaviour goalPrefab;
     [field: SerializeField] GameObject backgroundPrefab;
-    [field: SerializeField] GameObject baseBlockPrefab;
-    [field: SerializeField] GameObject basicSegmentPrefab;
+    [field: SerializeField] Block baseBlockPrefab;
+    [field: SerializeField] BasicSegment basicSegmentPrefab;
 
     public BoardGrid Grid { get; private set; }
     public SlotManager Slots { get; private set; }
@@ -61,6 +60,8 @@ public class Level : MonoBehaviour
         IsEditing = false;
 
         IEnumerable<Vector2Int> path = pathSolver.FindShortestPath();
+
+        Debug.Log("Shortest path from " + StartPosition + " to " + EndPosition + ": " + string.Join(" -> ", path));
     }
 
     void InterpretBlockData(BlockPlacementData data)
@@ -84,6 +85,7 @@ public class Level : MonoBehaviour
                 Debug.LogWarning($"Failed to place block {block.name} at {data.StartingTile} during level load. Check if the tile is valid and unoccupied.");
         }
         
+        // Block has Free Mobility or failed to place: assign to slot
         Slots.AsignAvailableSlot(block);
     }
 
@@ -106,16 +108,22 @@ public class Level : MonoBehaviour
         Vector2 playerPos = Grid.TileToWorld(StartPosition) + new Vector3(0, CharactersOffsetY, 0);
         Vector2 goalPos = Grid.TileToWorld(EndPosition) + new Vector3(0, CharactersOffsetY, 0);
 
-        GameObject player = Instantiate(playerPrefab, transform);
+        KnightBehaviour player = Instantiate(knightPrefab, transform);
         player.transform.position = playerPos;
         player.name = "Player";
 
-        GameObject goal = Instantiate(goalPrefab, transform);
+        GoalBehaviour goal = Instantiate(goalPrefab, transform);
         goal.transform.position = goalPos;
         goal.name = "Goal";
 
         Vector2Int playerGround = StartPosition + Vector2Int.down;
         Vector2Int goalGround = EndPosition + Vector2Int.down;
+
+        if (StartPosition == EndPosition)
+            Debug.LogWarning("Player and Goal are at the same position.");
+
+        if (!Grid.IsValidTile(StartPosition))
+            Debug.LogWarning($"Player's position {StartPosition} is not valid.");
 
         if (Grid.IsValidTile(playerGround) && (Grid.GetBlockAtTile(playerGround) == null || Grid.GetBlockAtTile(playerGround).GetParent().MobilityType != Block.Mobility.Fixed))
             Debug.LogWarning($"Player at {StartPosition} does not have a fixed ground.");
@@ -123,26 +131,23 @@ public class Level : MonoBehaviour
         if (Grid.IsValidTile(goalGround) && (Grid.GetBlockAtTile(goalGround) == null || Grid.GetBlockAtTile(goalGround).GetParent().MobilityType != Block.Mobility.Fixed))
             Debug.LogWarning($"Goal at {EndPosition} does not have a fixed ground.");
 
-        if (StartPosition == EndPosition)
-            Debug.LogWarning("Player and Goal are at the same position.");
+        if (!Grid.IsValidTile(EndPosition))
+            Debug.LogWarning($"Goal's position {EndPosition} is not valid.");
     }
 
     void CreateGround()
     {
         Vector3 startPos = Grid.TileToWorld(Vector2Int.zero);
-        GameObject groundObj = Instantiate(baseBlockPrefab, startPos, Quaternion.identity, blocksFolder.transform);
-        
-        groundObj.name = "Ground";
-        groundObj.GetComponent<Rigidbody>().isKinematic = true;
+        Block ground = Instantiate(baseBlockPrefab, startPos, Quaternion.identity, blocksFolder.transform);
+        ground.name = "Ground";
 
         for (int x = 0; x < Grid.Size.x; x++)
         {
-            GameObject segmentObj = Instantiate(basicSegmentPrefab, groundObj.transform);
+            BlockSegment segmentObj = Instantiate(basicSegmentPrefab, ground.transform);
             segmentObj.transform.localPosition = new Vector3(x * Grid.TileSize, 0, 0);
         }
 
-        Block groundBlock = groundObj.GetComponent<Block>();
-        groundBlock.Initialize(0, Block.Mobility.Fixed);
-        Grid.TryPlaceBlock(groundBlock, Vector2Int.zero, groundBlock.Segments.FirstOrDefault());
+        ground.Initialize(0, Block.Mobility.Fixed);
+        Grid.TryPlaceBlock(ground, Vector2Int.zero, ground.Segments.FirstOrDefault());
     }
 }

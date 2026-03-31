@@ -23,11 +23,13 @@ public class Block : MonoBehaviour
 
     readonly List<BlockSegment> segments = new();
     Vector2 targetPosition2D;
+    Rigidbody body;
     bool isMirrored = false;
 
     void Awake()
     {
-        GetComponent<Rigidbody>().isKinematic = true;
+        body = GetComponent<Rigidbody>();
+        body.isKinematic = true;
     }
 
     public void Initialize(int pivotIndex, Mobility mobilityType)

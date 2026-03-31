@@ -163,7 +163,6 @@ public class PathSolver
                 Vector3 sourcePos = new(sourceCoord.x, sourceCoord.y, -1);
                 Vector3 destinationPos = new(destinationCoord.x, destinationCoord.y, -1);
 
-                Debug.Log("Line drawn from " + vertex.Coordinate + " to " + edge.Destination.Coordinate);
                 Debug.DrawLine(sourcePos, destinationPos, lineColor, 100000);
             }
         }

@@ -77,8 +77,8 @@ MonoBehaviour:
   <CameraDistance>k__BackingField: 3
   <BackgroundDistance>k__BackingField: 0.05
   <CharactersOffsetY>k__BackingField: 0.05
-  playerPrefab: {fileID: 7184478296927994112, guid: 6d06e2c49f7901c4ebf372f8ea21f106, type: 3}
-  goalPrefab: {fileID: 7227753177499530970, guid: eb86b9885ff0d3149a749c2f74446f5b, type: 3}
+  knightPrefab: {fileID: 4025562664279505487, guid: 6d06e2c49f7901c4ebf372f8ea21f106, type: 3}
+  goalPrefab: {fileID: 7237816119617500010, guid: eb86b9885ff0d3149a749c2f74446f5b, type: 3}
   backgroundPrefab: {fileID: 1394306270247616176, guid: 83efb9dae6ebd454e9ca18fff561af48, type: 3}
-  baseBlockPrefab: {fileID: 5211579415055609634, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
-  basicSegmentPrefab: {fileID: 1968057699252462157, guid: 3c5b83b058b43f641b1fe416936d9123, type: 3}
+  baseBlockPrefab: {fileID: 2853534257233814302, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
+  basicSegmentPrefab: {fileID: 7398631970883079042, guid: 3c5b83b058b43f641b1fe416936d9123, type: 3}
