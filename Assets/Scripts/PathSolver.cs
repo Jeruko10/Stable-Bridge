@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,7 +26,7 @@ public class PathSolver : MonoBehaviour
         AddVoidVertices(graph);
         AddBlockTransitions(graph);
         MarkTrueEdges(graph);
-        RemoveNonTrueEdges(graph);
+        // RemoveNonTrueEdges(graph);
 
         DebugDrawTrueConnections(graph);
     }
@@ -43,12 +44,9 @@ public class PathSolver : MonoBehaviour
             {
                 // A edge is true if it connects to a vertex which leads back to the start vertex
                 // and one of the connected edges is a block edge.
-
                 Graph.Edge returnEdge = edge.Destination.Edges.Find(e => e.Destination == vertex);
-                bool hasBlockEdge = vertex.Edges.Exists(e => e.Tag == blockEdgeTag);
-                bool destinationHasBlockEdge = edge.Destination.Edges.Exists(e => e.Tag == blockEdgeTag);
 
-                if (returnEdge != null && (hasBlockEdge || destinationHasBlockEdge))
+                if (returnEdge != null && (edge.Tag == blockEdgeTag || returnEdge.Tag == blockEdgeTag))
                 {
                     edge.Tag = trueEdgeTag;
                     returnEdge.Tag = trueEdgeTag;
@@ -95,17 +93,14 @@ public class PathSolver : MonoBehaviour
     {
         foreach (var pair in grid.GetAllTiles())
         {
-            Vector2Int? tile = pair.Key;
+            if (pair.Value != null) continue; // only void tiles
 
-            if (tile.Value != null) continue; // Only connect void tiles
-
-            Graph.Vertex vertex = graph.FindVertex(tile.Value);
-
-            foreach (Vector2Int adjacent in grid.GetAdjacents(tile.Value))
+            Graph.Vertex vertex = graph.FindVertex(pair.Key);
+            foreach (Vector2Int adjacent in grid.GetAdjacents(pair.Key))
             {
                 Graph.Vertex destinationVertex = graph.FindVertex(adjacent);
-
-                if (destinationVertex != null) graph.AddEdge(vertex, destinationVertex, voidEdgeTag);
+                if (destinationVertex != null)
+                    graph.AddEdge(vertex, destinationVertex, voidEdgeTag);
             }
         }
     }
@@ -116,13 +111,21 @@ public class PathSolver : MonoBehaviour
         {
             foreach (Graph.Edge edge in vertex.Edges)
             {
-                if (edge.Tag == trueEdgeTag)
+                Color lineColor = edge.Tag switch
                 {
-                    Vector2 sourceCoord = grid.TileToWorld(vertex.Coordinate);
-                    Vector2 destinationCoord = grid.TileToWorld(edge.Destination.Coordinate);
+                    voidEdgeTag => Color.gray.WithAlpha(0.1f),
+                    blockEdgeTag => Color.red.WithAlpha(0.3f),
+                    trueEdgeTag => Color.green,
+                    _ => Color.white
+                };
 
-                    Debug.DrawLine(sourceCoord, destinationCoord, Color.green);
-                }
+                Vector2 sourceCoord = grid.TileToWorld(vertex.Coordinate);
+                Vector2 destinationCoord = grid.TileToWorld(edge.Destination.Coordinate);
+                Vector3 sourcePos = new(sourceCoord.x, sourceCoord.y, -1);
+                Vector3 destinationPos = new(destinationCoord.x, destinationCoord.y, -1);
+
+                Debug.Log("Line drawn from " + vertex.Coordinate + " to " + edge.Destination.Coordinate);
+                Debug.DrawLine(sourcePos, destinationPos, lineColor, 100000);
             }
         }
     }

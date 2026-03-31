@@ -82,16 +82,6 @@ public class BoardGrid : MonoBehaviour
 
     public bool IsValidTile(Vector2Int tile) => tile.x >= 0 && tile.x < Size.x && tile.y >= 0 && tile.y < Size.y;
 
-    public void SetBlockAtTile(Vector2Int tile, BlockSegment block)
-    {
-        if (!IsValidTile(tile)) Debug.LogWarning($"Cannot place block on out-of-bounds tile {tile}");
-        else
-        {
-            tileBlocks[tile] = block;
-            blockTiles[block] = tile;
-        }
-    }
-
     public BlockSegment GetBlockAtTile(Vector2Int tile)
     {
         if (!IsValidTile(tile))
@@ -165,7 +155,11 @@ public class BoardGrid : MonoBehaviour
         }
 
         foreach (BlockSegment segment in block.Segments)
-            tileBlocks[WorldToTile(segment.transform.position + requiredMovement)] = segment;
+        {
+            Vector2Int tile = WorldToTile(segment.transform.position + requiredMovement);
+            tileBlocks[tile] = segment;
+            blockTiles[segment] = tile;
+        }
         
         block.Position2D = block.transform.position + requiredMovement;
         blocks.Add(block);
