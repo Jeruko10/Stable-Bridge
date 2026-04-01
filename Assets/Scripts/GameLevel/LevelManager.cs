@@ -13,7 +13,7 @@ public class LevelManager : MonoBehaviour
     public static event Action<Level> LevelLoaded;
 
     static LevelManager instance;
-    List<LevelLayout> levels;
+    LevelLayout[] levels;
     int currentLevelIndex = 0;
 
     void Awake()
@@ -27,7 +27,7 @@ public class LevelManager : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(gameObject);
         
-        levels = Resources.LoadAll<LevelLayout>("Levels").ToList();
+        levels = Resources.LoadAll<LevelLayout>("Levels");
     }
 
     void Start()
@@ -39,7 +39,7 @@ public class LevelManager : MonoBehaviour
     {
         instance.currentLevelIndex++;
 
-        if (instance.currentLevelIndex >= instance.levels.Count)
+        if (instance.currentLevelIndex >= instance.levels.Count())
         {
             TriggerVictory();
             return null;
