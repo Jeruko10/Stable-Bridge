@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
 public class BoardGrid : MonoBehaviour
@@ -61,6 +62,8 @@ public class BoardGrid : MonoBehaviour
 
     public Dictionary<Vector2Int, BlockSegment> GetAllTiles() => tileBlocks;
 
+    public IEnumerable<Block> GetAllBlocks() => blocks;
+    
     public static Quaternion GetDiscreteRotation(Rotation rotation) => rotation switch
     {
         Rotation.Deg0 => Quaternion.Euler(0, 0, 0),

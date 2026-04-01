@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(BoardGrid))]
 [RequireComponent(typeof(SlotManager))]
+[RequireComponent(typeof(SimulationObserver))]
 public class Level : MonoBehaviour
 {
     [field: SerializeField] public float CameraDistance { get; set; } = 1f;
@@ -20,6 +21,7 @@ public class Level : MonoBehaviour
 
     public BoardGrid Grid { get; private set; }
     public SlotManager Slots { get; private set; }
+    public SimulationObserver SimulationObserver { get; private set; }
     public Vector2Int StartPosition { get; private set; }
     public Vector2Int EndPosition { get; private set; }
     public bool IsEditing { get; private set; } = true;
@@ -35,12 +37,13 @@ public class Level : MonoBehaviour
 
         Grid = GetComponent<BoardGrid>();
         Slots = GetComponent<SlotManager>();
+        SimulationObserver = GetComponent<SimulationObserver>();
 
-        Grid.Initialize(layout.LevelSize + new Vector2Int(0, 1)); // One extra row for the ground
+        Grid.Initialize(layout.LevelSize);
         Slots.Initialize(layout.Blocks.Count(b => b.MobilityType == Block.Mobility.Free));
 
-        StartPosition = layout.StartPosition + Vector2Int.up; // Adjust for extra ground row
-        EndPosition = layout.EndPosition + Vector2Int.up;
+        StartPosition = layout.StartPosition;
+        EndPosition = layout.EndPosition;
 
         SetLevelAesthetic();
         
@@ -50,6 +53,9 @@ public class Level : MonoBehaviour
         pathSolver = new(this);
         CreateGround();
         CreateCharacters();
+
+        SimulationObserver.SimulationEnded += OnSimulationEnded;
+        knight.GoalReached += OnReachedGoal;
     }
 
     void Update()
@@ -61,6 +67,15 @@ public class Level : MonoBehaviour
     void ExitEditMode()
     {
         IsEditing = false;
+        SimulationObserver.Initialize(Grid.GetAllBlocks());
+    }
+
+    void OnSimulationEnded(IEnumerable<Block> unstableBlocks)
+    {
+        foreach (Block block in unstableBlocks)
+            Grid.RemoveBlock(block);
+        
+        // Start pathfinding with the remaining blocks
 
         Grid.AddRow(false);
         IEnumerable<Vector2Int> path = pathSolver.GetPath();
@@ -68,12 +83,11 @@ public class Level : MonoBehaviour
 
         foreach (Vector2Int tile in pathSolver.GetPath())
             worldPositions.Add(Grid.TileToWorld(tile));
-
+        
         knight.FollowPath(worldPositions, path.LastOrDefault() == EndPosition);
-        knight.GoalReached += OnKnightReachedGoal;
     }
 
-    async void OnKnightReachedGoal(bool completed)
+    async void OnReachedGoal(bool completed)
     {
         await Task.Delay(1000);
         if (completed) LevelManager.PassLevel();
@@ -90,13 +104,15 @@ public class Level : MonoBehaviour
 
         if (data.MobilityType != Block.Mobility.Free)
         {
+            Vector2Int startingTile = data.StartingTile;
+
             if (data.MobilityType == Block.Mobility.SlideOnly)
             {
                 block.SlidePositions = data.SlideTiles.ToArray();
-                data.StartingTile = data.SlideTiles.FirstOrDefault();
+                startingTile = data.SlideTiles.FirstOrDefault();
             }
 
-            if (Grid.TryPlaceBlock(block, data.StartingTile, block.Segments.FirstOrDefault()))
+            if (Grid.TryPlaceBlock(block, startingTile, block.Segments.FirstOrDefault()))
                 return;
             else
                 Debug.LogWarning($"Failed to place block {block.name} at {data.StartingTile} during level load. Check if the tile is valid and unoccupied.");

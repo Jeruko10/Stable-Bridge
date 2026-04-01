@@ -14,6 +14,7 @@ public class Block : MonoBehaviour
     public BlockSegment[] Segments => segments.ToArray();
     public Vector2Int[] SlidePositions { get; set; }
     public int SlideIndex { get; set; } = 0;
+    public bool Snapped { get; set; }
     public BlockSegment Pivot { get; private set; }
     public Mobility MobilityType { get; private set; } = Mobility.Free;
     public BoardGrid.Rotation Rotation { get; private set; } = BoardGrid.Rotation.Deg0;
@@ -38,7 +39,7 @@ public class Block : MonoBehaviour
 
         Pivot = segments[pivotIndex];
         MobilityType = mobilityType;
-
+        Snapped = true;
 
         if (MobilityType == Mobility.RotateOnly) CreateRotateVisual();
         else if (MobilityType == Mobility.SlideOnly) CreateSlideVisual();
@@ -47,6 +48,8 @@ public class Block : MonoBehaviour
 
     void Update()
     {
+        if (!Snapped) return;
+        
         bool beingDragged = !LevelManager.Current.Grid.ContainsBlock(this) && MobilityType == Mobility.Free;
         float targetZ = beingDragged ? UnsnappedZOffset : 0f;
         float newZ = Mathf.Lerp(transform.position.z, targetZ, Time.deltaTime * SnapAnimSpeed);
