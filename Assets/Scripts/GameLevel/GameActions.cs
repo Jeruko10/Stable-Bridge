@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class GameActions : MonoBehaviour
@@ -9,10 +10,15 @@ public class GameActions : MonoBehaviour
     SlotManager slotManager;
     BoardGrid board;
 
-    void Start()
+    void Awake()
     {
-        slotManager = LevelManager.Current.Slots;
-        board = LevelManager.Current.Grid;
+        LevelManager.LevelLoaded += OnLevelLoaded;
+    }
+
+    void OnLevelLoaded(Level level)
+    {
+        slotManager = level.Slots;
+        board = level.Grid;
     }
 
     public void TriggerBlockInteraction(Block block, BlockSegment segment)

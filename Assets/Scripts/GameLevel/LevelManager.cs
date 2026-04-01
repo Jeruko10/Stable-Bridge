@@ -10,6 +10,7 @@ public class LevelManager : MonoBehaviour
     [field: SerializeField] Level levelPrefab;
 
     public static Level Current { get; private set; }
+    public static event Action<Level> LevelLoaded;
 
     static LevelManager instance;
     List<LevelLayout> levels;
@@ -51,13 +52,14 @@ public class LevelManager : MonoBehaviour
 
     public static Level LoadLevel(int levelIndex)
     {
-        Level oldLevel = Current;
-        if (oldLevel != null) Destroy(oldLevel.gameObject);
+        if (Current != null) Destroy(Current.gameObject);
         Current = Instantiate(instance.levelPrefab);
 
         LevelLayout lvlData = instance.levels[levelIndex];
 
         Current.Initialize(lvlData);
+        LevelLoaded?.Invoke(Current);
+
         return Current;
     }
 
