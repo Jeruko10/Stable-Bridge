@@ -48,9 +48,9 @@ MonoBehaviour:
   rotatePivotPrefab: {fileID: 715457472745899262, guid: bdea75e4a66706b4bbb2910554acdc5d, type: 3}
   slidePivotPrefab: {fileID: 715457472745899262, guid: 82b69e3ef1b08a24695b841b4fdf5e2c, type: 3}
   fixedPivotPrefab: {fileID: 715457472745899262, guid: b7b955ad5d20b5745a43d8f52d06bd1a, type: 3}
-  <UnsnappedZOffset>k__BackingField: -2
-  <SnapAnimSpeed>k__BackingField: 10
-  <MoveLerpSpeed>k__BackingField: 40
+  unsnappedZOffset: -2
+  snapAnimSpeed: 10
+  moveLerpSpeed: 50
 --- !u!54 &7818674925971748769
 Rigidbody:
   m_ObjectHideFlags: 0

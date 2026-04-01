@@ -95,7 +95,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 669b6247eb1a5904ba441d54ce4aa626, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimulationObserver
-  observationTime: 1.2
-  idleTimeRequirement: 1
-  linearThreshold: 0.01
-  angularThreshold: 0.01
+  stabilityRequiredTime: 1
+  unstabilityTimeLimit: 8
+  linearThreshold: 0.5
+  angularThreshold: 0.1
+  removalImpulse: 0

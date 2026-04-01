@@ -83,11 +83,13 @@ public class Level : MonoBehaviour
         SimulationObserver.Initialize(Grid.GetAllBlocks());
     }
 
-    void OnSimulationEnded(IEnumerable<Block> unstableBlocks)
+    async void OnSimulationEnded(IEnumerable<Block> unstableBlocks)
     {
         foreach (Block block in unstableBlocks)
             Grid.RemoveBlock(block);
         
+        await Task.Delay(500);
+
         // Start pathfinding with the remaining blocks
 
         Grid.AddRow(false);
@@ -102,9 +104,17 @@ public class Level : MonoBehaviour
 
     async void OnReachedGoal(bool completed)
     {
-        await Task.Delay(1000);
-        if (completed) LevelManager.PassLevel();
-        else LevelManager.RestartLevel();
+
+        if (completed)
+        {
+            await Task.Delay(1000);
+            LevelManager.PassLevel();
+        }
+        else
+        {
+            await Task.Delay(3000);
+            LevelManager.RestartLevel();
+        }
     }
 
     void InterpretBlockData(BlockPlacementData data)

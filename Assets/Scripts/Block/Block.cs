@@ -8,38 +8,38 @@ public class Block : MonoBehaviour
     [field: SerializeField] GameObject rotatePivotPrefab;
     [field: SerializeField] GameObject slidePivotPrefab;
     [field: SerializeField] GameObject fixedPivotPrefab;
-    [field: SerializeField] public float UnsnappedZOffset { get; set; } = -2f;
-    [field: SerializeField] public float SnapAnimSpeed { get; set; } = 10f;
-    [field: SerializeField] public float MoveLerpSpeed { get; set; } = 10f;
+    [field: SerializeField] float unsnappedZOffset = -2f;
+    [field: SerializeField] float snapAnimSpeed = 10f;
+    [field: SerializeField] float moveLerpSpeed = 10f;
+
     public BlockSegment[] Segments => segments.ToArray();
     public Vector2Int[] SlidePositions { get; set; }
-    public int SlideIndex { get; set; } = 0;
-    public bool Snapped { get; set; }
+    public int SlidePositionIndex { get; set; } = 0;
     public BlockSegment Pivot { get; private set; }
     public Mobility MobilityType { get; private set; } = Mobility.Free;
     public BoardGrid.Rotation Rotation { get; private set; } = BoardGrid.Rotation.Deg0;
     public Vector2 Position2D { get => targetPosition2D; set => targetPosition2D = value; }
+    public Rigidbody Rigidbody { get; private set; }
     
     public enum Mobility { Free, RotateOnly, SlideOnly, Fixed }
 
     readonly List<BlockSegment> segments = new();
     Vector2 targetPosition2D;
-    Rigidbody body;
-    bool isMirrored = false;
+    bool isMirrored = false, physicsEnabled;
 
     void Awake()
     {
-        body = GetComponent<Rigidbody>();
-        body.isKinematic = true;
+        Rigidbody = GetComponent<Rigidbody>();
+        SetPhysics(false);
     }
 
     public void Initialize(int pivotIndex, Mobility mobilityType)
     {
         InitializeSegments();
+        SetPhysics(false);
 
         Pivot = segments[pivotIndex];
         MobilityType = mobilityType;
-        Snapped = true;
 
         if (MobilityType == Mobility.RotateOnly) CreateRotateVisual();
         else if (MobilityType == Mobility.SlideOnly) CreateSlideVisual();
@@ -48,14 +48,20 @@ public class Block : MonoBehaviour
 
     void Update()
     {
-        if (!Snapped) return;
+        if (physicsEnabled) return;
         
         bool beingDragged = !LevelManager.Current.Grid.ContainsBlock(this) && MobilityType == Mobility.Free;
-        float targetZ = beingDragged ? UnsnappedZOffset : 0f;
-        float newZ = Mathf.Lerp(transform.position.z, targetZ, Time.deltaTime * SnapAnimSpeed);
-        Vector2 newPos2D = Vector2.Lerp(transform.position, targetPosition2D, Time.deltaTime * MoveLerpSpeed);
+        float targetZ = beingDragged ? unsnappedZOffset : 0f;
+        float newZ = Mathf.Lerp(transform.position.z, targetZ, Time.deltaTime * snapAnimSpeed);
+        Vector2 newPos2D = Vector2.Lerp(transform.position, targetPosition2D, Time.deltaTime * moveLerpSpeed);
 
         transform.position = new Vector3(newPos2D.x, newPos2D.y, newZ);
+    }
+
+    public void SetPhysics(bool enabled)
+    {
+        physicsEnabled = enabled;
+        Rigidbody.isKinematic = !enabled;
     }
 
     public bool ContainsSegment(BlockSegment segment) => segments.Contains(segment);
