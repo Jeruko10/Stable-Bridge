@@ -99,7 +99,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1968057699252462157}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 208d284b4fcd2a247844f05259645ecf, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -125,17 +125,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6e44849aae04fb4783f6aa47dfb1837, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BasicSegment
-  graph:
-    <Vertices>k__BackingField:
-    - <Coordinate>k__BackingField: {x: 0, y: 0}
-      <Edges>k__BackingField:
-      - <Source>k__BackingField:
-          <Coordinate>k__BackingField: {x: 0, y: 0}
-          <Edges>k__BackingField: []
-        <Destination>k__BackingField:
-          <Coordinate>k__BackingField: {x: 0, y: 0}
-          <Edges>k__BackingField: []
-    - <Coordinate>k__BackingField: {x: 0, y: 0}
-      <Edges>k__BackingField: []
-    - <Coordinate>k__BackingField: {x: 0, y: 0}
-      <Edges>k__BackingField: []

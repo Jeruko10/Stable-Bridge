@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4117199903356899918}
   - component: {fileID: 3576078010110399064}
   - component: {fileID: 1451513084614940299}
+  - component: {fileID: 8345308581521168132}
   m_Layer: 0
   m_Name: GameLevel
   m_TagString: Untagged
@@ -76,9 +77,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Level
   <CameraDistance>k__BackingField: 3
   <BackgroundDistance>k__BackingField: 0.05
-  <CharactersOffsetY>k__BackingField: 0.05
+  <CharactersHeightOffset>k__BackingField: 0
   knightPrefab: {fileID: 4025562664279505487, guid: 6d06e2c49f7901c4ebf372f8ea21f106, type: 3}
   goalPrefab: {fileID: 7237816119617500010, guid: eb86b9885ff0d3149a749c2f74446f5b, type: 3}
   backgroundPrefab: {fileID: 1394306270247616176, guid: 83efb9dae6ebd454e9ca18fff561af48, type: 3}
   baseBlockPrefab: {fileID: 2853534257233814302, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
   basicSegmentPrefab: {fileID: 7398631970883079042, guid: 3c5b83b058b43f641b1fe416936d9123, type: 3}
+--- !u!114 &8345308581521168132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3182774261277865950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 669b6247eb1a5904ba441d54ce4aa626, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimulationObserver
+  observationTime: 1.2
+  idleTimeRequirement: 1
+  linearThreshold: 0.01
+  angularThreshold: 0.01

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class BoardGrid : MonoBehaviour
 {
@@ -43,6 +43,12 @@ public class BoardGrid : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (Keyboard.current.fKey.wasPressedThisFrame)
+            Debug.Log(blocks.Count);
+    }
+
     public void AddRow(bool isVisual)
     {
         int newY = Size.y;
@@ -62,7 +68,11 @@ public class BoardGrid : MonoBehaviour
 
     public Dictionary<Vector2Int, BlockSegment> GetAllTiles() => tileBlocks;
 
-    public IEnumerable<Block> GetAllBlocks() => blocks;
+    public IEnumerable<Block> GetAllBlocks()
+    {
+        Debug.Log($"Retrieving all blocks. Count: {blocks.Count}");
+        return blocks;
+    }
     
     public static Quaternion GetDiscreteRotation(Rotation rotation) => rotation switch
     {
@@ -167,7 +177,8 @@ public class BoardGrid : MonoBehaviour
         
         block.Position2D = block.transform.position + requiredMovement;
         blocks.Add(block);
-
+        
+        Debug.Log($"Instance {this.gameObject.name} placed block {block.name} at tile {pivotTile}");
         return true;
     }
 

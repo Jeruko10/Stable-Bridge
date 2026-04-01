@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class SimulationObserver : MonoBehaviour
 {
-    [SerializeField] float observationTime = 4f;
-    [SerializeField] float idleTimeRequirement = 2f;
+    [SerializeField] float observationTime = 1.2f;
+    [SerializeField] float idleTimeRequirement = 1f;
     [SerializeField] float linearThreshold = 0.01f;
     [SerializeField] float angularThreshold = 0.01f;
 
@@ -45,6 +45,9 @@ public class SimulationObserver : MonoBehaviour
             {
                 rb.isKinematic = false; // Activate physics
                 block.Snapped = false;
+
+                // Apply small random force
+                // RandomExtensions.Shared.RandomDirection2D
             }
         }
     }

@@ -41,7 +41,7 @@ public class Level : MonoBehaviour
 
         Grid.Initialize(layout.LevelSize);
         Slots.Initialize(layout.Blocks.Count(b => b.MobilityType == Block.Mobility.Free));
-
+        
         StartPosition = layout.StartPosition;
         EndPosition = layout.EndPosition;
 
@@ -67,6 +67,19 @@ public class Level : MonoBehaviour
     void ExitEditMode()
     {
         IsEditing = false;
+
+        if (Grid == null)
+        {
+            Debug.LogError("Level.ExitEditMode: Grid es null.");
+            return;
+        }
+
+        if (SimulationObserver == null)
+        {
+            Debug.LogError("Level.ExitEditMode: SimulationObserver es null.");
+            return;
+        }
+
         SimulationObserver.Initialize(Grid.GetAllBlocks());
     }
 

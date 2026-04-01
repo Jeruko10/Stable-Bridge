@@ -51,7 +51,8 @@ public class LevelManager : MonoBehaviour
 
     public static Level LoadLevel(int levelIndex)
     {
-        Destroy(Current != null ? Current.gameObject : null);
+        Level oldLevel = Current;
+        if (oldLevel != null) Destroy(oldLevel.gameObject);
         Current = Instantiate(instance.levelPrefab);
 
         LevelLayout lvlData = instance.levels[levelIndex];

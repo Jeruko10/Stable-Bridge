@@ -4,6 +4,8 @@ using UnityEngine;
 
 public static class RandomExtensions
 {
+	public static System.Random Shared { get; private set; } = new();
+
 	/// <summary>
 	/// Returns a uniformly distributed random element from the specified read-only list.
 	/// </summary>

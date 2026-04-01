@@ -12,16 +12,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63bc26ad738603a4baddf2214222f3dd, type: 3}
   m_Name: Level1
   m_EditorClassIdentifier: Assembly-CSharp::Level
-  <LevelSize>k__BackingField: {x: 6, y: 5}
-  <StartPosition>k__BackingField: {x: 0, y: 0}
-  <EndPosition>k__BackingField: {x: 5, y: 0}
+  <LevelSize>k__BackingField: {x: 6, y: 6}
+  <StartPosition>k__BackingField: {x: 0, y: 3}
+  <EndPosition>k__BackingField: {x: 5, y: 3}
   <Blocks>k__BackingField:
-  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
-    <MobilityType>k__BackingField: 3
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 74089fc4b62d7dc40aafcc1d72a9cb11, type: 3}
+    <MobilityType>k__BackingField: 0
     <PivotIndex>k__BackingField: 0
     <Mirrored>k__BackingField: 0
     <StartingRotation>k__BackingField: 0
-    <StartingTile>k__BackingField: {x: 3, y: 0}
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 74089fc4b62d7dc40aafcc1d72a9cb11, type: 3}
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Mirrored>k__BackingField: 0
+    <StartingRotation>k__BackingField: 1
+    <StartingTile>k__BackingField: {x: 0, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Mirrored>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 1, y: 1}
     <SlideTiles>k__BackingField: []
   - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 74089fc4b62d7dc40aafcc1d72a9cb11, type: 3}
     <MobilityType>k__BackingField: 0
@@ -29,14 +43,11 @@ MonoBehaviour:
     <Mirrored>k__BackingField: 0
     <StartingRotation>k__BackingField: 0
     <StartingTile>k__BackingField: {x: 1, y: 1}
-    <SlideTiles>k__BackingField:
-    - {x: 1, y: 1}
-    - {x: 3, y: 4}
-    - {x: 2, y: 0}
+    <SlideTiles>k__BackingField: []
   - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 74089fc4b62d7dc40aafcc1d72a9cb11, type: 3}
-    <MobilityType>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
     <PivotIndex>k__BackingField: 0
     <Mirrored>k__BackingField: 0
-    <StartingRotation>k__BackingField: 0
-    <StartingTile>k__BackingField: {x: 2, y: 2}
+    <StartingRotation>k__BackingField: 1
+    <StartingTile>k__BackingField: {x: 5, y: 1}
     <SlideTiles>k__BackingField: []
