@@ -68,15 +68,15 @@ public class Block : MonoBehaviour
 
     public void Rotate(BlockSegment pivotSegment, bool clockwise)
     {
-        Rotation = (BoardGrid.Rotation)(((int)Rotation + (clockwise ? 1 : 3)) % 4);
-        transform.SetPositionAndRotation(pivotSegment.transform.position, BoardGrid.GetDiscreteRotation(Rotation));
-        Position2D = transform.position;
+        BoardGrid.Rotation nextRotation = (BoardGrid.Rotation)(((int)Rotation + (clockwise ? 1 : 3)) % 4);
+        SetRotation(pivotSegment, nextRotation);
     }
 
-    public void SetRotation(BoardGrid.Rotation newRotation)
+    public void SetRotation(BlockSegment pivotSegment, BoardGrid.Rotation newRotation)
     {
         Rotation = newRotation;
-        transform.rotation = BoardGrid.GetDiscreteRotation(Rotation);
+        transform.SetPositionAndRotation(pivotSegment.transform.position, BoardGrid.GetDiscreteRotation(Rotation));
+        Position2D = transform.position;
     }
 
     public void Mirror()
