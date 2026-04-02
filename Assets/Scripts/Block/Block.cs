@@ -84,6 +84,9 @@ public class Block : MonoBehaviour
         isMirrored = !isMirrored;
 
         transform.Rotate(0f, 180f, 0f);
+
+        foreach (BlockSegment segment in segments)
+            segment.Mirror();
     }
 
     void InitializeSegments()

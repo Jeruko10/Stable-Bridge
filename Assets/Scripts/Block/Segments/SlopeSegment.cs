@@ -2,14 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class BasicSegment : BlockSegment
+public class SlopeSegment : BlockSegment
 {
     IEnumerable<LocalTransition> Transitions => mirrored ? transitions.Select(t => t.Mirrored()) : transitions;
     
     readonly LocalTransition[] transitions = new LocalTransition[]
     {
-        new(from: new(0, 1), to: new(1, 1)),
-        new(from: new(0, 1), to: new(-1, 1))
+        new(from: new(0, 0), to: new(1, 0)),
+        new(from: new(0, 0), to: new(0, 1))
     };
     Block parent;
     bool mirrored = false;
@@ -25,12 +25,12 @@ public class BasicSegment : BlockSegment
         Vector2Int? myTile = grid.GetTileOfBlock(this);
         if (!myTile.HasValue) yield break;
 
-        Vector2Int topTile = myTile.Value + Vector2Int.up;
-
-        if (grid.IsValidTile(topTile) && grid.GetBlockAtTile(topTile) != null)
-            yield break;
-
         foreach (LocalTransition transition in Transitions)
-            yield return transition;
+        {
+            Vector2Int destinationTile = myTile.Value + transition.To;
+
+            if (grid.IsValidTile(destinationTile) && grid.GetBlockAtTile(destinationTile) == null)
+                yield return transition;
+        }
     }
 }

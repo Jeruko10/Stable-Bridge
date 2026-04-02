@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class LocalTransition
+public readonly struct LocalTransition
 {
     public Vector2Int From { get; }
     public Vector2Int To { get; }
@@ -10,4 +10,6 @@ public class LocalTransition
         From = from;
         To = to;
     }
+
+    public LocalTransition Mirrored() => new(new(-From.x, From.y), new(-To.x, To.y));
 }
