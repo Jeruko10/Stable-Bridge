@@ -61,14 +61,14 @@ public class PlayerInput : MonoBehaviour
     {
         if (!Physics.Raycast(GetMouseRay(), out RaycastHit hit, rayDistance, BlockLayer))
         {
-            Debug.Log("Click ray missed anything");
+            // Debug.Log("Click ray missed anything");
             return;
         }
 
         BlockSegment segment = hit.collider.GetComponentInParent<BlockSegment>();
         if (segment == null)
         {
-            Debug.Log($"Hit {hit.collider.name} but no BlockSegment");
+            // Debug.Log($"Hit {hit.collider.name} but no BlockSegment");
             return;
         }
         

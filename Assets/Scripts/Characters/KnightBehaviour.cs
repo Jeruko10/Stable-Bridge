@@ -32,15 +32,34 @@ public class KnightBehaviour : MonoBehaviour
 
         if (HasReachedTarget(targetWorld, currentThreshold))
         {
-            if (HandleTargetReached())
+            if (targetIndex == waypoints.Count - 1)
             {
                 CompletePath();
                 return;
             }
+
+            transform.position = GetTargetPosition(); // Fix exact position
+            targetIndex++;
             targetWorld = GetTargetPosition();
         }
 
         MoveTowardTarget(targetWorld);
+    }
+
+    public void FollowPath(IEnumerable<Vector2> path, bool reachesGoal)
+    {
+        pathReachesGoal = reachesGoal;
+        waypoints = new List<Vector2>(path);
+
+        if (waypoints.Count == 0)
+        {
+            targetIndex = 0;
+            CompletePath();
+            return;
+        }
+
+        targetIndex = 0;
+        isActivated = true;
     }
 
     Vector3 GetTargetPosition()
@@ -52,22 +71,6 @@ public class KnightBehaviour : MonoBehaviour
     float GetCurrentThreshold() => targetIndex == waypoints.Count - 1 ? EndKeepDistance : ArrivalThreshold;
 
     bool HasReachedTarget(Vector3 targetWorld, float threshold) => Vector3.Distance(transform.position, targetWorld) <= threshold;
-
-    bool HandleTargetReached()
-    {
-        if (targetIndex < waypoints.Count - 1)
-            transform.position = GetTargetPosition();
-
-        if (targetIndex == waypoints.Count - 1) // Final target reached
-        {
-            isActivated = false;
-            return true;
-        }
-
-        targetIndex++;
-
-        return false;
-    }
 
     void MoveTowardTarget(Vector3 targetWorld)
     {
@@ -98,22 +101,6 @@ public class KnightBehaviour : MonoBehaviour
         }
 
         GoalReached?.Invoke(pathReachesGoal);
-    }
-
-    public void FollowPath(IEnumerable<Vector2> path, bool reachesGoal)
-    {
-        pathReachesGoal = reachesGoal;
-        waypoints = new List<Vector2>(path);
-
-        if (waypoints.Count == 0)
-        {
-            targetIndex = 0;
-            CompletePath();
-            return;
-        }
-
-        targetIndex = 0;
-        isActivated = true;
     }
 }
 

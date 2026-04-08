@@ -25,7 +25,7 @@ public class PathSolver
         AddVoidVertices(graph);
         AddBlockTransitions(graph);
         MarkTrueEdges(graph);
-        DebugDrawTrueConnections(graph);
+        DebugDrawGraph(graph);
         return graph;
     }
 
@@ -128,7 +128,7 @@ public class PathSolver
         }
     }
 
-    void DebugDrawTrueConnections(Graph graph)
+    void DebugDrawGraph(Graph graph)
     {
         foreach (Graph.Vertex vertex in graph.Vertices)
         {
