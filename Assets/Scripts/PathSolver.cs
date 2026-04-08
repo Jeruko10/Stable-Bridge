@@ -4,52 +4,61 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class PathSolver
+public static class PathSolver
 {
-    readonly BoardGrid grid;
-    readonly Level currentLevel;
-    const string voidEdgeTag = "void", blockEdgeTag = "solid", trueEdgeTag = "true";
+    static readonly string voidEdgeTag = "void";
+    static readonly string blockEdgeTag = "solid";
+    static readonly string trueEdgeTag = "true";
 
-    public PathSolver(Level level)
+    static BoardGrid grid;
+    static Graph graph;
+    static readonly Dictionary<Graph.Edge, EdgeData> edgeDataMap = new();
+
+    class EdgeData
     {
-        currentLevel = level;
-        grid = level.Grid;
+        public string Tag { get; set; }
+        public BlockSegment Segment { get; }
+
+        public EdgeData(string tag, BlockSegment segment)
+        {
+            Tag = tag;
+            Segment = segment;
+        }
     }
 
-    public IEnumerable<Vector2Int> GetPath() =>
-        FollowTrueConnections(currentLevel.StartPosition, currentLevel.EndPosition, PrepareGraph());
-
-    Graph PrepareGraph()
+    public static Graph GridToGraph(BoardGrid boardGrid)
     {
-        Graph graph = CreateGraph();
-        AddVoidVertices(graph);
-        AddBlockTransitions(graph);
-        MarkTrueEdges(graph);
-        DebugDrawGraph(graph);
+        grid = boardGrid;
+        edgeDataMap.Clear();
+        graph = CreateEmptyGraph();
+
+        AddVoidEdges();
+        AddBlockTransitions();
+        MarkTrueEdges();
+        DebugDrawGraph();
+
         return graph;
     }
 
-    IEnumerable<Vector2Int> FollowTrueConnections(Vector2Int startTile, Vector2Int endTile, Graph graph)
+    public static Dictionary<Vector2Int, BlockSegment> GetPath(Vector2Int startTile, Vector2Int endTile, Graph graph)
     {
         var current = graph.FindVertex(startTile);
-        if (current == null) return new List<Vector2Int>();
-        var path = new List<Vector2Int> { startTile };
-        var seen = new HashSet<Graph.Vertex> { current };
+
+        if (current == null) return new Dictionary<Vector2Int, BlockSegment>();
+
+        Dictionary<Vector2Int, BlockSegment> path = new() { { startTile, null } };
+        HashSet<Graph.Vertex> seen = new() { current };
 
         while (true)
         {
-            var options = current.Edges
-                .Where(e => e.Tag == trueEdgeTag && !seen.Contains(e.Destination))
-                .ToList();
+            List<Graph.Edge> options = current.Edges.Where(e => edgeDataMap[e].Tag == trueEdgeTag && !seen.Contains(e.Destination)).ToList();
             if (!options.Any()) break;
 
-            current = options
-                .OrderBy(e => Manhattan(e.Destination.Coordinate, endTile))
-                .First()
-                .Destination;
+            Graph.Edge bestEdge = options.OrderBy(e => Manhattan(e.Destination.Coordinate, endTile)).First();
+            current = bestEdge.Destination;
 
             seen.Add(current);
-            path.Add(current.Coordinate);
+            path.Add(current.Coordinate, edgeDataMap[bestEdge].Segment);
 
             if (current.Coordinate == endTile) break;
         }
@@ -57,38 +66,42 @@ public class PathSolver
         return path;
     }
 
-    static int Manhattan(Vector2Int a, Vector2Int b) =>
-        Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
+    static Graph CreateEmptyGraph()
+    {
+        Graph graph = new();
+        foreach (var pair in grid.GetAllTiles()) graph.AddVertex(pair.Key);
+        return graph;
+    }
 
-    void MarkTrueEdges(Graph graph)
+    static int Manhattan(Vector2Int a, Vector2Int b) => Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
+
+    static void MarkTrueEdges()
     {
         foreach (Graph.Vertex vertex in graph.Vertices)
             foreach (Graph.Edge edge in vertex.Edges)
             {
-                // A edge is true if it connects to a vertex which leads back to the start vertex
-                // and one of the connected edges is a block edge.
                 Graph.Edge returnEdge = edge.Destination.Edges.Find(e => e.Destination == vertex);
 
-                if (returnEdge != null && (edge.Tag == blockEdgeTag || returnEdge.Tag == blockEdgeTag))
+                if (returnEdge != null && (edgeDataMap[edge].Tag == blockEdgeTag || edgeDataMap[returnEdge].Tag == blockEdgeTag))
                 {
-                    edge.Tag = trueEdgeTag;
-                    returnEdge.Tag = trueEdgeTag;
+                    edgeDataMap[edge].Tag = trueEdgeTag;
+                    edgeDataMap[returnEdge].Tag = trueEdgeTag;
                 }
             }
     }
 
-    void AddBlockTransitions(Graph graph)
+    static void AddBlockTransitions()
     {
         foreach (var pair in grid.GetAllTiles())
         {
             Vector2Int? tile = pair.Key;
-            BlockSegment block = pair.Value;
+            BlockSegment bSegment = pair.Value;
 
-            if (block == null || tile.Value == null) continue;
+            if (bSegment == null || tile.Value == null) continue;
 
             Vector2Int tilePos = tile.Value;
 
-            foreach (LocalTransition transition in block.GetAvailableTransitions(grid))
+            foreach (LocalTransition transition in bSegment.GetAvailableTransitions(grid))
             {
                 Vector2Int fromTile = tilePos + transition.From;
                 Vector2Int toTile = tilePos + transition.To;
@@ -97,50 +110,46 @@ public class PathSolver
                 Graph.Vertex toVertex = graph.FindVertex(toTile);
 
                 if (fromVertex != null && toVertex != null)
-                    graph.AddEdge(fromVertex, toVertex, blockEdgeTag);
+                {
+                    Graph.Edge edge = graph.AddEdge(fromVertex, toVertex);
+                    edgeDataMap[edge] = new EdgeData(blockEdgeTag, bSegment);
+                }
             }
         }
     }
 
-    Graph CreateGraph()
-    {
-        Graph graph = new();
-
-        foreach (var pair in grid.GetAllTiles())
-            graph.AddVertex(pair.Key);
-
-        return graph;
-    }
-
-    void AddVoidVertices(Graph graph)
+    static void AddVoidEdges()
     {
         foreach (var pair in grid.GetAllTiles())
         {
-            if (pair.Value != null) continue; // only void tiles
+            if (pair.Value != null) continue;
 
             Graph.Vertex vertex = graph.FindVertex(pair.Key);
+
             foreach (Vector2Int adjacent in grid.GetAdjacents(pair.Key))
             {
                 Graph.Vertex destinationVertex = graph.FindVertex(adjacent);
+
                 if (destinationVertex != null)
-                    graph.AddEdge(vertex, destinationVertex, voidEdgeTag);
+                {
+                    Graph.Edge edge = graph.AddEdge(vertex, destinationVertex);
+                    edgeDataMap[edge] = new EdgeData(voidEdgeTag, null);
+                }
             }
         }
     }
 
-    void DebugDrawGraph(Graph graph)
+    static void DebugDrawGraph()
     {
         foreach (Graph.Vertex vertex in graph.Vertices)
         {
             foreach (Graph.Edge edge in vertex.Edges)
             {
-                Color lineColor = edge.Tag switch
-                {
-                    voidEdgeTag => Color.gray.WithAlpha(0.1f),
-                    blockEdgeTag => Color.red.WithAlpha(0.3f),
-                    trueEdgeTag => Color.green,
-                    _ => Color.white
-                };
+                string tag = edgeDataMap[edge].Tag;
+                
+                Color lineColor = tag == voidEdgeTag ? Color.gray.WithAlpha(0.1f) : 
+                                  tag == blockEdgeTag ? Color.red.WithAlpha(0.3f) : 
+                                  tag == trueEdgeTag ? Color.green : Color.white;
 
                 Vector2 sourceCoord = grid.TileToWorld(vertex.Coordinate);
                 Vector2 destinationCoord = grid.TileToWorld(edge.Destination.Coordinate);

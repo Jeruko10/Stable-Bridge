@@ -14,6 +14,7 @@ public class KnightBehaviour : MonoBehaviour
     bool isActivated = false;
     bool pathReachesGoal = false;
     List<Vector2> waypoints = new();
+    List<BlockSegment> destinations = new();
     int targetIndex = 0;
     Rigidbody body;
 
@@ -28,6 +29,7 @@ public class KnightBehaviour : MonoBehaviour
         if (!isActivated || waypoints == null || targetIndex >= waypoints.Count) return;
 
         Vector3 targetWorld = GetTargetPosition();
+        BlockSegment targetBlock = destinations[targetIndex];
         float currentThreshold = GetCurrentThreshold();
 
         if (HasReachedTarget(targetWorld, currentThreshold))
@@ -38,21 +40,24 @@ public class KnightBehaviour : MonoBehaviour
                 return;
             }
 
-            transform.position = GetTargetPosition(); // Fix exact position
+            transform.position = targetWorld; // Fix exact position
             targetIndex++;
-            targetWorld = GetTargetPosition();
+            targetWorld = GetTargetPosition(); // Re-calculate new index
         }
 
-        MoveTowardTarget(targetWorld);
+        MoveTowardTarget(targetWorld, targetBlock);
     }
 
-    public void FollowPath(IEnumerable<Vector2> path, bool reachesGoal)
+    public void FollowPath(Dictionary<Vector2, BlockSegment> path, bool reachesGoal)
     {
         pathReachesGoal = reachesGoal;
-        waypoints = new List<Vector2>(path);
+        waypoints = new(path.Keys);
+        destinations = new(path.Values);
 
-        if (waypoints.Count == 0)
+        if (waypoints.Count <= 0)
         {
+            Debug.LogWarning($"Path is too short: {waypoints.Count} waypoints. Check if it was intentional.");
+
             targetIndex = 0;
             CompletePath();
             return;
@@ -72,11 +77,13 @@ public class KnightBehaviour : MonoBehaviour
 
     bool HasReachedTarget(Vector3 targetWorld, float threshold) => Vector3.Distance(transform.position, targetWorld) <= threshold;
 
-    void MoveTowardTarget(Vector3 targetWorld)
+    void MoveTowardTarget(Vector3 position, BlockSegment segment)
     {
-        Vector3 next = Vector3.MoveTowards(transform.position, targetWorld, MoveSpeed * Time.deltaTime);
-        RotateSpriteForDirection(targetWorld - transform.position);
-        transform.position = next;
+        if (segment is SlopeSegment) position.y += 1;
+    
+        Vector3 nextPos = Vector3.MoveTowards(transform.position, position, MoveSpeed * Time.deltaTime);
+        RotateSpriteForDirection(position - transform.position);
+        transform.position = nextPos;
     }
 
     void RotateSpriteForDirection(Vector3 delta)
