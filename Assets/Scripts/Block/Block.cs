@@ -96,7 +96,6 @@ public class Block : MonoBehaviour
         {
             segments.Add(segment);
             segment.Initialize(parent: this);
-            Debug.Log("One segment!");
         }
     }
 
