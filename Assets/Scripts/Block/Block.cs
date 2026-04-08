@@ -35,7 +35,7 @@ public class Block : MonoBehaviour
 
     public void Initialize(int pivotIndex, Mobility mobilityType)
     {
-        InitializeSegments();
+        FetchSegmentChildren();
         SetPhysics(false);
 
         Pivot = segments[pivotIndex];
@@ -89,13 +89,14 @@ public class Block : MonoBehaviour
             segment.Mirror();
     }
 
-    void InitializeSegments()
+    void FetchSegmentChildren()
     {
         segments.Clear();
         foreach (BlockSegment segment in GetComponentsInChildren<BlockSegment>())
         {
             segments.Add(segment);
-            segment.Initialize(this);
+            segment.Initialize(parent: this);
+            Debug.Log("One segment!");
         }
     }
 

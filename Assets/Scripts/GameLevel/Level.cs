@@ -120,10 +120,8 @@ public class Level : MonoBehaviour
     void InterpretBlockData(BlockPlacementData data)
     {
         Block block = Instantiate(data.BlockPrefab, blocksFolder.transform);
-        BlockSegment segment = block.Segments[data.PivotIndex];
-
         block.Initialize(data.PivotIndex, data.MobilityType);
-        block.SetRotation(segment, data.StartingRotation);
+        block.SetRotation(block.Pivot, data.StartingRotation);
 
         if (data.Mirrored) block.Mirror();
 
@@ -137,7 +135,7 @@ public class Level : MonoBehaviour
                 startingTile = data.SlideTiles.FirstOrDefault();
             }
 
-            if (Grid.TryPlaceBlock(block, startingTile, segment))
+            if (Grid.TryPlaceBlock(block, startingTile, block.Pivot))
                 return;
             else
                 Debug.LogWarning($"Failed to place block {block.name} at {data.StartingTile} during level load. Check if the tile is valid and unoccupied.");
