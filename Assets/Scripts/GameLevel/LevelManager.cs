@@ -7,9 +7,11 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    [SerializeField] bool trainModeEnabled;
     [field: SerializeField] Level levelPrefab;
 
     public static Level Current { get; private set; }
+    public static bool TrainModeEnabled => instance.trainModeEnabled;
     public static event Action<Level> LevelLoaded;
 
     static LevelManager instance;
@@ -25,7 +27,6 @@ public class LevelManager : MonoBehaviour
         }
 
         instance = this;
-        
         levels = Resources.LoadAll<LevelLayout>("Levels");
     }
 
@@ -56,7 +57,7 @@ public class LevelManager : MonoBehaviour
 
         LevelLayout lvlData = instance.levels[levelIndex];
 
-        Current.Initialize(lvlData);
+        Current.Initialize(lvlData, instance.trainModeEnabled);
         LevelLoaded?.Invoke(Current);
 
         return Current;

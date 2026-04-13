@@ -29,13 +29,15 @@ public class Level : MonoBehaviour
     public event Action<bool> LevelComplete;
     public event Action<bool> SuccessKnown;
 
-    bool success;
+    bool success, trainModeEnabled;
     readonly Dictionary<Vector2, BlockSegment> knightPath = new();
     GameObject blocksFolder;
     KnightBehaviour knight;
 
-    public void Initialize(LevelLayout layout)
+    public void Initialize(LevelLayout layout, bool trainModeEnabled = false)
     {
+        this.trainModeEnabled = trainModeEnabled;
+
         blocksFolder = new GameObject("Blocks");
         blocksFolder.transform.SetParent(transform);
 
@@ -84,7 +86,7 @@ public class Level : MonoBehaviour
             return;
         }
 
-        SimulationObserver.Initialize(Grid.GetAllBlocks());
+        SimulationObserver.Initialize(Grid.GetAllBlocks(), trainModeEnabled);
     }
 
     void OnStabilityKnown(IEnumerable<Block> unstableBlocks)
@@ -106,9 +108,14 @@ public class Level : MonoBehaviour
             knightPath.Add(Grid.TileToWorld(pair.Key), pair.Value);
     }
 
-    async void OnSimulationEnded()
+    void OnSimulationEnded()
     {
-        await Task.Delay(500);
+        if (trainModeEnabled)
+        {
+            OnReachedGoal(success);
+            return;
+        }
+
         knight.FollowPath(knightPath, success);
     }
 
@@ -118,12 +125,12 @@ public class Level : MonoBehaviour
 
         if (completed)
         {
-            await Task.Delay(1000);
+            if (!trainModeEnabled) await Task.Delay(1000);
             LevelManager.PassLevel();
         }
         else
         {
-            await Task.Delay(3000);
+            if (!trainModeEnabled) await Task.Delay(3000);
             LevelManager.RestartLevel();
         }
     }

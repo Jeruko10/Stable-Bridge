@@ -35,7 +35,9 @@ public static class PathSolver
         AddVoidEdges();
         AddBlockTransitions();
         MarkTrueEdges();
-        DebugDrawGraph();
+
+        if (!LevelManager.TrainModeEnabled)
+            DebugDrawGraph();
 
         return graph;
     }
