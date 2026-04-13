@@ -116,6 +116,8 @@ public class SimulationObserver : MonoBehaviour
     {
         simulationFinished = true;
 
+        if (!stabilityChecked) CheckStability();
+
         foreach (var pair in blockStates)
             if (pair.Value != StabilityState.Removed) pair.Key.SetPhysics(false);
 

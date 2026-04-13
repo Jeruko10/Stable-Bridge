@@ -25,7 +25,6 @@ public class LevelManager : MonoBehaviour
         }
 
         instance = this;
-        DontDestroyOnLoad(gameObject);
         
         levels = Resources.LoadAll<LevelLayout>("Levels");
     }

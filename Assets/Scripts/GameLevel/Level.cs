@@ -32,7 +32,7 @@ public class Level : MonoBehaviour
     bool success;
     readonly Dictionary<Vector2, BlockSegment> knightPath = new();
     GameObject blocksFolder;
-    KnightBehaviour knight = new();
+    KnightBehaviour knight;
 
     public void Initialize(LevelLayout layout)
     {
