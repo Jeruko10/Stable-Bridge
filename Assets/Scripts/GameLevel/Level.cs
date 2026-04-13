@@ -26,8 +26,13 @@ public class Level : MonoBehaviour
     public Vector2Int EndPosition { get; private set; }
     public bool IsEditing { get; private set; } = true;
 
+    public event Action<bool> LevelComplete;
+    public event Action<bool> SuccessKnown;
+
+    bool success;
+    readonly Dictionary<Vector2, BlockSegment> knightPath = new();
     GameObject blocksFolder;
-    KnightBehaviour knight;
+    KnightBehaviour knight = new();
 
     public void Initialize(LevelLayout layout)
     {
@@ -53,6 +58,7 @@ public class Level : MonoBehaviour
         CreateCharacters();
 
         SimulationObserver.SimulationEnded += OnSimulationEnded;
+        SimulationObserver.StabilityKnown += OnStabilityKnown;
         knight.GoalReached += OnReachedGoal;
     }
 
@@ -81,29 +87,34 @@ public class Level : MonoBehaviour
         SimulationObserver.Initialize(Grid.GetAllBlocks());
     }
 
-    async void OnSimulationEnded(IEnumerable<Block> unstableBlocks)
+    void OnStabilityKnown(IEnumerable<Block> unstableBlocks)
     {
         foreach (Block block in unstableBlocks)
             Grid.RemoveBlock(block);
-        
-        await Task.Delay(500);
 
         // Start pathfinding with the remaining blocks
         Grid.AddRow(false);
         Graph graph = PathSolver.GridToGraph(Grid);
 
         Dictionary<Vector2Int, BlockSegment> path = PathSolver.GetPath(StartPosition, EndPosition, graph);
-        Dictionary<Vector2, BlockSegment> worldPositions = new();
-        bool reachesGoal = path.LastOrDefault().Key == EndPosition;
+        knightPath.Clear();
+        success = path.LastOrDefault().Key == EndPosition;
+        SuccessKnown?.Invoke(success);
+        Debug.Log("Success: " + success);
 
         foreach (var pair in path)
-            worldPositions.Add(Grid.TileToWorld(pair.Key), pair.Value);
-        
-        knight.FollowPath(worldPositions, reachesGoal);
+            knightPath.Add(Grid.TileToWorld(pair.Key), pair.Value);
+    }
+
+    async void OnSimulationEnded()
+    {
+        await Task.Delay(500);
+        knight.FollowPath(knightPath, success);
     }
 
     async void OnReachedGoal(bool completed)
     {
+        LevelComplete?.Invoke(completed);
 
         if (completed)
         {

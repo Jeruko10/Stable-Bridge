@@ -5,24 +5,30 @@ using UnityEngine;
 
 public class SimulationObserver : MonoBehaviour
 {
-    [SerializeField] float stabilityRequiredTime = 1f;
-    [SerializeField] float unstabilityTimeLimit = 8f;
+    [SerializeField] bool instantSimulation = false;
+    [SerializeField] int stabilityRequiredFrames = 60;
+    [SerializeField] int unstabilityFrameLimit = 500;
     [SerializeField] float linearThreshold = 0.01f;
     [SerializeField] float angularThreshold = 0.01f;
     [SerializeField] float removalImpulse = 10000f;
 
-    public event Action<IEnumerable<Block>> SimulationEnded;
+    public event Action SimulationEnded;
+    public event Action<IEnumerable<Block>> StabilityKnown;
 
     readonly Dictionary<Block, StabilityState> blockStates = new();
     readonly Dictionary<Block, float> blockStabilityTimers = new();
-    bool simulationFinished = true;
-    float simulationTimer = 0f;
+    bool simulationFinished = true, stabilityChecked = false;
+    int simulationFramesTimer = 0;
 
     enum StabilityState { Pendant, Stable, Unstable, Removed }
 
     public void Initialize(IEnumerable<Block> blocks)
     {
+        Physics.simulationMode = SimulationMode.Script;
+
         simulationFinished = false;
+        stabilityChecked = false;
+        simulationFramesTimer = 0;
         blockStates.Clear();
         blockStabilityTimers.Clear();
 
@@ -42,22 +48,43 @@ public class SimulationObserver : MonoBehaviour
         }
     }
 
-    void Update()
+    void FixedUpdate()
     {
         if (simulationFinished) return;
 
-        if (AllBlocksStable() || simulationTimer >= unstabilityTimeLimit)
+        int framesToProcess = instantSimulation ? stabilityRequiredFrames : 1;
+
+        for (int i = 0; i < framesToProcess; i++)
         {
-            EndSimulation();
-            return;
+            if (simulationFinished) break;
+
+            Physics.Simulate(Time.fixedDeltaTime);
+            
+            if (simulationFramesTimer >= stabilityRequiredFrames && !stabilityChecked) CheckStability();
+
+            if (AllBlocksStable() || simulationFramesTimer >= unstabilityFrameLimit)
+            {
+                EndSimulation();
+                break;
+            }
+
+            simulationFramesTimer++;
+
+            List<Block> blocks = blockStates.Keys.ToList();
+            foreach (Block block in blocks) UpdateBlockState(block);
         }
+    }
 
-        simulationTimer += Time.deltaTime;
+    void CheckStability()
+    {
+        stabilityChecked = true;
+        List<Block> unstableBlocks = new();
 
-        List<Block> blocks = blockStates.Keys.ToList();
+        foreach (var pair in blockStates)
+            if (pair.Value != StabilityState.Stable) unstableBlocks.Add(pair.Key);
+            else pair.Key.SetPhysics(false);
 
-        foreach (Block block in blocks)
-            UpdateBlockState(block);
+        StabilityKnown?.Invoke(unstableBlocks);
     }
 
     void UpdateBlockState(Block block)
@@ -66,21 +93,14 @@ public class SimulationObserver : MonoBehaviour
 
         bool isMoving = block.Rigidbody.linearVelocity.magnitude > linearThreshold || block.Rigidbody.angularVelocity.magnitude > angularThreshold;
         
-        if (!isMoving && blockStates[block] == StabilityState.Unstable)
-            RemoveBlock(block);
+        if (!isMoving && blockStates[block] == StabilityState.Unstable) RemoveBlock(block);
 
         if (blockStates[block] == StabilityState.Pendant)
         {
-            if (isMoving)
-            {
-                blockStates[block] = StabilityState.Unstable;
-                return;
-            }
+            if (isMoving) { blockStates[block] = StabilityState.Unstable; return; }
 
-            blockStabilityTimers[block] += Time.deltaTime;
-
-            if (blockStabilityTimers[block] >= stabilityRequiredTime)
-                blockStates[block] = StabilityState.Stable;
+            blockStabilityTimers[block] += Time.fixedDeltaTime;
+            if (blockStabilityTimers[block] >= stabilityRequiredFrames) blockStates[block] = StabilityState.Stable;
         }
     }
 
@@ -95,12 +115,11 @@ public class SimulationObserver : MonoBehaviour
     void EndSimulation()
     {
         simulationFinished = true;
-        List<Block> removedBlocks = new();
 
         foreach (var pair in blockStates)
-            if (pair.Value == StabilityState.Removed) removedBlocks.Add(pair.Key);
-            else pair.Key.SetPhysics(false);
+            if (pair.Value != StabilityState.Removed) pair.Key.SetPhysics(false);
 
-        SimulationEnded?.Invoke(removedBlocks);
+        Physics.simulationMode = SimulationMode.FixedUpdate;
+        SimulationEnded?.Invoke();
     }
 }
