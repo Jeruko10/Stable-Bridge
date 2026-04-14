@@ -61,7 +61,7 @@ public class Level : MonoBehaviour
 
         SimulationObserver.SimulationEnded += OnSimulationEnded;
         SimulationObserver.StabilityKnown += OnStabilityKnown;
-        knight.GoalReached += OnReachedGoal;
+        knight.PathEnded += OnReachedGoal;
     }
 
     void Update()
@@ -112,18 +112,18 @@ public class Level : MonoBehaviour
     {
         if (trainModeEnabled)
         {
-            OnReachedGoal(success);
+            OnReachedGoal();
             return;
         }
 
         knight.FollowPath(knightPath, success);
     }
 
-    async void OnReachedGoal(bool completed)
+    async void OnReachedGoal()
     {
-        LevelComplete?.Invoke(completed);
+        LevelComplete?.Invoke(success);
 
-        if (completed)
+        if (success)
         {
             if (!trainModeEnabled) await Task.Delay(1000);
             LevelManager.PassLevel();

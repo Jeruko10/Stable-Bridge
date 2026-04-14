@@ -6,16 +6,17 @@ using UnityEngine;
 public class KnightBehaviour : MonoBehaviour
 {
     [field: SerializeField] public float MoveSpeed { get; set; } = 3f;
+    [field: SerializeField] public float MaxTime { get; set; } = 20f;
     [field: SerializeField] public float ArrivalThreshold { get; set; } = 0.05f;
     [field: SerializeField] public float EndKeepDistance { get; set; } = 0.5f;
     public float HeightOffset { get; set; }
-    public event Action<bool> GoalReached;
+    public event Action PathEnded;
 
-    bool isActivated = false;
-    bool pathReachesGoal = false;
+    bool isActivated = false, pathReachesGoal = false;
     List<Vector2> waypoints = new();
     List<BlockSegment> destinations = new();
     int targetIndex = 0;
+    float timer;
     Rigidbody body;
 
     void Awake()
@@ -27,6 +28,8 @@ public class KnightBehaviour : MonoBehaviour
     void Update()
     {
         if (!isActivated || waypoints == null || targetIndex >= waypoints.Count) return;
+
+        if (timer <= 0f) CompletePath();
 
         Vector3 targetWorld = GetTargetPosition();
         BlockSegment targetBlock = destinations[targetIndex];
@@ -46,6 +49,7 @@ public class KnightBehaviour : MonoBehaviour
         }
 
         MoveTowardTarget(targetWorld, targetBlock);
+        timer -= Time.deltaTime;
     }
 
     public void FollowPath(Dictionary<Vector2, BlockSegment> path, bool reachesGoal)
@@ -64,6 +68,7 @@ public class KnightBehaviour : MonoBehaviour
         }
 
         targetIndex = 0;
+        timer = MaxTime;
         isActivated = true;
     }
 
@@ -107,7 +112,7 @@ public class KnightBehaviour : MonoBehaviour
             body.AddForce(Vector3.right * 2f, ForceMode.Impulse);
         }
 
-        GoalReached?.Invoke(pathReachesGoal);
+        PathEnded?.Invoke();
     }
 }
 
