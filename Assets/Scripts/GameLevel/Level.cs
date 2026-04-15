@@ -13,8 +13,8 @@ public class Level : MonoBehaviour
     [field: SerializeField] public float CameraDistance { get; set; } = 1f;
     [field: SerializeField] public float BackgroundDistance { get; set; } = 1f;
     [field: SerializeField] public float CharactersHeightOffset { get; set; } = 0f;
-    [field: SerializeField] KnightBehaviour knightPrefab;
-    [field: SerializeField] GoalBehaviour goalPrefab;
+    [field: SerializeField] Knight knightPrefab;
+    [field: SerializeField] Goal goalPrefab;
     [field: SerializeField] GameObject backgroundPrefab;
     [field: SerializeField] Block baseBlockPrefab;
     [field: SerializeField] BasicSegment basicSegmentPrefab;
@@ -32,7 +32,7 @@ public class Level : MonoBehaviour
     bool success, trainModeEnabled;
     readonly Dictionary<Vector2, BlockSegment> knightPath = new();
     GameObject blocksFolder;
-    KnightBehaviour knight;
+    Knight knight;
 
     public void Initialize(LevelLayout layout, bool trainModeEnabled = false)
     {
@@ -187,7 +187,7 @@ public class Level : MonoBehaviour
         knight.name = "Player";
         knight.HeightOffset = CharactersHeightOffset;
 
-        GoalBehaviour goal = Instantiate(goalPrefab, transform);
+        Goal goal = Instantiate(goalPrefab, transform);
         goal.transform.position = goalPos;
         goal.name = "Goal";
 

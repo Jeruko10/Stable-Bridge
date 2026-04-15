@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class KnightBehaviour : MonoBehaviour
+public class Knight : MonoBehaviour
 {
     [field: SerializeField] public float MoveSpeed { get; set; } = 3f;
     [field: SerializeField] public float MaxTime { get; set; } = 20f;
@@ -74,8 +74,13 @@ public class KnightBehaviour : MonoBehaviour
 
     Vector3 GetTargetPosition()
     {
-        Vector2 target2D = waypoints[targetIndex];
-        return new Vector3(target2D.x, target2D.y + HeightOffset, transform.position.z);
+        BlockSegment segment = destinations[targetIndex];
+        Vector2 position = waypoints[targetIndex];
+
+        if (segment is SlopeSegment) position.y += 0.5f;
+        position.y += HeightOffset;
+
+        return new Vector3(position.x, position.y, transform.position.z);
     }
 
     float GetCurrentThreshold() => targetIndex == waypoints.Count - 1 ? EndKeepDistance : ArrivalThreshold;
@@ -83,9 +88,7 @@ public class KnightBehaviour : MonoBehaviour
     bool HasReachedTarget(Vector3 targetWorld, float threshold) => Vector3.Distance(transform.position, targetWorld) <= threshold;
 
     void MoveTowardTarget(Vector3 position, BlockSegment segment)
-    {
-        if (segment is SlopeSegment) position.y += 1;
-    
+    {    
         Vector3 nextPos = Vector3.MoveTowards(transform.position, position, MoveSpeed * Time.deltaTime);
         RotateSpriteForDirection(position - transform.position);
         transform.position = nextPos;
@@ -114,5 +117,16 @@ public class KnightBehaviour : MonoBehaviour
 
         PathEnded?.Invoke();
     }
-}
 
+    public static class Animations
+    {
+        public static AnimationClip Idle => GetAnimation("Idle");
+        public static AnimationClip Walk => GetAnimation("Walk");
+        public static AnimationClip SlopeUp => GetAnimation("SlopeUp");
+        public static AnimationClip SlopeDown => GetAnimation("SlopeDown");
+        
+        const string rootPath = "Knight/";
+
+        static AnimationClip GetAnimation(string name) => Resources.Load<AnimationClip>(rootPath + name);
+    }
+}
