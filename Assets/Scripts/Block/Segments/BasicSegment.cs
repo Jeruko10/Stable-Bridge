@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class BasicSegment : BlockSegment
 {
-    IEnumerable<LocalTransition> Transitions => mirrored ? transitions.Select(t => t.Mirrored()) : transitions;
-    
     readonly LocalTransition[] transitions = new LocalTransition[]
     {
-        new(from: new(0, 1), to: new(1, 1)),
-        new(from: new(0, 1), to: new(-1, 1))
+        new(from: new(0, 1), to: new(1, 1), animation: new(new(1, 1))),
+        new(from: new(0, 1), to: new(-1, 1), animation: new(new(-1, 1)))
     };
+
     Block parent;
     bool mirrored = false;
     
@@ -30,7 +29,9 @@ public class BasicSegment : BlockSegment
         if (grid.IsValidTile(topTile) && grid.GetBlockAtTile(topTile) != null)
             yield break;
 
-        foreach (LocalTransition transition in Transitions)
+        foreach (LocalTransition transition in GetProcessedTransitions())
             yield return transition;
     }
+
+    IEnumerable<LocalTransition> GetProcessedTransitions() => mirrored ? transitions.Select(t => t.Mirrored()) : transitions;
 }

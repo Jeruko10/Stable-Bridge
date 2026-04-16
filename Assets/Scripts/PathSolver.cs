@@ -12,24 +12,15 @@ public static class PathSolver
 
     static BoardGrid grid;
     static Graph graph;
-    static readonly Dictionary<Graph.Edge, EdgeData> edgeDataMap = new();
-
-    class EdgeData
-    {
-        public string Tag { get; set; }
-        public BlockSegment Segment { get; }
-
-        public EdgeData(string tag, BlockSegment segment)
-        {
-            Tag = tag;
-            Segment = segment;
-        }
-    }
+    static readonly Dictionary<Graph.Edge, string> edgeTags = new();
+    static readonly Dictionary<Graph.Edge, TransitionAnimation?> edgeTransitions = new();
 
     public static Graph GridToGraph(BoardGrid boardGrid)
     {
         grid = boardGrid;
-        edgeDataMap.Clear();
+        edgeTransitions.Clear();
+        edgeTags.Clear();
+        
         graph = CreateEmptyGraph();
 
         AddVoidEdges();
@@ -42,25 +33,26 @@ public static class PathSolver
         return graph;
     }
 
-    public static Dictionary<Vector2Int, BlockSegment> GetPath(Vector2Int startTile, Vector2Int endTile, Graph graph)
+    public static Dictionary<Vector2Int, TransitionAnimation?> GetPath(Vector2Int startTile, Vector2Int endTile, Graph graph)
     {
-        var current = graph.FindVertex(startTile);
+        // Transition animations define the animation to traverse that exact tile
+        Graph.Vertex current = graph.FindVertex(startTile);
 
-        if (current == null) return new Dictionary<Vector2Int, BlockSegment>();
+        if (current == null) return new Dictionary<Vector2Int, TransitionAnimation?>();
 
-        Dictionary<Vector2Int, BlockSegment> path = new() { { startTile, null } };
+        Dictionary<Vector2Int, TransitionAnimation?> path = new();
         HashSet<Graph.Vertex> seen = new() { current };
 
         while (true)
         {
-            List<Graph.Edge> options = current.Edges.Where(e => edgeDataMap[e].Tag == trueEdgeTag && !seen.Contains(e.Destination)).ToList();
+            IEnumerable<Graph.Edge> options = current.Edges.Where(e => edgeTags[e] == trueEdgeTag && !seen.Contains(e.Destination));
             if (!options.Any()) break;
 
             Graph.Edge bestEdge = options.OrderBy(e => Manhattan(e.Destination.Coordinate, endTile)).First();
-            current = bestEdge.Destination;
 
+            current = bestEdge.Destination;
             seen.Add(current);
-            path.Add(current.Coordinate, edgeDataMap[bestEdge].Segment);
+            path.Add(current.Coordinate, edgeTransitions[bestEdge]);
 
             if (current.Coordinate == endTile) break;
         }
@@ -84,10 +76,10 @@ public static class PathSolver
             {
                 Graph.Edge returnEdge = edge.Destination.Edges.Find(e => e.Destination == vertex);
 
-                if (returnEdge != null && (edgeDataMap[edge].Tag == blockEdgeTag || edgeDataMap[returnEdge].Tag == blockEdgeTag))
+                if (returnEdge != null && (edgeTags[edge] == blockEdgeTag || edgeTags[returnEdge] == blockEdgeTag))
                 {
-                    edgeDataMap[edge].Tag = trueEdgeTag;
-                    edgeDataMap[returnEdge].Tag = trueEdgeTag;
+                    edgeTags[edge] = trueEdgeTag;
+                    edgeTags[returnEdge] = trueEdgeTag;
                 }
             }
     }
@@ -114,7 +106,8 @@ public static class PathSolver
                 if (fromVertex != null && toVertex != null)
                 {
                     Graph.Edge edge = graph.AddEdge(fromVertex, toVertex);
-                    edgeDataMap[edge] = new EdgeData(blockEdgeTag, bSegment);
+                    edgeTags[edge] = blockEdgeTag;
+                    edgeTransitions[edge] = transition.Animation.ToGlobal(bSegment.transform.position);
                 }
             }
         }
@@ -135,7 +128,8 @@ public static class PathSolver
                 if (destinationVertex != null)
                 {
                     Graph.Edge edge = graph.AddEdge(vertex, destinationVertex);
-                    edgeDataMap[edge] = new EdgeData(voidEdgeTag, null);
+                    edgeTags.Add(edge, voidEdgeTag);
+                    edgeTransitions.Add(edge, null);
                 }
             }
         }
@@ -147,7 +141,7 @@ public static class PathSolver
         {
             foreach (Graph.Edge edge in vertex.Edges)
             {
-                string tag = edgeDataMap[edge].Tag;
+                string tag = edgeTags[edge];
                 
                 Color lineColor = tag == voidEdgeTag ? Color.gray.WithAlpha(0.1f) : 
                                   tag == blockEdgeTag ? Color.red.WithAlpha(0.3f) : 

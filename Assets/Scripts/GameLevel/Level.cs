@@ -30,7 +30,7 @@ public class Level : MonoBehaviour
     public event Action<bool> SuccessKnown;
 
     bool success, trainModeEnabled;
-    readonly Dictionary<Vector2, BlockSegment> knightPath = new();
+    TransitionAnimation[] knightAnimationPath;
     GameObject blocksFolder;
     Knight knight;
 
@@ -98,14 +98,13 @@ public class Level : MonoBehaviour
         Grid.AddRow(false);
         Graph graph = PathSolver.GridToGraph(Grid);
 
-        Dictionary<Vector2Int, BlockSegment> path = PathSolver.GetPath(StartPosition, EndPosition, graph);
-        knightPath.Clear();
+        Dictionary<Vector2Int, TransitionAnimation?> path = PathSolver.GetPath(StartPosition, EndPosition, graph);
+        
         success = path.LastOrDefault().Key == EndPosition;
         SuccessKnown?.Invoke(success);
         Debug.Log("Success: " + success);
 
-        foreach (var pair in path)
-            knightPath.Add(Grid.TileToWorld(pair.Key), pair.Value);
+        knightAnimationPath = path.Values.OfType<TransitionAnimation>().ToArray(); // Exclude nulls, which represent non-transition tiles
     }
 
     void OnSimulationEnded()
@@ -116,7 +115,7 @@ public class Level : MonoBehaviour
             return;
         }
 
-        knight.FollowPath(knightPath, success);
+        knight.StartPathAnimation(knightAnimationPath, success);
     }
 
     async void OnReachedGoal()

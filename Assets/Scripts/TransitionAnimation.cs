@@ -1,15 +1,18 @@
+using System;
 using UnityEngine;
 
-public class TransitionAnimation
+public readonly struct TransitionAnimation
 {
-    public AnimationClip Clip { get; }
-    public Vector3 LocalDisplacement { get; }
-    public float Duration { get; }
+    public Vector2 Destination { get; }
+    public float Speed { get; }
 
-    public TransitionAnimation(AnimationClip clip, Vector3 displacement, float duration)
+    public TransitionAnimation(Vector2 destination, float speed = 1f)
     {
-        Clip = clip;
-        LocalDisplacement = displacement;
-        Duration = duration;
+        Destination = destination;
+        Speed = speed;
     }
+
+    public TransitionAnimation Mirrored() => new(new(-Destination.x, Destination.y), Speed);
+
+    public TransitionAnimation ToGlobal(Vector2 globalPosition) => new(globalPosition + Destination, Speed);
 }

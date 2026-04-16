@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Knight : MonoBehaviour
 {
-    [field: SerializeField] public float MoveSpeed { get; set; } = 3f;
     [field: SerializeField] public float MaxTime { get; set; } = 20f;
     [field: SerializeField] public float ArrivalThreshold { get; set; } = 0.05f;
     [field: SerializeField] public float EndKeepDistance { get; set; } = 0.5f;
@@ -13,8 +13,7 @@ public class Knight : MonoBehaviour
     public event Action PathEnded;
 
     bool isActivated = false, pathReachesGoal = false;
-    List<Vector2> waypoints = new();
-    List<BlockSegment> destinations = new();
+    TransitionAnimation[] animations;
     int targetIndex = 0;
     float timer;
     Rigidbody body;
@@ -27,40 +26,38 @@ public class Knight : MonoBehaviour
 
     void Update()
     {
-        if (!isActivated || waypoints == null || targetIndex >= waypoints.Count) return;
+        if (!isActivated || animations == null || targetIndex >= animations.Length) return;
 
         if (timer <= 0f) CompletePath();
 
-        Vector3 targetWorld = GetTargetPosition();
-        BlockSegment targetBlock = destinations[targetIndex];
+        Vector3 targetPosition = GetTargetPosition();
         float currentThreshold = GetCurrentThreshold();
 
-        if (HasReachedTarget(targetWorld, currentThreshold))
+        if (HasReachedTarget(targetPosition, currentThreshold))
         {
-            if (targetIndex == waypoints.Count - 1)
+            if (targetIndex == animations.Length - 1)
             {
                 CompletePath();
                 return;
             }
 
-            transform.position = targetWorld; // Fix exact position
+            transform.position = targetPosition; // Fix exact position
             targetIndex++;
-            targetWorld = GetTargetPosition(); // Re-calculate new index
+            targetPosition = GetTargetPosition(); // Re-calculate new index
         }
 
-        MoveTowardTarget(targetWorld, targetBlock);
+        MoveTowardTarget(targetPosition, animations[targetIndex].Speed);
         timer -= Time.deltaTime;
     }
 
-    public void FollowPath(Dictionary<Vector2, BlockSegment> path, bool reachesGoal)
+    public void StartPathAnimation(TransitionAnimation[] animations, bool reachesGoal)
     {
         pathReachesGoal = reachesGoal;
-        waypoints = new(path.Keys);
-        destinations = new(path.Values);
+        this.animations = animations;
 
-        if (waypoints.Count <= 0)
+        if (this.animations.Length <= 0)
         {
-            Debug.LogWarning($"Path is too short: {waypoints.Count} waypoints. Check if it was intentional.");
+            Debug.LogWarning($"Path is too short: {this.animations.Length} animations. Check if it was intentional.");
 
             targetIndex = 0;
             CompletePath();
@@ -74,22 +71,20 @@ public class Knight : MonoBehaviour
 
     Vector3 GetTargetPosition()
     {
-        BlockSegment segment = destinations[targetIndex];
-        Vector2 position = waypoints[targetIndex];
+        TransitionAnimation animation = animations[targetIndex];
+        Vector2 position = animation.Destination;
 
-        if (segment is SlopeSegment) position.y += 0.5f;
         position.y += HeightOffset;
-
         return new Vector3(position.x, position.y, transform.position.z);
     }
 
-    float GetCurrentThreshold() => targetIndex == waypoints.Count - 1 ? EndKeepDistance : ArrivalThreshold;
+    float GetCurrentThreshold() => targetIndex == animations.Length - 1 ? EndKeepDistance : ArrivalThreshold;
 
-    bool HasReachedTarget(Vector3 targetWorld, float threshold) => Vector3.Distance(transform.position, targetWorld) <= threshold;
+    bool HasReachedTarget(Vector3 targetPosition, float threshold) => Vector3.Distance(transform.position, targetPosition) <= threshold;
 
-    void MoveTowardTarget(Vector3 position, BlockSegment segment)
+    void MoveTowardTarget(Vector3 position, float moveSpeed)
     {    
-        Vector3 nextPos = Vector3.MoveTowards(transform.position, position, MoveSpeed * Time.deltaTime);
+        Vector3 nextPos = Vector3.MoveTowards(transform.position, position, moveSpeed * Time.deltaTime);
         RotateSpriteForDirection(position - transform.position);
         transform.position = nextPos;
     }
@@ -116,17 +111,5 @@ public class Knight : MonoBehaviour
         }
 
         PathEnded?.Invoke();
-    }
-
-    public static class Animations
-    {
-        public static AnimationClip Idle => GetAnimation("Idle");
-        public static AnimationClip Walk => GetAnimation("Walk");
-        public static AnimationClip SlopeUp => GetAnimation("SlopeUp");
-        public static AnimationClip SlopeDown => GetAnimation("SlopeDown");
-        
-        const string rootPath = "Knight/";
-
-        static AnimationClip GetAnimation(string name) => Resources.Load<AnimationClip>(rootPath + name);
     }
 }
