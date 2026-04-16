@@ -6,26 +6,26 @@ public class SlopeSegment : BlockSegment
 {
     readonly LocalTransition[] transitions0Deg = new LocalTransition[]
     {
-        new(from: new(0, 0), to: new(0, 1), animation: new(new(0, 1))),
-        new(from: new(0, 0), to: new(1, 0), animation: new(new(1, 0)))
+        new(from: new(0, 0), to: new(0, 1), animation: new(new(-0.5f, 1))),
+        new(from: new(0, 0), to: new(1, 0), animation: new(new(0.5f, 0)))
     };
 
     readonly LocalTransition[] transitions90Deg = new LocalTransition[]
     {
-        new(from: new(0, 1), to: new(1, 1), animation: new(new(1, 1))),
-        new(from: new(0, 1), to: new(-1, 1), animation: new(new(-1, 1)))
+        new(from: new(0, 1), to: new(1, 1), animation: new(new(0.5f, 1))),
+        new(from: new(0, 1), to: new(-1, 1), animation: new(new(-0.5f, 1)))
     };
 
     readonly LocalTransition[] transitions180Deg = new LocalTransition[]
     {
-        new(from: new(0, 1), to: new(1, 1), animation: new(new(1, 1))),
-        new(from: new(0, 1), to: new(-1, 1), animation: new(new(-1, 1)))
+        new(from: new(0, 1), to: new(1, 1), animation: new(new(0.5f, 1))),
+        new(from: new(0, 1), to: new(-1, 1), animation: new(new(-0.5f, 1)))
     };
 
     readonly LocalTransition[] transitions270Deg = new LocalTransition[]
     {
-        new(from: new(0, 0), to: new(-1, 0), animation: new(new(1, 1))),
-        new(from: new(0, 0), to: new(0, 1), animation: new(new(-1, 1)))
+        new(from: new(0, 0), to: new(0, 1), animation: new(new(0.5f, 1))),
+        new(from: new(0, 0), to: new(-1, 0), animation: new(new(-0.5f, 0)))
     };
 
     Block parent;

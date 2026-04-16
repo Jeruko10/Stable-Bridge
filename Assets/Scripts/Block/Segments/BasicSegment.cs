@@ -6,8 +6,8 @@ public class BasicSegment : BlockSegment
 {
     readonly LocalTransition[] transitions = new LocalTransition[]
     {
-        new(from: new(0, 1), to: new(1, 1), animation: new(new(1, 1))),
-        new(from: new(0, 1), to: new(-1, 1), animation: new(new(-1, 1)))
+        new(from: new(0, 1), to: new(1, 1), animation: new(new(0.5f, 1))),
+        new(from: new(0, 1), to: new(-1, 1), animation: new(new(-0.5f, 1)))
     };
 
     Block parent;

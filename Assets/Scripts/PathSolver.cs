@@ -38,7 +38,7 @@ public static class PathSolver
         // Transition animations define the animation to traverse that exact tile
         Graph.Vertex current = graph.FindVertex(startTile);
 
-        if (current == null) return new Dictionary<Vector2Int, TransitionAnimation?>();
+        if (current == null) return new();
 
         Dictionary<Vector2Int, TransitionAnimation?> path = new();
         HashSet<Graph.Vertex> seen = new() { current };

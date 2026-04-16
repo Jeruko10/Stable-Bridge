@@ -55,20 +55,21 @@ public class Knight : MonoBehaviour
     {
         if (animations == null || animations.Length <= 1) return;
 
+        const float depth = -1f;
         Gizmos.color = Color.pink;
-        Vector3 currentPos = startPosition;
+        Vector3 currentPos = new(startPosition.x, startPosition.y, depth);
 
         for (int i = 0; i < animations.Length; i++)
         {
             TransitionAnimation anim = animations[i];
-            Vector3 nextPos = new(anim.Destination.x, anim.Destination.y + HeightOffset, -5f);
+            Vector3 nextPos = new(anim.Destination.x, anim.Destination.y + HeightOffset, depth);
             Gizmos.DrawLine(currentPos, nextPos);
             Gizmos.DrawSphere(currentPos, 0.1f);
             currentPos = nextPos;
         }
         Gizmos.DrawSphere(currentPos, 0.1f);
         Gizmos.color = Color.red;
-        Gizmos.DrawSphere(GetTargetPosition(), 0.13f);
+        Gizmos.DrawSphere(new(GetTargetPosition().x, GetTargetPosition().y, depth), 0.13f);
     }
 
     public void StartPathAnimation(TransitionAnimation[] animations, bool reachesGoal)
