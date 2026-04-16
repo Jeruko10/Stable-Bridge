@@ -145,7 +145,8 @@ public static class PathSolver
                 
                 Color lineColor = tag == voidEdgeTag ? Color.gray.WithAlpha(0.1f) : 
                                   tag == blockEdgeTag ? Color.red.WithAlpha(0.3f) : 
-                                  tag == trueEdgeTag ? Color.green : Color.white;
+                                  tag == trueEdgeTag ? Color.green.WithAlpha(0.3f) :
+                                  Color.white;
 
                 Vector2 sourceCoord = grid.TileToWorld(vertex.Coordinate);
                 Vector2 destinationCoord = grid.TileToWorld(edge.Destination.Coordinate);

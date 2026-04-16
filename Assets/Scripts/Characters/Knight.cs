@@ -50,11 +50,30 @@ public class Knight : MonoBehaviour
         timer -= Time.deltaTime;
     }
 
+    void OnDrawGizmos()
+    {
+        if (animations == null || animations.Length <= 1) return;
+
+        Gizmos.color = Color.pink;
+        Vector3 currentPos = animations[0].Destination;
+        currentPos.y += HeightOffset;
+
+        for (int i = 1; i < animations.Length; i++)
+        {
+            TransitionAnimation anim = animations[i];
+            Vector3 nextPos = new(anim.Destination.x, anim.Destination.y + HeightOffset, currentPos.z);
+            Gizmos.DrawLine(currentPos, nextPos);
+            Gizmos.DrawSphere(currentPos, 0.1f);
+            currentPos = nextPos;
+        }
+        Gizmos.DrawSphere(currentPos, 0.1f);
+    }
+
     public void StartPathAnimation(TransitionAnimation[] animations, bool reachesGoal)
     {
         pathReachesGoal = reachesGoal;
         this.animations = animations;
-
+        Debug.Log($"Knight starting path animation with {animations.Length} steps. Reaches goal: {reachesGoal}");
         if (this.animations.Length <= 0)
         {
             Debug.LogWarning($"Path is too short: {this.animations.Length} animations. Check if it was intentional.");
