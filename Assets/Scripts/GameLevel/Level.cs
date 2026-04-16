@@ -104,6 +104,7 @@ public class Level : MonoBehaviour
         SuccessKnown?.Invoke(success);
         Debug.Log("Success: " + success);
 
+        Debug.Log($"Path found with {path.Count} steps.");
         knightAnimationPath = path.Values.OfType<TransitionAnimation>().ToArray(); // Exclude nulls, which represent non-transition tiles
     }
 

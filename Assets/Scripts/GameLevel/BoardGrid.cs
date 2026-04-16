@@ -78,7 +78,6 @@ public class BoardGrid : MonoBehaviour
     public Vector2Int WorldToTile(Vector3 worldPos)
     {
         Vector2Int tile = new(Mathf.RoundToInt(worldPos.x / TileSize), Mathf.RoundToInt(worldPos.y / TileSize));
-        if (!IsValidTile(tile)) Debug.LogWarning($"Tile {tile} is out of bounds!");
         return tile;
     }
 
@@ -198,7 +197,11 @@ public class BoardGrid : MonoBehaviour
         for (int i = 1; i < length; i++)
         {
             int targetIndex = (block.SlidePositionIndex + i) % length;
-            if (TryPlaceBlock(block, block.SlidePositions[targetIndex], block.Pivot)) { block.SlidePositionIndex = targetIndex; return true; }
+            if (TryPlaceBlock(block, block.SlidePositions[targetIndex], block.Pivot))
+            {
+                block.SlidePositionIndex = targetIndex;
+                return true;
+            }
         }
 
         TryPlaceBlock(block, pivotTile, block.Pivot);

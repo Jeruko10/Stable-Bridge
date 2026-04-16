@@ -14,6 +14,7 @@ public class Knight : MonoBehaviour
 
     bool isActivated = false, pathReachesGoal = false;
     TransitionAnimation[] animations;
+    Vector3 startPosition;
     int targetIndex = 0;
     float timer;
     Rigidbody body;
@@ -55,24 +56,27 @@ public class Knight : MonoBehaviour
         if (animations == null || animations.Length <= 1) return;
 
         Gizmos.color = Color.pink;
-        Vector3 currentPos = animations[0].Destination;
-        currentPos.y += HeightOffset;
+        Vector3 currentPos = startPosition;
 
-        for (int i = 1; i < animations.Length; i++)
+        for (int i = 0; i < animations.Length; i++)
         {
             TransitionAnimation anim = animations[i];
-            Vector3 nextPos = new(anim.Destination.x, anim.Destination.y + HeightOffset, currentPos.z);
+            Vector3 nextPos = new(anim.Destination.x, anim.Destination.y + HeightOffset, -5f);
             Gizmos.DrawLine(currentPos, nextPos);
             Gizmos.DrawSphere(currentPos, 0.1f);
             currentPos = nextPos;
         }
         Gizmos.DrawSphere(currentPos, 0.1f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(GetTargetPosition(), 0.13f);
     }
 
     public void StartPathAnimation(TransitionAnimation[] animations, bool reachesGoal)
     {
+        startPosition = transform.position;
         pathReachesGoal = reachesGoal;
         this.animations = animations;
+
         Debug.Log($"Knight starting path animation with {animations.Length} steps. Reaches goal: {reachesGoal}");
         if (this.animations.Length <= 0)
         {
