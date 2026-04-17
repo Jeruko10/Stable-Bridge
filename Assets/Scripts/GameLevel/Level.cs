@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -112,25 +113,34 @@ public class Level : MonoBehaviour
     {
         if (trainModeEnabled)
         {
-            OnReachedGoal();
+            StartCoroutine(EndLevel(success));
             return;
         }
 
         knight.StartPathAnimation(knightAnimationPath, success);
     }
 
-    async void OnReachedGoal()
+    void OnReachedGoal() => EndLevel(success);
+
+    IEnumerator EndLevel(bool success)
     {
         LevelComplete?.Invoke(success);
 
         if (success)
         {
-            if (!trainModeEnabled) await Task.Delay(1000);
+            if (!trainModeEnabled) // Wait for seconds
+            {
+                yield return new WaitForSeconds(3f);
+            }
+
             LevelManager.PassLevel();
         }
         else
         {
-            if (!trainModeEnabled) await Task.Delay(3000);
+            if (!trainModeEnabled) // Wait for seconds
+            {
+                yield return new WaitForSeconds(3f);
+            }
             LevelManager.RestartLevel();
         }
     }

@@ -28,33 +28,89 @@ public static class PathSolver
         MarkTrueEdges();
 
         if (!LevelManager.TrainModeEnabled)
-            DebugDrawGraph();
+        {
+            // DebugDrawGraph();
+        }
 
         return graph;
     }
 
     public static Dictionary<Vector2Int, TransitionAnimation?> GetPath(Vector2Int startTile, Vector2Int endTile, Graph graph)
     {
-        // Transition animations define the animation to traverse that exact tile
-        Graph.Vertex current = graph.FindVertex(startTile);
+        Graph.Vertex start = graph.FindVertex(startTile);
+        Graph.Vertex end = graph.FindVertex(endTile);
 
-        if (current == null) return new();
+        if (start == null || end == null) return new();
 
-        Dictionary<Vector2Int, TransitionAnimation?> path = new();
-        HashSet<Graph.Vertex> seen = new() { current };
-
-        while (true)
+        if (start == end)
         {
-            IEnumerable<Graph.Edge> options = current.Edges.Where(e => edgeTags[e] == trueEdgeTag && !seen.Contains(e.Destination));
-            if (!options.Any()) break;
+            Dictionary<Vector2Int, TransitionAnimation?> startPath = new() { { startTile, null } };
 
-            Graph.Edge bestEdge = options.OrderBy(e => Manhattan(e.Destination.Coordinate, endTile)).First();
+            if (!LevelManager.TrainModeEnabled)
+            {
+                DebugDrawTransitions(startPath);
+            }
 
-            current = bestEdge.Destination;
-            seen.Add(current);
-            path.Add(current.Coordinate, edgeTransitions[bestEdge]);
+            return startPath;
+        }
 
-            if (current.Coordinate == endTile) break;
+        Dictionary<Graph.Vertex, Graph.Edge> parentEdge = new();
+        HashSet<Graph.Vertex> visited = new() { start };
+        Queue<Graph.Vertex> queue = new();
+        queue.Enqueue(start);
+
+        while (queue.Count > 0)
+        {
+            Graph.Vertex current = queue.Dequeue();
+
+            if (current == end) break;
+
+            foreach (Graph.Edge edge in current.Edges.Where(e => edgeTags[e] == trueEdgeTag && !visited.Contains(e.Destination)))
+            {
+                visited.Add(edge.Destination);
+                parentEdge[edge.Destination] = edge;
+                queue.Enqueue(edge.Destination);
+            }
+        }
+
+        List<KeyValuePair<Vector2Int, TransitionAnimation?>> pathEntries = new() { new(startTile, null) };
+
+        if (!parentEdge.ContainsKey(end))
+        {
+            if (!LevelManager.TrainModeEnabled)
+            {
+                DebugDrawTransitions(pathEntries.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
+            }
+
+            return pathEntries.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        Stack<Graph.Edge> edges = new();
+        Graph.Vertex cursor = end;
+
+        while (cursor != start)
+        {
+            Graph.Edge edge = parentEdge[cursor];
+            edges.Push(edge);
+            cursor = edge.Source;
+        }
+
+        while (edges.Count > 0)
+        {
+            Graph.Edge edge = edges.Pop();
+            pathEntries.Add(new(edge.Destination.Coordinate, edgeTransitions[edge]));
+        }
+
+        while (pathEntries.Count > 1 && pathEntries[^1].Value == null)
+        {
+            pathEntries.RemoveAt(pathEntries.Count - 1);
+        }
+
+        Dictionary<Vector2Int, TransitionAnimation?> path = pathEntries.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+        if (!LevelManager.TrainModeEnabled)
+        {
+            DebugDrawTransitions(path);
         }
 
         return path;
@@ -81,6 +137,7 @@ public static class PathSolver
                     edgeTags[edge] = trueEdgeTag;
                     edgeTags[returnEdge] = trueEdgeTag;
                 }
+                else edgeTransitions[edge] = null;
             }
     }
 
@@ -138,10 +195,10 @@ public static class PathSolver
     static void DebugDrawGraph()
     {
         foreach (Graph.Vertex vertex in graph.Vertices)
-        {
             foreach (Graph.Edge edge in vertex.Edges)
             {
                 string tag = edgeTags[edge];
+                const float depth = -1f;
                 
                 Color lineColor = tag == voidEdgeTag ? Color.gray.WithAlpha(0.1f) : 
                                   tag == blockEdgeTag ? Color.red.WithAlpha(0.3f) : 
@@ -150,11 +207,34 @@ public static class PathSolver
 
                 Vector2 sourceCoord = grid.TileToWorld(vertex.Coordinate);
                 Vector2 destinationCoord = grid.TileToWorld(edge.Destination.Coordinate);
-                Vector3 sourcePos = new(sourceCoord.x, sourceCoord.y, -1);
-                Vector3 destinationPos = new(destinationCoord.x, destinationCoord.y, -1);
+                Vector3 sourcePos = new(sourceCoord.x, sourceCoord.y, depth);
+                Vector3 destinationPos = new(destinationCoord.x, destinationCoord.y, depth);
 
                 Debug.DrawLine(sourcePos, destinationPos, lineColor, 2f);
             }
+    }
+
+    static void DebugDrawTransitions(Dictionary<Vector2Int, TransitionAnimation?> path)
+    {
+        if (path.Count < 2) return;
+
+        const float depth = -2f;
+        using var enumerator = path.GetEnumerator();
+        
+        if (!enumerator.MoveNext()) return;
+        
+        Vector2 firstWorld = grid.TileToWorld(enumerator.Current.Key);
+        Vector3 lastPos = new(firstWorld.x, firstWorld.y, depth);
+
+        while (enumerator.MoveNext())
+        {
+            Vector2 tileWorld = grid.TileToWorld(enumerator.Current.Key);
+            Vector3 currentPos = new(tileWorld.x, tileWorld.y, depth);
+            Color color = enumerator.Current.Value == null ? Color.red : Color.green;
+
+            Debug.DrawLine(lastPos, currentPos, color, 2f);
+            Debug.Log($"Transition {enumerator.Current.Value?.ToString() ?? "void"} from {(Vector2)lastPos} to {(Vector2)currentPos}");
+            lastPos = currentPos;
         }
     }
 }
