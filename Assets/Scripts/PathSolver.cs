@@ -48,7 +48,11 @@ public static class PathSolver
             
             if (!options.Any()) break;
 
-            Graph.Edge bestEdge = options.OrderBy(e => Manhattan(e.Destination.Coordinate, endTile)).First();
+            IEnumerable<Graph.Edge> preferredOptions = options
+                .GroupBy(e => e.Destination.Coordinate)
+                .Select(group => group.FirstOrDefault(e => edgeTransitions[e] != null) ?? group.First());
+
+            Graph.Edge bestEdge = preferredOptions.OrderBy(e => Manhattan(e.Destination.Coordinate, endTile)).First();
 
             current = bestEdge.Destination;
             seen.Add(current);

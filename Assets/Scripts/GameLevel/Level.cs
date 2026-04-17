@@ -62,7 +62,7 @@ public class Level : MonoBehaviour
 
         SimulationObserver.SimulationEnded += OnSimulationEnded;
         SimulationObserver.StabilityKnown += OnStabilityKnown;
-        knight.PathEnded += OnReachedGoal;
+        knight.PathEnded += OnPathEnded;
     }
 
     void Update()
@@ -103,9 +103,7 @@ public class Level : MonoBehaviour
         
         success = path.LastOrDefault().Key == EndPosition;
         SuccessKnown?.Invoke(success);
-        Debug.Log("Success: " + success);
 
-        Debug.Log($"Path found with {path.Count} steps.");
         knightAnimationPath = path.Values.OfType<TransitionAnimation>().ToArray(); // Exclude nulls, which represent non-transition tiles
     }
 
@@ -113,16 +111,16 @@ public class Level : MonoBehaviour
     {
         if (trainModeEnabled)
         {
-            OnReachedGoal();
+            EndLevel(success);
             return;
         }
 
         knight.StartPathAnimation(knightAnimationPath, success);
     }
 
-    void OnReachedGoal() => EndLevel(success);
+    void OnPathEnded() => StartCoroutine(EndLevel(success));
 
-    IEnumerable EndLevel(bool success)
+    IEnumerator EndLevel(bool success)
     {
         LevelComplete?.Invoke(success);
 

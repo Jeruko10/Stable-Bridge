@@ -78,7 +78,6 @@ public class Knight : MonoBehaviour
         pathReachesGoal = reachesGoal;
         this.animations = animations;
 
-        Debug.Log($"Knight starting path animation with {animations.Length} steps. Reaches goal: {reachesGoal}");
         if (this.animations.Length <= 0)
         {
             Debug.LogWarning($"Path is too short: {this.animations.Length} animations. Check if it was intentional.");
@@ -133,7 +132,7 @@ public class Knight : MonoBehaviour
             // Apply a small upward force to make the failure more visually noticeable
             body.AddForce(Vector3.right * 2f, ForceMode.Impulse);
         }
-
+        
         PathEnded?.Invoke();
     }
 }
