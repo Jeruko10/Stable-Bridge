@@ -68,7 +68,7 @@ public class Knight : MonoBehaviour
             currentPos = nextPos;
         }
         Gizmos.DrawSphere(currentPos, 0.1f);
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.red;
         Gizmos.DrawSphere(new(GetTargetPosition().x, GetTargetPosition().y, depth), 0.13f);
     }
 
