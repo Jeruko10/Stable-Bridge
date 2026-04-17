@@ -27,25 +27,25 @@ public static class PathSolver
         AddBlockTransitions();
         MarkTrueEdges();
 
-        if (!LevelManager.TrainModeEnabled)
-            DebugDrawGraph();
+        // if (!LevelManager.TrainModeEnabled)
+        //     DebugDrawGraph();
 
         return graph;
     }
 
     public static Dictionary<Vector2Int, TransitionAnimation?> GetPath(Vector2Int startTile, Vector2Int endTile, Graph graph)
     {
-        // Transition animations define the animation to traverse that exact tile
         Graph.Vertex current = graph.FindVertex(startTile);
 
         if (current == null) return new();
 
-        Dictionary<Vector2Int, TransitionAnimation?> path = new();
+        Dictionary<Vector2Int, TransitionAnimation?> path = new() { { startTile, null } };
         HashSet<Graph.Vertex> seen = new() { current };
 
         while (true)
         {
             IEnumerable<Graph.Edge> options = current.Edges.Where(e => edgeTags[e] == trueEdgeTag && !seen.Contains(e.Destination));
+            
             if (!options.Any()) break;
 
             Graph.Edge bestEdge = options.OrderBy(e => Manhattan(e.Destination.Coordinate, endTile)).First();
@@ -56,6 +56,9 @@ public static class PathSolver
 
             if (current.Coordinate == endTile) break;
         }
+
+        if (!LevelManager.TrainModeEnabled)
+            DebugDrawPath(path);
 
         return path;
     }
@@ -155,6 +158,25 @@ public static class PathSolver
 
                 Debug.DrawLine(sourcePos, destinationPos, lineColor, 2f);
             }
+        }
+    }
+
+    static void DebugDrawPath(Dictionary<Vector2Int, TransitionAnimation?> path)
+    {
+        const float depth = -2f;
+        Vector3 currentPos = new(path.First().Key.x, path.First().Key.y, depth);
+
+        foreach (var pair in path)
+        {
+            Vector2Int tile = pair.Key;
+            TransitionAnimation? transition = pair.Value;
+
+            Vector3 nextPos = new(tile.x, tile.y, depth);
+
+            Color lineColor = transition.HasValue ? Color.green : Color.red;
+            Debug.DrawLine(currentPos, nextPos, lineColor, 5f);
+
+            currentPos = nextPos;
         }
     }
 }
