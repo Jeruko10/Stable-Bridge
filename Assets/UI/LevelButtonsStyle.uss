@@ -1,0 +1,7 @@
+:root {
+}
+
+.button {
+    background-color: rgba(0, 0, 0, 0.19);
+    position: absolute;
+}

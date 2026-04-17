@@ -142,7 +142,7 @@ public class Level : MonoBehaviour
         block.Initialize(data.PivotIndex, data.MobilityType);
         block.SetRotation(block.Pivot, data.StartingRotation);
 
-        if (data.Mirrored) block.Mirror();
+        if (data.Flipped) block.Flip();
 
         if (data.MobilityType != Block.Mobility.Free)
         {

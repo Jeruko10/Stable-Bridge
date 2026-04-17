@@ -13,5 +13,5 @@ public readonly struct LocalTransition
         Animation = animation;
     }
 
-    public LocalTransition Mirrored() => new(new(-From.x, From.y), new(-To.x, To.y), Animation.Mirrored());
+    public LocalTransition Flipped() => new(new(-From.x, From.y), new(-To.x, To.y), Animation.Flipped());
 }

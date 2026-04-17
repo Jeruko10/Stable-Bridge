@@ -62,7 +62,7 @@ public class GameActions : MonoBehaviour
     {
         if (!IsDragging) return;
 
-        draggedBlock.Mirror();
+        draggedBlock.Flip();
     }
 
     public void DropSelectedBlock(Vector2 worldPosition)

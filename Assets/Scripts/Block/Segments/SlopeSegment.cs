@@ -29,13 +29,13 @@ public class SlopeSegment : BlockSegment
     };
 
     Block parent;
-    bool mirrored = false;
+    bool flipped = false;
     
     public override void Initialize(Block parent) => this.parent = parent;
     
     public override Block GetParent() => parent;
 
-    public override void Mirror() => mirrored = !mirrored;
+    public override void Flip() => flipped = !flipped;
 
     public override IEnumerable<LocalTransition> GetAvailableTransitions(BoardGrid grid)
     {
@@ -62,6 +62,6 @@ public class SlopeSegment : BlockSegment
             _ => transitions0Deg
         };
     
-        return mirrored ? rotatedTransitions.Select(t => t.Mirrored()) : rotatedTransitions;
+        return flipped ? rotatedTransitions.Select(t => t.Flipped()) : rotatedTransitions;
     }
 }

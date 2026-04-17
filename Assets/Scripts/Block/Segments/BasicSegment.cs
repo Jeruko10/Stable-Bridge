@@ -11,13 +11,13 @@ public class BasicSegment : BlockSegment
     };
 
     Block parent;
-    bool mirrored = false;
+    bool flipped = false;
     
     public override void Initialize(Block parent) => this.parent = parent;
     
     public override Block GetParent() => parent;
 
-    public override void Mirror() => mirrored = !mirrored;
+    public override void Flip() => flipped = !flipped;
 
     public override IEnumerable<LocalTransition> GetAvailableTransitions(BoardGrid grid)
     {
@@ -33,5 +33,5 @@ public class BasicSegment : BlockSegment
             yield return transition;
     }
 
-    IEnumerable<LocalTransition> GetProcessedTransitions() => mirrored ? transitions.Select(t => t.Mirrored()) : transitions;
+    IEnumerable<LocalTransition> GetProcessedTransitions() => flipped ? transitions.Select(t => t.Flipped()) : transitions;
 }

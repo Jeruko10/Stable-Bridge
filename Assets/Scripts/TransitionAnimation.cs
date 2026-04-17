@@ -12,7 +12,7 @@ public readonly struct TransitionAnimation
         Speed = speed;
     }
 
-    public TransitionAnimation Mirrored() => new(new(-Destination.x, Destination.y), Speed);
+    public TransitionAnimation Flipped() => new(new(-Destination.x, Destination.y), Speed);
 
     public TransitionAnimation ToGlobal(Vector2 globalPosition) => new(globalPosition + Destination, Speed);
 }

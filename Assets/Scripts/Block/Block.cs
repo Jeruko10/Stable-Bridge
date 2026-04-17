@@ -25,7 +25,7 @@ public class Block : MonoBehaviour
 
     readonly List<BlockSegment> segments = new();
     Vector2 targetPosition2D;
-    bool isMirrored = false, physicsEnabled;
+    bool isFlipped = false, physicsEnabled;
 
     void Awake()
     {
@@ -79,14 +79,14 @@ public class Block : MonoBehaviour
         Position2D = transform.position;
     }
 
-    public void Mirror()
+    public void Flip()
     {
-        isMirrored = !isMirrored;
+        isFlipped = !isFlipped;
 
         transform.Rotate(0f, 180f, 0f);
 
         foreach (BlockSegment segment in segments)
-            segment.Mirror();
+            segment.Flip();
     }
 
     void FetchSegmentChildren()
