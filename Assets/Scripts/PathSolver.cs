@@ -27,8 +27,8 @@ public static class PathSolver
         AddBlockTransitions();
         MarkTrueEdges();
 
-        // if (!LevelManager.TrainModeEnabled)
-        //     DebugDrawGraph();
+        if (!LevelManager.TrainModeEnabled)
+            DebugDrawGraph();
 
         return graph;
     }
@@ -61,8 +61,8 @@ public static class PathSolver
             if (current.Coordinate == endTile) break;
         }
 
-        if (!LevelManager.TrainModeEnabled)
-            DebugDrawPath(path);
+        // if (!LevelManager.TrainModeEnabled)
+        //     DebugDrawPath(path);
 
         return path;
     }

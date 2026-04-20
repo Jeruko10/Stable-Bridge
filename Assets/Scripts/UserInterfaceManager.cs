@@ -5,30 +5,18 @@ using UnityEngine.UIElements;
 public class UserInterfaceManager : MonoBehaviour
 {
     VisualElement root;
-    Button rotateButton, flipButton;
+    public Button RotateButton { get; private set; }
+    public Button FlipButton { get; private set; }
 
     void OnEnable()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
-        rotateButton = root.Q<Button>("RotateButton");
-        flipButton = root.Q<Button>("FlipButton");
-
-        rotateButton.clicked += OnRotateButtonClicked;
-        flipButton.clicked += OnFlipButtonClicked;
+        RotateButton = root.Q<Button>("RotateButton");
+        FlipButton = root.Q<Button>("FlipButton");
     }
 
     void Update()
     {
         
     }
-
-    void OnRotateButtonClicked()
-    {
-        
-    }
-
-    void OnFlipButtonClicked()
-    {
-        
-    }    
 }

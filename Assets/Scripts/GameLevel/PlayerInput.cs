@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,6 +7,7 @@ public class PlayerInput : MonoBehaviour
 {
     [field: SerializeField] public LayerMask BlockLayer { get; private set; }
     [field: SerializeField] float rayDistance = 100f;
+    [field: SerializeField] UserInterfaceManager uiManager;
 
     GameActions actions;
     Camera mainCamera;
@@ -15,26 +17,69 @@ public class PlayerInput : MonoBehaviour
     {
         actions = GetComponent<GameActions>();
         mainCamera = Camera.main;
+
+        uiManager.RotateButton.clicked += OnRotateButtonClicked;
+        uiManager.FlipButton.clicked += OnFlipButtonClicked;
     }
 
     void Update()
     {
         if (Mouse.current == null) return;
 
-        float scrollY = Mouse.current.scroll.ReadValue().y;
-        bool scrollUp = scrollY > 0f;
-        bool scrollDown = scrollY < 0f;
-
         if (Mouse.current.leftButton.wasPressedThisFrame) HandleLeftClick();
-        else if (Mouse.current.rightButton.wasPressedThisFrame) actions.FlipSelectedBlock();
+        else if (Mouse.current.rightButton.wasPressedThisFrame) HandleRightClick();
 
-        if (scrollUp || scrollDown) actions.RotateSelectedBlock(scrollUp);
         if (actions.IsDragging) UpdateDragging();
+    }
+
+    void HandleLeftClick()
+    {
+        Debug.Log(actions.IsDragging);
+        if (actions.IsDragging)
+        {
+            if (TryGetMouseWorldPosition(out Vector3 pos))
+                actions.DropDraggedBlock(pos);
+        }
+        else
+        {
+            var blockData = ThrowClickRaycast();
+
+            if (blockData.Item1 == null) return;
+
+            actions.SelectBlock(blockData.Item1, blockData.Item2);
+            actions.TriggerSelectedBlockInteraction();
+        }
+    }
+
+    void HandleRightClick()
+    {
+        if (!actions.IsDragging)
+        {
+            var blockData = ThrowClickRaycast();
+            if (blockData.Item1 == null) return;
+            actions.SelectBlock(blockData.Item1, blockData.Item2);
+        }
+
+        actions.RemoveSelectedBlock();
+        actions.UnselectBlock();
+    }
+
+    void OnFlipButtonClicked()
+    {
+        if (actions.IsBlockSelected())
+            actions.FlipSelectedBlock();
+    }
+
+    void OnRotateButtonClicked()
+    {
+        Debug.Log("Rotate button clicked");
+        if (actions.IsBlockSelected())
+            actions.RotateSelectedBlock(clockwise: true);
     }
 
     Ray GetMouseRay() => mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
 
-    bool TryGetWorldPosition(out Vector3 worldPos)
+    bool TryGetMouseWorldPosition(out Vector3 worldPos)
     {
         Ray ray = GetMouseRay();
         if (interactionPlane.Raycast(ray, out float distance))
@@ -47,39 +92,30 @@ public class PlayerInput : MonoBehaviour
         return false;
     }
 
-    void HandleLeftClick()
+    (Block, BlockSegment) ThrowClickRaycast()
     {
-        if (actions.IsDragging)
-        {
-            if (TryGetWorldPosition(out Vector3 pos))
-                actions.DropSelectedBlock(pos);
-        }
-        else ThrowClickRaycast();
-    }
+        actions.UnselectBlock();
 
-    void ThrowClickRaycast()
-    {
         if (!Physics.Raycast(GetMouseRay(), out RaycastHit hit, rayDistance, BlockLayer))
         {
-            // Debug.Log("Click ray missed anything");
-            return;
+            Debug.Log("Click ray missed anything");
+            return (null, null);
         }
 
         BlockSegment segment = hit.collider.GetComponentInParent<BlockSegment>();
         if (segment == null)
         {
-            // Debug.Log($"Hit {hit.collider.name} but no BlockSegment");
-            return;
+            Debug.Log($"Hit {hit.collider.name} but no BlockSegment");
+            return (null, null);
         }
         
         Block block = segment.GetParent();
-        if (block == null) return;
-
-        actions.TriggerBlockInteraction(block, segment);
+        Debug.Log($"Hit block {block.name} segment {segment.name}");
+        return (block, segment);
     }
 
     void UpdateDragging()
     {
-        if (TryGetWorldPosition(out Vector3 pos)) actions.MoveSelectedBlock(pos);
+        if (TryGetMouseWorldPosition(out Vector3 pos)) actions.MoveDraggedBlock(pos);
     }
 }

@@ -3,16 +3,22 @@ using UnityEngine;
 
 public class GameActions : MonoBehaviour
 {
-    public bool IsDragging => draggedBlock != null;
+    public bool IsDragging { get; private set; }
 
-    Block draggedBlock;
-    BlockSegment grabbedSegment;
+    Block selectedBlock;
+    BlockSegment selectedSegment;
     SlotManager slotManager;
     BoardGrid board;
 
     void Awake()
     {
         LevelManager.LevelLoaded += OnLevelLoaded;
+        UnselectBlock();
+    }
+
+    void Update()
+    {
+        
     }
 
     void OnLevelLoaded(Level level)
@@ -21,20 +27,20 @@ public class GameActions : MonoBehaviour
         board = level.Grid;
     }
 
-    public void TriggerBlockInteraction(Block block, BlockSegment segment)
+    public void TriggerSelectedBlockInteraction()
     {
         if (IsDragging) return;
-
-        switch (block.MobilityType)
+        
+        switch (selectedBlock.MobilityType)
         {
             case Block.Mobility.Free:
-                SelectBlock(block, segment);
+                DragSelectedBlock();
                 break;
             case Block.Mobility.RotateOnly:
-                board.TryRotateBlock(block, true);
+                board.TryRotateBlock(selectedBlock, true);
                 break;
             case Block.Mobility.SlideOnly:
-                board.TrySlideBlock(block);
+                board.TrySlideBlock(selectedBlock);
                 break;
             case Block.Mobility.Fixed:
                 // Fixed blocks cannot be moved
@@ -42,47 +48,56 @@ public class GameActions : MonoBehaviour
         }
     }
 
-    public void MoveSelectedBlock(Vector2 targetPosition)
+    public bool IsBlockSelected() => selectedBlock != null;
+
+    public void RotateSelectedBlock(bool clockwise) => selectedBlock.Rotate(selectedSegment, clockwise);
+
+    public void FlipSelectedBlock() => selectedBlock.Flip();
+
+    public void SelectBlock(Block block, BlockSegment segment)
     {
-        if (!IsDragging) return;
-        
-        Vector2 offset = draggedBlock.transform.position - grabbedSegment.transform.position;
-        targetPosition += offset;
-        draggedBlock.Position2D = targetPosition;
+        selectedBlock = block;
+        selectedSegment = segment;
     }
 
-    public void RotateSelectedBlock(bool clockwise)
+    public void UnselectBlock()
     {
-        if (!IsDragging) return;
-
-        draggedBlock.Rotate(grabbedSegment, clockwise);
+        selectedBlock = null;
+        selectedSegment = null;
     }
 
-    public void FlipSelectedBlock()
+    public void RemoveSelectedBlock()
     {
-        if (!IsDragging) return;
-
-        draggedBlock.Flip();
+        IsDragging = false;
+        board.RemoveBlock(selectedBlock);
+        slotManager.AsignAvailableSlot(selectedBlock);
     }
 
-    public void DropSelectedBlock(Vector2 worldPosition)
+    public void DragSelectedBlock()
+    {
+        board.RemoveBlock(selectedBlock);
+        slotManager.FreeSlot(selectedBlock);
+        IsDragging = true;
+    }
+
+    public void DropDraggedBlock(Vector2 worldPosition)
     {
         if (!IsDragging) return;
 
         Vector2Int tile = board.WorldToTile(worldPosition);
 
-        if (!board.TryPlaceBlock(draggedBlock, tile, grabbedSegment))
-            slotManager.AsignAvailableSlot(draggedBlock);
-
-        draggedBlock = null;
-        grabbedSegment = null;
+        if (!board.TryPlaceBlock(selectedBlock, tile, selectedSegment))
+            slotManager.AsignAvailableSlot(selectedBlock);
+        
+        IsDragging = false;
     }
 
-    void SelectBlock(Block block, BlockSegment segment)
+    public void MoveDraggedBlock(Vector2 targetPosition)
     {
-        draggedBlock = block;
-        grabbedSegment = segment;
-        board.RemoveBlock(block);
-        slotManager.FreeSlot(block);
+        if (!IsDragging) return;
+        
+        Vector2 offset = selectedBlock.transform.position - selectedSegment.transform.position;
+        targetPosition += offset;
+        selectedBlock.Position2D = targetPosition;
     }
 }
