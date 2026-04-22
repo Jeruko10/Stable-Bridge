@@ -4,14 +4,12 @@ public readonly struct LocalTransition
 {
     public Vector2Int From { get; }
     public Vector2Int To { get; }
-    public TransitionAnimation Animation { get; }
 
-    public LocalTransition(Vector2Int from, Vector2Int to, TransitionAnimation animation)
+    public LocalTransition(Vector2Int from, Vector2Int to)
     {
         From = from;
         To = to;
-        Animation = animation;
     }
 
-    public LocalTransition Flipped() => new(new(-From.x, From.y), new(-To.x, To.y), Animation.Flipped());
+    public LocalTransition Flipped() => new(new(-From.x, From.y), new(-To.x, To.y));
 }

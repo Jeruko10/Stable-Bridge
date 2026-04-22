@@ -39,7 +39,7 @@ public class SimulationObserver : MonoBehaviour
             if (block.MobilityType == Block.Mobility.Free)
             {
                 initialState = StabilityState.Pendant;
-                block.SetPhysics(true);
+                // block.SetPhysics(true);
             }
             else initialState = StabilityState.Stable;
 

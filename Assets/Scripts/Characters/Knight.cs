@@ -6,6 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Knight : MonoBehaviour
 {
+    [field: SerializeField] public float Speed { get; set; } = 1f;
     [field: SerializeField] public float MaxTime { get; set; } = 20f;
     [field: SerializeField] public float ArrivalThreshold { get; set; } = 0.05f;
     [field: SerializeField] public float EndKeepDistance { get; set; } = 0.5f;
@@ -13,7 +14,7 @@ public class Knight : MonoBehaviour
     public event Action PathEnded;
 
     bool isActivated = false, pathReachesGoal = false;
-    TransitionAnimation[] animations;
+    Vector2Int[] path;
     Vector3 startPosition;
     int targetIndex = 0;
     float timer;
@@ -27,7 +28,7 @@ public class Knight : MonoBehaviour
 
     void Update()
     {
-        if (!isActivated || animations == null || targetIndex >= animations.Length) return;
+        if (!isActivated || path == null || targetIndex >= path.Length) return;
 
         if (timer <= 0f) CompletePath();
 
@@ -36,7 +37,7 @@ public class Knight : MonoBehaviour
 
         if (HasReachedTarget(targetPosition, currentThreshold))
         {
-            if (targetIndex == animations.Length - 1)
+            if (targetIndex == path.Length - 1)
             {
                 CompletePath();
                 return;
@@ -47,22 +48,22 @@ public class Knight : MonoBehaviour
             targetPosition = GetTargetPosition(); // Re-calculate new index
         }
 
-        MoveTowardTarget(targetPosition, animations[targetIndex].Speed);
+        MoveTowardTarget(targetPosition, Speed);
         timer -= Time.deltaTime;
     }
 
     void OnDrawGizmos()
     {
-        if (animations == null || animations.Length <= 1) return;
+        if (path == null || path.Length <= 1) return;
 
         const float depth = -1f;
         Gizmos.color = Color.pink;
         Vector3 currentPos = new(startPosition.x, startPosition.y, depth);
 
-        for (int i = 0; i < animations.Length; i++)
+        for (int i = 0; i < path.Length; i++)
         {
-            TransitionAnimation anim = animations[i];
-            Vector3 nextPos = new(anim.Destination.x, anim.Destination.y + HeightOffset, depth);
+            Vector2Int tile = path[i];
+            Vector3 nextPos = new(tile.x, tile.y + HeightOffset, depth);
             Gizmos.DrawLine(currentPos, nextPos);
             Gizmos.DrawSphere(currentPos, 0.1f);
             currentPos = nextPos;
@@ -72,15 +73,15 @@ public class Knight : MonoBehaviour
         Gizmos.DrawSphere(new(GetTargetPosition().x, GetTargetPosition().y, depth), 0.13f);
     }
 
-    public void StartPathAnimation(TransitionAnimation[] animations, bool reachesGoal)
+    public void StartPathAnimation(Vector2Int[] path, bool reachesGoal)
     {
         startPosition = transform.position;
         pathReachesGoal = reachesGoal;
-        this.animations = animations;
+        this.path = path;
 
-        if (this.animations.Length <= 0)
+        if (this.path.Length <= 0)
         {
-            Debug.LogWarning($"Path is too short: {this.animations.Length} animations. Check if it was intentional.");
+            Debug.LogWarning($"Path is too short: {this.path.Length} animations. Check if it was intentional.");
 
             targetIndex = 0;
             CompletePath();
@@ -94,14 +95,13 @@ public class Knight : MonoBehaviour
 
     Vector3 GetTargetPosition()
     {
-        TransitionAnimation animation = animations[targetIndex];
-        Vector2 position = animation.Destination;
+        Vector2 position = path[targetIndex];
 
         position.y += HeightOffset;
         return new Vector3(position.x, position.y, transform.position.z);
     }
 
-    float GetCurrentThreshold() => targetIndex == animations.Length - 1 ? EndKeepDistance : ArrivalThreshold;
+    float GetCurrentThreshold() => targetIndex == path.Length - 1 ? EndKeepDistance : ArrivalThreshold;
 
     bool HasReachedTarget(Vector3 targetPosition, float threshold) => Vector3.Distance(transform.position, targetPosition) <= threshold;
 

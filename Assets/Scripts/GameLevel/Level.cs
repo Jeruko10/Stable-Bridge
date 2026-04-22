@@ -31,7 +31,7 @@ public class Level : MonoBehaviour
     public event Action<bool> SuccessKnown;
 
     bool success, trainModeEnabled;
-    TransitionAnimation[] knightAnimationPath;
+    IEnumerable<Vector2Int> knightPath;
     GameObject blocksFolder;
     Knight knight;
 
@@ -95,23 +95,20 @@ public class Level : MonoBehaviour
         Grid.AddRow(false);
         Graph graph = PathSolver.GridToGraph(Grid);
 
-        Dictionary<Vector2Int, TransitionAnimation?> path = PathSolver.GetPath(StartPosition, EndPosition, graph);
-        
-        success = path.LastOrDefault().Key == EndPosition;
+        knightPath = PathSolver.GetPath(StartPosition, EndPosition, graph);
+        success = knightPath.LastOrDefault() == EndPosition;
         SuccessKnown?.Invoke(success);
-
-        knightAnimationPath = path.Values.OfType<TransitionAnimation>().ToArray(); // Exclude nulls, which represent non-transition tiles
     }
 
     void OnSimulationEnded()
     {
         if (trainModeEnabled)
         {
-            EndLevel(success);
+            StartCoroutine(EndLevel(success));
             return;
         }
 
-        knight.StartPathAnimation(knightAnimationPath, success);
+        knight.StartPathAnimation(knightPath.ToArray(), success);
     }
 
     void OnPathEnded() => StartCoroutine(EndLevel(success));

@@ -68,5 +68,8 @@ public class LevelManager : MonoBehaviour
     static void TriggerVictory()
     {
         Debug.Log("All levels completed! Victory!");
+
+        instance.currentLevelIndex = 0;
+        LoadLevel(0);
     }
 }
