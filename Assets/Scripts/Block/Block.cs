@@ -14,18 +14,20 @@ public class Block : MonoBehaviour
 
     public BlockSegment[] Segments => segments.ToArray();
     public Vector2Int[] SlidePositions { get; set; }
+    public Color Color { get => materialColor; set => SetBlockColor(value); }
     public int SlidePositionIndex { get; set; } = 0;
     public BlockSegment Pivot { get; private set; }
     public Mobility MobilityType { get; private set; } = Mobility.Free;
     public BoardGrid.Rotation Rotation { get; private set; } = BoardGrid.Rotation.Deg0;
     public Vector2 Position2D { get => targetPosition2D; set => targetPosition2D = value; }
     public Rigidbody Rigidbody { get; private set; }
-    
+
     public enum Mobility { Free, RotateOnly, SlideOnly, Fixed }
 
     readonly List<BlockSegment> segments = new();
     Vector2 targetPosition2D;
     bool isFlipped = false, physicsEnabled;
+    Color materialColor;
 
     void Awake()
     {
@@ -38,6 +40,7 @@ public class Block : MonoBehaviour
         FetchSegmentChildren();
         SetPhysics(false);
 
+        materialColor = GetComponentInChildren<Renderer>().material.color;
         Pivot = segments[pivotIndex];
         MobilityType = mobilityType;
 
@@ -96,6 +99,17 @@ public class Block : MonoBehaviour
         {
             segments.Add(segment);
             segment.Initialize(parent: this);
+        }
+    }
+
+    void SetBlockColor(Color value)
+    {
+        materialColor = value;
+        foreach (BlockSegment segment in segments)
+        {
+            Renderer renderer = segment.GetComponentInChildren<Renderer>();
+            if (renderer != null)
+                renderer.material.color = materialColor;
         }
     }
 

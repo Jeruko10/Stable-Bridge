@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/LevelButtonsStyle.uss?fileID=7433441132597879392&amp;guid=d97c5003d4aff634cb1a1205d8bf6bf2&amp;type=3#LevelButtonsStyle"/>
-    <ui:VisualElement name="VisualElement" style="flex-grow: 1;">
-        <ui:VisualElement name="Container" style="flex-grow: 1; align-self: auto; justify-content: flex-start; flex-direction: column-reverse; align-items: center; align-content: flex-end;">
+    <ui:VisualElement name="VisualElement" picking-mode="Ignore" style="flex-grow: 1;">
+        <ui:VisualElement name="Container" picking-mode="Ignore" style="flex-grow: 1; align-self: auto; justify-content: flex-start; flex-direction: column-reverse; align-items: center; align-content: flex-end;">
             <ui:Button text="" icon-image="project://database/Assets/Textures/RotateIcon.png?fileID=2800000&amp;guid=c1813481ac99e6941be6ee27e864bf82&amp;type=3#RotateIcon" name="RotateButton" class="button" style="right: 0; bottom: 0; position: absolute; width: 154px; height: 118px; opacity: 1; display: flex; visibility: visible; overflow: visible; background-color: rgba(0, 0, 0, 0.16); border-left-color: rgba(149, 149, 149, 0); border-right-color: rgba(149, 149, 149, 0); border-top-color: rgba(149, 149, 149, 0); border-bottom-color: rgba(149, 149, 149, 0);"/>
             <ui:Button text="&#10;" icon-image="project://database/Assets/Textures/FlipIcon.png?fileID=2800000&amp;guid=7b64388178767b7449aac22d7706ad52&amp;type=3#FlipIcon" name="FlipButton" class="button" style="bottom: 0; left: 0; height: 128px; width: 165px;"/>
         </ui:VisualElement>

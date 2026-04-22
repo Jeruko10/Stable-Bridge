@@ -172,14 +172,22 @@ public class BoardGrid : MonoBehaviour
 
     public bool TryRotateBlock(Block block, bool clockwise)
     {
-        Vector2Int pivotTile = WorldToTile(block.Pivot.transform.position);
+        if (!ContainsBlock(block))
+        {
+            block.Rotate(block.Pivot, clockwise);
+            return true;
+        }
         
+        Vector2Int pivotTile = WorldToTile(block.Pivot.transform.position);
         RemoveBlock(block);
+
+        for (int i = 0; i < 3; i++)
+        {
+            block.Rotate(block.Pivot, clockwise);
+            if (TryPlaceBlock(block, pivotTile, block.Pivot)) return true;
+        }
+
         block.Rotate(block.Pivot, clockwise);
-
-        if (TryPlaceBlock(block, pivotTile, block.Pivot)) return true;
-
-        block.Rotate(block.Pivot, !clockwise);
         TryPlaceBlock(block, pivotTile, block.Pivot);
 
         return false;

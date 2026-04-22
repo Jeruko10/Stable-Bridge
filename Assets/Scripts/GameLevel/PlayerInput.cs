@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(GameActions))]
@@ -34,7 +35,8 @@ public class PlayerInput : MonoBehaviour
 
     void HandleLeftClick()
     {
-        Debug.Log(actions.IsDragging);
+        if (EventSystem.current.IsPointerOverGameObject()) return;
+
         if (actions.IsDragging)
         {
             if (TryGetMouseWorldPosition(out Vector3 pos))
@@ -56,7 +58,7 @@ public class PlayerInput : MonoBehaviour
         if (!actions.IsDragging)
         {
             var blockData = ThrowClickRaycast();
-            if (blockData.Item1 == null) return;
+            if (blockData.Item1 == null || actions.IsBlockInSlot(blockData.Item1)) return;
             actions.SelectBlock(blockData.Item1, blockData.Item2);
         }
 
@@ -72,7 +74,6 @@ public class PlayerInput : MonoBehaviour
 
     void OnRotateButtonClicked()
     {
-        Debug.Log("Rotate button clicked");
         if (actions.IsBlockSelected())
             actions.RotateSelectedBlock(clockwise: true);
     }
@@ -98,19 +99,19 @@ public class PlayerInput : MonoBehaviour
 
         if (!Physics.Raycast(GetMouseRay(), out RaycastHit hit, rayDistance, BlockLayer))
         {
-            Debug.Log("Click ray missed anything");
+            // Debug.Log("Click ray missed anything");
             return (null, null);
         }
 
         BlockSegment segment = hit.collider.GetComponentInParent<BlockSegment>();
         if (segment == null)
         {
-            Debug.Log($"Hit {hit.collider.name} but no BlockSegment");
+            // Debug.Log($"Hit {hit.collider.name} but no BlockSegment");
             return (null, null);
         }
         
         Block block = segment.GetParent();
-        Debug.Log($"Hit block {block.name} segment {segment.name}");
+        // Debug.Log($"Hit block {block.name} segment {segment.name}");
         return (block, segment);
     }
 

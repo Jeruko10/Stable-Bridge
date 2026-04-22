@@ -3,12 +3,16 @@ using UnityEngine;
 
 public class GameActions : MonoBehaviour
 {
+    [SerializeField] Color highlightColor;
+
     public bool IsDragging { get; private set; }
 
+    Color defaultBlockColor;
     Block selectedBlock;
     BlockSegment selectedSegment;
     SlotManager slotManager;
-    BoardGrid board;
+    BoardGrid grid;
+    bool baseColorPicked = false;
 
     void Awake()
     {
@@ -16,15 +20,10 @@ public class GameActions : MonoBehaviour
         UnselectBlock();
     }
 
-    void Update()
-    {
-        
-    }
-
     void OnLevelLoaded(Level level)
     {
         slotManager = level.Slots;
-        board = level.Grid;
+        grid = level.Grid;
     }
 
     public void TriggerSelectedBlockInteraction()
@@ -37,10 +36,10 @@ public class GameActions : MonoBehaviour
                 DragSelectedBlock();
                 break;
             case Block.Mobility.RotateOnly:
-                board.TryRotateBlock(selectedBlock, true);
+                grid.TryRotateBlock(selectedBlock, true);
                 break;
             case Block.Mobility.SlideOnly:
-                board.TrySlideBlock(selectedBlock);
+                grid.TrySlideBlock(selectedBlock);
                 break;
             case Block.Mobility.Fixed:
                 // Fixed blocks cannot be moved
@@ -48,20 +47,32 @@ public class GameActions : MonoBehaviour
         }
     }
 
+    public bool IsBlockInSlot(Block block) => slotManager.IsBlockInSlot(block);
+
     public bool IsBlockSelected() => selectedBlock != null;
 
-    public void RotateSelectedBlock(bool clockwise) => selectedBlock.Rotate(selectedSegment, clockwise);
+    public void RotateSelectedBlock(bool clockwise) => grid.TryRotateBlock(selectedBlock, clockwise);
 
     public void FlipSelectedBlock() => selectedBlock.Flip();
 
     public void SelectBlock(Block block, BlockSegment segment)
     {
+        if (!baseColorPicked)
+        {
+            defaultBlockColor = block.Color;
+            baseColorPicked = true;
+        }
+
         selectedBlock = block;
         selectedSegment = segment;
+        block.Color = highlightColor;
     }
 
     public void UnselectBlock()
     {
+        if (selectedBlock == null) return;
+
+        selectedBlock.Color = defaultBlockColor;
         selectedBlock = null;
         selectedSegment = null;
     }
@@ -69,13 +80,13 @@ public class GameActions : MonoBehaviour
     public void RemoveSelectedBlock()
     {
         IsDragging = false;
-        board.RemoveBlock(selectedBlock);
-        slotManager.AsignAvailableSlot(selectedBlock);
+        grid.RemoveBlock(selectedBlock);
+        slotManager.TryAsignAvailableSlot(selectedBlock);
     }
 
     public void DragSelectedBlock()
     {
-        board.RemoveBlock(selectedBlock);
+        grid.RemoveBlock(selectedBlock);
         slotManager.FreeSlot(selectedBlock);
         IsDragging = true;
     }
@@ -84,10 +95,10 @@ public class GameActions : MonoBehaviour
     {
         if (!IsDragging) return;
 
-        Vector2Int tile = board.WorldToTile(worldPosition);
+        Vector2Int tile = grid.WorldToTile(worldPosition);
 
-        if (!board.TryPlaceBlock(selectedBlock, tile, selectedSegment))
-            slotManager.AsignAvailableSlot(selectedBlock);
+        if (!grid.TryPlaceBlock(selectedBlock, tile, selectedSegment))
+            slotManager.TryAsignAvailableSlot(selectedBlock);
         
         IsDragging = false;
     }

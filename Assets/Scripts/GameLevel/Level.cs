@@ -161,7 +161,7 @@ public class Level : MonoBehaviour
         }
         
         // Block has Free Mobility or failed to place: assign to slot
-        Slots.AsignAvailableSlot(block);
+        Slots.TryAsignAvailableSlot(block);
     }
 
     void SetLevelAesthetic()
