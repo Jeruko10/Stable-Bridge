@@ -65,14 +65,10 @@ public class Level : MonoBehaviour
         knight.PathEnded += OnPathEnded;
     }
 
-    void Update()
+    public void ExitEditMode()
     {
-        if (IsEditing && Keyboard.current.enterKey.wasPressedThisFrame)
-            ExitEditMode();
-    }
+        if (!IsEditing) return;
 
-    void ExitEditMode()
-    {
         IsEditing = false;
 
         if (Grid == null)

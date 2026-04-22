@@ -9,7 +9,7 @@ public class BoardGrid : MonoBehaviour
     [field: SerializeField] public float TileSize { get; set; } = 1f;
     [field: SerializeField] public GameObject TileVisualPrefab { get; set; }
     public Vector2Int Size { get; private set; }
-    public enum Rotation { Deg0, Deg90, Deg180, Deg270 }
+    public enum Rotation { Deg0 = 0, Deg90 = 90, Deg180 = 180, Deg270 = 270 }
 
     GameObject visualsFolder;
     readonly HashSet<Block> blocks = new();
@@ -63,15 +63,6 @@ public class BoardGrid : MonoBehaviour
     public Dictionary<Vector2Int, BlockSegment> GetAllTiles() => tileBlocks;
 
     public IEnumerable<Block> GetAllBlocks() => blocks;
-    
-    public static Quaternion GetDiscreteRotation(Rotation rotation) => rotation switch
-    {
-        Rotation.Deg0 => Quaternion.Euler(0, 0, 0),
-        Rotation.Deg90 => Quaternion.Euler(0, 0, 90),
-        Rotation.Deg180 => Quaternion.Euler(0, 0, 180),
-        Rotation.Deg270 => Quaternion.Euler(0, 0, 270),
-        _ => Quaternion.identity
-    };
 
     public Vector3 TileToWorld(Vector2Int tile) => new(tile.x * TileSize, tile.y * TileSize);
 
@@ -172,6 +163,8 @@ public class BoardGrid : MonoBehaviour
 
     public bool TryRotateBlock(Block block, bool clockwise)
     {
+        if (block.MobilityType != Block.Mobility.Free && block.MobilityType != Block.Mobility.RotateOnly) return false;
+        
         if (!ContainsBlock(block))
         {
             block.Rotate(block.Pivot, clockwise);
@@ -188,6 +181,28 @@ public class BoardGrid : MonoBehaviour
         }
 
         block.Rotate(block.Pivot, clockwise);
+        TryPlaceBlock(block, pivotTile, block.Pivot);
+
+        return false;
+    }
+
+    public bool TryFlipBlock(Block block)
+    {
+        if (block.MobilityType != Block.Mobility.Free) return false;
+
+        if (!ContainsBlock(block))
+        {
+            block.Flip();
+            return true;
+        }
+        
+        Vector2Int pivotTile = WorldToTile(block.Pivot.transform.position);
+        RemoveBlock(block);
+
+        block.Flip();
+        if (TryPlaceBlock(block, pivotTile, block.Pivot)) return true;
+
+        block.Flip();
         TryPlaceBlock(block, pivotTile, block.Pivot);
 
         return false;

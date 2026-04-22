@@ -21,12 +21,13 @@ public class Block : MonoBehaviour
     public BoardGrid.Rotation Rotation { get; private set; } = BoardGrid.Rotation.Deg0;
     public Vector2 Position2D { get => targetPosition2D; set => targetPosition2D = value; }
     public Rigidbody Rigidbody { get; private set; }
+    public bool IsFlipped { get; private set; }
 
     public enum Mobility { Free, RotateOnly, SlideOnly, Fixed }
 
     readonly List<BlockSegment> segments = new();
     Vector2 targetPosition2D;
-    bool isFlipped = false, physicsEnabled;
+    bool physicsEnabled;
     Color materialColor;
 
     void Awake()
@@ -71,22 +72,32 @@ public class Block : MonoBehaviour
 
     public void Rotate(BlockSegment pivotSegment, bool clockwise)
     {
-        BoardGrid.Rotation nextRotation = (BoardGrid.Rotation)(((int)Rotation + (clockwise ? 1 : 3)) % 4);
+        if (!IsFlipped) clockwise = !clockwise;
+        
+        // Convertir el valor de rotación actual a índice (0-3)
+        int rotationIndex = (int)Rotation / 90;
+        // Calcular el siguiente índice
+        int nextIndex = (rotationIndex + (clockwise ? 1 : 3)) % 4;
+        // Convertir el índice de vuelta a valor de rotación
+        BoardGrid.Rotation nextRotation = (BoardGrid.Rotation)(nextIndex * 90);
         SetRotation(pivotSegment, nextRotation);
     }
 
     public void SetRotation(BlockSegment pivotSegment, BoardGrid.Rotation newRotation)
     {
+        Debug.Log(newRotation.ToString());
         Rotation = newRotation;
-        transform.SetPositionAndRotation(pivotSegment.transform.position, BoardGrid.GetDiscreteRotation(Rotation));
-        Position2D = transform.position;
+        Quaternion newQuaternion = Quaternion.Euler(0f, IsFlipped ? 180f : 0f, (float)Rotation);
+
+        transform.rotation = newQuaternion;
     }
 
-    public void Flip()
+    public void Flip(BlockSegment pivotSegment = null)
     {
-        isFlipped = !isFlipped;
-
-        transform.Rotate(0f, 180f, 0f);
+        IsFlipped = !IsFlipped;
+        pivotSegment = pivotSegment == null ? Pivot : pivotSegment;
+        
+        SetRotation(pivotSegment, Rotation);
 
         foreach (BlockSegment segment in segments)
             segment.Flip();

@@ -51,9 +51,9 @@ public class GameActions : MonoBehaviour
 
     public bool IsBlockSelected() => selectedBlock != null;
 
-    public void RotateSelectedBlock(bool clockwise) => grid.TryRotateBlock(selectedBlock, clockwise);
+    public bool TryRotateSelectedBlock(bool clockwise) => grid.TryRotateBlock(selectedBlock, clockwise);
 
-    public void FlipSelectedBlock() => selectedBlock.Flip();
+    public bool TryFlipSelectedBlock() => grid.TryFlipBlock(selectedBlock);
 
     public void SelectBlock(Block block, BlockSegment segment)
     {
@@ -77,11 +77,14 @@ public class GameActions : MonoBehaviour
         selectedSegment = null;
     }
 
-    public void RemoveSelectedBlock()
+    public bool TryRemoveSelectedBlock()
     {
+        if (!slotManager.TryAsignAvailableSlot(selectedBlock))
+            return false;
+
         IsDragging = false;
         grid.RemoveBlock(selectedBlock);
-        slotManager.TryAsignAvailableSlot(selectedBlock);
+        return true;
     }
 
     public void DragSelectedBlock()

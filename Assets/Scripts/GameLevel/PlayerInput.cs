@@ -25,6 +25,20 @@ public class PlayerInput : MonoBehaviour
 
     void Update()
     {
+        HandleKeyboardInputs();
+        HandleMouseInputs();
+    }
+
+    void HandleKeyboardInputs()
+    {
+        if (Keyboard.current == null) return;
+
+        if (Keyboard.current.enterKey.wasPressedThisFrame)
+            LevelManager.Current.ExitEditMode();
+    }
+
+    void HandleMouseInputs()
+    {
         if (Mouse.current == null) return;
 
         if (Mouse.current.leftButton.wasPressedThisFrame) HandleLeftClick();
@@ -44,11 +58,13 @@ public class PlayerInput : MonoBehaviour
         }
         else
         {
-            var blockData = ThrowClickRaycast();
+            if (!TryRaycastToBlock(out BlockSegment segment)) return;
 
-            if (blockData.Item1 == null) return;
+            Block block = segment.GetParent();
 
-            actions.SelectBlock(blockData.Item1, blockData.Item2);
+            if (block == null || block.MobilityType == Block.Mobility.Fixed) return;
+
+            actions.SelectBlock(block, segment);
             actions.TriggerSelectedBlockInteraction();
         }
     }
@@ -57,25 +73,29 @@ public class PlayerInput : MonoBehaviour
     {
         if (!actions.IsDragging)
         {
-            var blockData = ThrowClickRaycast();
-            if (blockData.Item1 == null || actions.IsBlockInSlot(blockData.Item1)) return;
-            actions.SelectBlock(blockData.Item1, blockData.Item2);
+            if (!TryRaycastToBlock(out BlockSegment segment)) return;
+            
+            Block block = segment.GetParent();
+
+            if (block == null || actions.IsBlockInSlot(block) || block.MobilityType != Block.Mobility.Free) return;
+
+            actions.SelectBlock(block, segment);
         }
 
-        actions.RemoveSelectedBlock();
+        actions.TryRemoveSelectedBlock();
         actions.UnselectBlock();
     }
 
     void OnFlipButtonClicked()
     {
         if (actions.IsBlockSelected())
-            actions.FlipSelectedBlock();
+            actions.TryFlipSelectedBlock();
     }
 
     void OnRotateButtonClicked()
     {
         if (actions.IsBlockSelected())
-            actions.RotateSelectedBlock(clockwise: true);
+            actions.TryRotateSelectedBlock(clockwise: true);
     }
 
     Ray GetMouseRay() => mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
@@ -93,26 +113,29 @@ public class PlayerInput : MonoBehaviour
         return false;
     }
 
-    (Block, BlockSegment) ThrowClickRaycast()
+    bool TryRaycastToBlock(out BlockSegment clickedSegment)
     {
         actions.UnselectBlock();
+        clickedSegment = null;
+        bool debugData = false;
 
         if (!Physics.Raycast(GetMouseRay(), out RaycastHit hit, rayDistance, BlockLayer))
         {
-            // Debug.Log("Click ray missed anything");
-            return (null, null);
+            if (debugData) Debug.Log("Click ray missed anything");
+            return false;
         }
 
         BlockSegment segment = hit.collider.GetComponentInParent<BlockSegment>();
         if (segment == null)
         {
-            // Debug.Log($"Hit {hit.collider.name} but no BlockSegment");
-            return (null, null);
+            if (debugData) Debug.Log($"Hit {hit.collider.name} but no BlockSegment");
+            return false;
         }
         
-        Block block = segment.GetParent();
-        // Debug.Log($"Hit block {block.name} segment {segment.name}");
-        return (block, segment);
+        if (debugData) Debug.Log($"Hit block {segment.GetParent().name} segment {segment.name}");
+
+        clickedSegment = segment;
+        return true;
     }
 
     void UpdateDragging()
