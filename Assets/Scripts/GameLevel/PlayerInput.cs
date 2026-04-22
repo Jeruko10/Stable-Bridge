@@ -35,6 +35,9 @@ public class PlayerInput : MonoBehaviour
 
         if (Keyboard.current.enterKey.wasPressedThisFrame)
             LevelManager.Current.ExitEditMode();
+
+        if (Keyboard.current.sKey.wasPressedThisFrame)
+            LevelLayout.FromLevel(LevelManager.Current, new(0, 3), new(4, 3)).SaveAsAsset();
     }
 
     void HandleMouseInputs()

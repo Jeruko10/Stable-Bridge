@@ -12,6 +12,7 @@ public class Block : MonoBehaviour
     [field: SerializeField] float snapAnimSpeed = 10f;
     [field: SerializeField] float moveLerpSpeed = 10f;
 
+    public Block Prefab { get; private set; }
     public BlockSegment[] Segments => segments.ToArray();
     public Vector2Int[] SlidePositions { get; set; }
     public Color Color { get => materialColor; set => SetBlockColor(value); }
@@ -36,11 +37,12 @@ public class Block : MonoBehaviour
         SetPhysics(false);
     }
 
-    public void Initialize(int pivotIndex, Mobility mobilityType)
+    public void Initialize(Block originalPrefab, int pivotIndex, Mobility mobilityType)
     {
         FetchSegmentChildren();
         SetPhysics(false);
 
+        Prefab = originalPrefab;
         materialColor = GetComponentInChildren<Renderer>().material.color;
         Pivot = segments[pivotIndex];
         MobilityType = mobilityType;
@@ -85,7 +87,6 @@ public class Block : MonoBehaviour
 
     public void SetRotation(BlockSegment pivotSegment, BoardGrid.Rotation newRotation)
     {
-        Debug.Log(newRotation.ToString());
         Rotation = newRotation;
         Quaternion newQuaternion = Quaternion.Euler(0f, IsFlipped ? 180f : 0f, (float)Rotation);
 

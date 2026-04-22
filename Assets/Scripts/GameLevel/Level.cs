@@ -135,7 +135,7 @@ public class Level : MonoBehaviour
     void InterpretBlockData(BlockPlacementData data)
     {
         Block block = Instantiate(data.BlockPrefab, blocksFolder.transform);
-        block.Initialize(data.PivotIndex, data.MobilityType);
+        block.Initialize(data.BlockPrefab, data.PivotIndex, data.MobilityType);
         block.SetRotation(block.Pivot, data.StartingRotation);
 
         if (data.Flipped) block.Flip();
@@ -197,12 +197,6 @@ public class Level : MonoBehaviour
         if (!Grid.IsValidTile(StartPosition))
             Debug.LogWarning($"Player's position {StartPosition} is not valid.");
 
-        if (Grid.IsValidTile(playerGround) && (Grid.GetBlockAtTile(playerGround) == null || Grid.GetBlockAtTile(playerGround).GetParent().MobilityType != Block.Mobility.Fixed))
-            Debug.LogWarning($"Player at {StartPosition} does not have a fixed ground.");
-
-        if (Grid.IsValidTile(goalGround) && (Grid.GetBlockAtTile(goalGround) == null || Grid.GetBlockAtTile(goalGround).GetParent().MobilityType != Block.Mobility.Fixed))
-            Debug.LogWarning($"Goal at {EndPosition} does not have a fixed ground.");
-
         if (!Grid.IsValidTile(EndPosition))
             Debug.LogWarning($"Goal's position {EndPosition} is not valid.");
     }
@@ -219,7 +213,7 @@ public class Level : MonoBehaviour
             segmentObj.transform.localPosition = new Vector3(x * Grid.TileSize, 0, 0);
         }
 
-        ground.Initialize(0, Block.Mobility.Fixed);
+        ground.Initialize(null, 0, Block.Mobility.Fixed);
         Grid.TryPlaceBlock(ground, Vector2Int.zero, ground.Segments.FirstOrDefault());
     }
 }
