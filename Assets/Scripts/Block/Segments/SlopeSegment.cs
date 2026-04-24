@@ -35,21 +35,7 @@ public class SlopeSegment : BlockSegment
 
     public override void Flip() => flipped = !flipped;
 
-    public override IEnumerable<LocalTransition> GetAvailableTransitions(BoardGrid grid)
-    {
-        Vector2Int? myTile = grid.GetTileOfBlock(this);
-        if (!myTile.HasValue) yield break;
-
-        foreach (LocalTransition transition in GetProcessedTransitions())
-        {
-            Vector2Int destinationTile = myTile.Value + transition.To;
-
-            if (grid.IsValidTile(destinationTile) && grid.GetBlockAtTile(destinationTile) == null)
-                yield return transition;
-        }
-    }
-
-    IEnumerable<LocalTransition> GetProcessedTransitions()
+    public override IEnumerable<LocalTransition> GetTransitions()
     {
         IEnumerable<LocalTransition> rotatedTransitions = parent.Rotation switch
         {

@@ -7,5 +7,5 @@ public abstract class BlockSegment : MonoBehaviour
     public abstract void Initialize(Block parent);
     public abstract Block GetParent();
     public abstract void Flip();
-    public abstract IEnumerable<LocalTransition> GetAvailableTransitions(BoardGrid grid);
+    public abstract IEnumerable<LocalTransition> GetTransitions();
 }

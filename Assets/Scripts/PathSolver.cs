@@ -15,6 +15,7 @@ public static class PathSolver
             graph.AddVertex(pair.Key);
 
         AddConnections(graph, grid);
+        FilterConnections(graph, grid);
 
         if (!LevelManager.TrainModeEnabled) DebugDrawGraph(graph, grid);
 
@@ -70,7 +71,7 @@ public static class PathSolver
 
             if (segment == null) continue;
 
-            foreach (LocalTransition transition in segment.GetAvailableTransitions(grid))
+            foreach (LocalTransition transition in segment.GetTransitions())
             {
                 Vector2Int fromCoord = tile + transition.From;
                 Vector2Int toCoord = tile + transition.To;
@@ -78,12 +79,33 @@ public static class PathSolver
                 Graph.Vertex from = graph.GetVertex(fromCoord);
                 Graph.Vertex to = graph.GetVertex(toCoord);
 
-                if (from == null || to == null)
-                    continue;
+                if (from == null || to == null) continue;
 
                 graph.AddEdge(from, to);
             }
         }
+    }
+
+    static void FilterConnections(Graph graph, BoardGrid grid)
+    {
+        HashSet<Graph.Edge> edgesToRemove = new();
+
+        foreach (Graph.Vertex vertex in graph.Vertices)
+            foreach (Graph.Edge edge in vertex.Edges)
+            {
+                if (!WalkableTile(edge.A.Coordinate, grid) || !WalkableTile(edge.B.Coordinate, grid))
+                    edgesToRemove.Add(edge);
+            }
+
+        foreach (Graph.Edge edge in edgesToRemove)
+            graph.RemoveEdge(edge);
+    }
+
+    static bool WalkableTile(Vector2Int coordinate, BoardGrid grid)
+    {
+        Vector2Int below = coordinate + Vector2Int.down;
+
+        return grid.GetBlockAtTile(below) != null && grid.GetBlockAtTile(coordinate) == null;
     }
 
     static int Manhattan(Vector2Int a, Vector2Int b) => Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);

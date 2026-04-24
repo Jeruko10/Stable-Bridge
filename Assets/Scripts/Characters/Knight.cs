@@ -64,7 +64,7 @@ public class Knight : MonoBehaviour
         {
             Vector2Int tile = path[i];
             Vector3 nextPos = new(tile.x, tile.y + HeightOffset, depth);
-            Gizmos.DrawLine(currentPos, nextPos);
+            // Gizmos.DrawLine(currentPos, nextPos);
             Gizmos.DrawSphere(currentPos, 0.1f);
             currentPos = nextPos;
         }

@@ -36,6 +36,14 @@ public class Graph
         return edge;
     }
 
+    public void RemoveEdge(Edge edge)
+    {
+        if (edge == null) return;
+
+        edge.A?.RemoveEdgeInternal(edge);
+        edge.B?.RemoveEdgeInternal(edge);
+    }
+
     public class Vertex
     {
         public Vector2Int Coordinate { get; }
@@ -49,6 +57,8 @@ public class Graph
         }
 
         internal void AddEdgeInternal(Edge edge) => edges.Add(edge);
+
+        internal void RemoveEdgeInternal(Edge edge) => edges.Remove(edge);
 
         public Edge GetEdge(Vertex other)
         {
