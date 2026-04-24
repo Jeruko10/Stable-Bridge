@@ -74,14 +74,12 @@ public class Block : MonoBehaviour
 
     public void Rotate(BlockSegment pivotSegment, bool clockwise)
     {
-        if (!IsFlipped) clockwise = !clockwise;
+        if (IsFlipped) clockwise = !clockwise;
         
-        // Convertir el valor de rotación actual a índice (0-3)
         int rotationIndex = (int)Rotation / 90;
-        // Calcular el siguiente índice
-        int nextIndex = (rotationIndex + (clockwise ? 1 : 3)) % 4;
-        // Convertir el índice de vuelta a valor de rotación
+        int nextIndex = (rotationIndex + (clockwise ? 3 : 1)) % 4;
         BoardGrid.Rotation nextRotation = (BoardGrid.Rotation)(nextIndex * 90);
+        Debug.Log($"New Rotation: {nextRotation}. Clockwise: {clockwise}. IsFlipped: {IsFlipped}.");
         SetRotation(pivotSegment, nextRotation);
     }
 

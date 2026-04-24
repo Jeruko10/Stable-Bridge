@@ -6,13 +6,12 @@ public class SlopeSegment : BlockSegment
 {
     readonly LocalTransition[] transitions0Deg = new LocalTransition[]
     {
-        new(from: new(0, 1), to: new(1, 0)),
+        new(from: new(0, 1), to: new(1, 0))
     };
 
     readonly LocalTransition[] transitions90Deg = new LocalTransition[]
     {
-        new(from: new(0, 1), to: new(1, 1)),
-        new(from: new(0, 1), to: new(-1, 1))
+        new(from: new(-1, 0), to: new(0, 1))
     };
 
     readonly LocalTransition[] transitions180Deg = new LocalTransition[]
@@ -23,7 +22,8 @@ public class SlopeSegment : BlockSegment
 
     readonly LocalTransition[] transitions270Deg = new LocalTransition[]
     {
-        new(from: new(0, 0), to: new(1, 1)),
+        new(from: new(0, 1), to: new(1, 1)),
+        new(from: new(0, 1), to: new(-1, 1))
     };
 
     Block parent;

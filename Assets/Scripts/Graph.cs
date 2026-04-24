@@ -7,19 +7,21 @@ public class Graph
 
     readonly List<Vertex> vertices = new();
     readonly Dictionary<Vector2Int, Vertex> coordinateCache = new();
+    readonly Dictionary<Vertex, List<Edge>> vertexEdges = new();
 
     public Vertex AddVertex(Vector2Int coordinate)
     {
-        if (coordinateCache.TryGetValue(coordinate, out var existing))
+        if (coordinateCache.TryGetValue(coordinate, out Vertex existing))
             return existing;
 
-        Vertex v = new(coordinate);
-        vertices.Add(v);
-        coordinateCache.Add(coordinate, v);
-        return v;
+        Vertex vertex = new(this, coordinate);
+        vertices.Add(vertex);
+        coordinateCache.Add(coordinate, vertex);
+        vertexEdges[vertex] = new List<Edge>();
+        return vertex;
     }
 
-    public Vertex GetVertex(Vector2Int coordinate) => coordinateCache.TryGetValue(coordinate, out var v) ? v : null;
+    public Vertex GetVertex(Vector2Int coordinate) => coordinateCache.TryGetValue(coordinate, out Vertex vertex) ? vertex : null;
 
     public Edge AddEdge(Vertex a, Vertex b)
     {
@@ -30,8 +32,8 @@ public class Graph
 
         Edge edge = new(a, b);
 
-        a.AddEdgeInternal(edge);
-        b.AddEdgeInternal(edge);
+        vertexEdges[a].Add(edge);
+        vertexEdges[b].Add(edge);
 
         return edge;
     }
@@ -40,29 +42,29 @@ public class Graph
     {
         if (edge == null) return;
 
-        edge.A?.RemoveEdgeInternal(edge);
-        edge.B?.RemoveEdgeInternal(edge);
+        if (edge.A != null && vertexEdges.TryGetValue(edge.A, out List<Edge> aEdges))
+            aEdges.Remove(edge);
+
+        if (edge.B != null && vertexEdges.TryGetValue(edge.B, out List<Edge> bEdges))
+            bEdges.Remove(edge);
     }
 
     public class Vertex
     {
         public Vector2Int Coordinate { get; }
-        public IReadOnlyCollection<Edge> Edges => edges;
+        public IReadOnlyCollection<Edge> Edges => graph.vertexEdges[this];
 
-        readonly List<Edge> edges = new();
+        readonly Graph graph;
 
-        public Vertex(Vector2Int coordinate)
+        internal Vertex(Graph graph, Vector2Int coordinate)
         {
+            this.graph = graph;
             Coordinate = coordinate;
         }
 
-        internal void AddEdgeInternal(Edge edge) => edges.Add(edge);
-
-        internal void RemoveEdgeInternal(Edge edge) => edges.Remove(edge);
-
         public Edge GetEdge(Vertex other)
         {
-            foreach (var e in edges)
+            foreach (var e in Edges)
                 if (e.Connects(this, other))
                     return e;
 

@@ -43,8 +43,7 @@ public static class PathSolver
                 .Select(e => e.GetOther(current))
                 .Where(v => v != null && !visited.Contains(v));
 
-            if (!options.Any())
-                break;
+            if (!options.Any()) break;
 
             Graph.Vertex best =
                 options
@@ -53,7 +52,6 @@ public static class PathSolver
 
             current = best;
             visited.Add(current);
-
             path.Add(current.Coordinate);
 
             if (current.Coordinate == endTile) break;
@@ -112,13 +110,13 @@ public static class PathSolver
 
     static void DebugDrawGraph(Graph graph, BoardGrid grid)
     {
+        const float gizmoDuration = 3f;
+
         foreach (Graph.Vertex v in graph.Vertices)
-        {
             foreach (Graph.Edge e in v.Edges)
             {
                 Graph.Vertex other = e.GetOther(v);
-                if (other == null)
-                    continue;
+                if (other == null) continue;
 
                 Vector2 from = grid.TileToWorld(v.Coordinate);
                 Vector2 to = grid.TileToWorld(other.Coordinate);
@@ -127,9 +125,8 @@ public static class PathSolver
                     new Vector3(from.x, from.y, -1),
                     new Vector3(to.x, to.y, -1),
                     Color.white.WithAlpha(0.2f),
-                    4f
+                    gizmoDuration
                 );
             }
-        }
     }
 }
