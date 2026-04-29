@@ -6,10 +6,10 @@ public class Graph
     public IReadOnlyCollection<Vertex> Vertices => vertices;
 
     readonly List<Vertex> vertices = new();
-    readonly Dictionary<Vector2Int, Vertex> coordinateCache = new();
+    readonly Dictionary<Vector2, Vertex> coordinateCache = new();
     readonly Dictionary<Vertex, List<Edge>> vertexEdges = new();
 
-    public Vertex AddVertex(Vector2Int coordinate)
+    public Vertex AddVertex(Vector2 coordinate)
     {
         if (coordinateCache.TryGetValue(coordinate, out Vertex existing))
             return existing;
@@ -21,7 +21,7 @@ public class Graph
         return vertex;
     }
 
-    public Vertex GetVertex(Vector2Int coordinate) => coordinateCache.TryGetValue(coordinate, out Vertex vertex) ? vertex : null;
+    public Vertex GetVertex(Vector2 coordinate) => coordinateCache.TryGetValue(coordinate, out Vertex vertex) ? vertex : null;
 
     public Edge AddEdge(Vertex a, Vertex b)
     {
@@ -51,12 +51,12 @@ public class Graph
 
     public class Vertex
     {
-        public Vector2Int Coordinate { get; }
+        public Vector2 Coordinate { get; }
         public IReadOnlyCollection<Edge> Edges => graph.vertexEdges[this];
 
         readonly Graph graph;
 
-        internal Vertex(Graph graph, Vector2Int coordinate)
+        internal Vertex(Graph graph, Vector2 coordinate)
         {
             this.graph = graph;
             Coordinate = coordinate;

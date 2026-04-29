@@ -13,19 +13,18 @@ public static class PathSolver
 
         foreach (var pair in grid.GetAllTiles())
             graph.AddVertex(pair.Key);
-
-        AddConnections(graph, grid);
-        FilterConnections(graph, grid);
+        
+        AddTransitions(graph, grid);
 
         if (!LevelManager.TrainModeEnabled) DebugDrawGraph(graph, grid);
 
         return graph;
     }
 
-    public static IEnumerable<Vector2Int> GetPath(Vector2Int startTile, Vector2Int endTile, Graph graph)
+    public static IEnumerable<Vector2> GetPath(Vector2Int startTile, Vector2Int endTile, Graph graph)
     {
         Graph.Vertex start = graph.GetVertex(startTile);
-        List<Vector2Int> path = new();
+        List<Vector2> path = new();
 
         if (start == null) return path;
 
@@ -60,7 +59,7 @@ public static class PathSolver
         return path;
     }
 
-    static void AddConnections(Graph graph, BoardGrid grid)
+    static void AddTransitions(Graph graph, BoardGrid grid)
     {
         foreach (var pair in grid.GetAllTiles())
         {
@@ -71,11 +70,11 @@ public static class PathSolver
 
             foreach (LocalTransition transition in segment.GetTransitions())
             {
-                Vector2Int fromCoord = tile + transition.From;
-                Vector2Int toCoord = tile + transition.To;
+                Vector2 fromCoord = tile + transition.From;
+                Vector2 toCoord = tile + transition.To;
 
-                Graph.Vertex from = graph.GetVertex(fromCoord);
-                Graph.Vertex to = graph.GetVertex(toCoord);
+                Graph.Vertex from = graph.GetVertex(fromCoord) ?? graph.AddVertex(fromCoord);
+                Graph.Vertex to = graph.GetVertex(toCoord) ?? graph.AddVertex(toCoord);
 
                 if (from == null || to == null) continue;
 
@@ -84,29 +83,7 @@ public static class PathSolver
         }
     }
 
-    static void FilterConnections(Graph graph, BoardGrid grid)
-    {
-        HashSet<Graph.Edge> edgesToRemove = new();
-
-        foreach (Graph.Vertex vertex in graph.Vertices)
-            foreach (Graph.Edge edge in vertex.Edges)
-            {
-                if (!WalkableTile(edge.A.Coordinate, grid) || !WalkableTile(edge.B.Coordinate, grid))
-                    edgesToRemove.Add(edge);
-            }
-
-        foreach (Graph.Edge edge in edgesToRemove)
-            graph.RemoveEdge(edge);
-    }
-
-    static bool WalkableTile(Vector2Int coordinate, BoardGrid grid)
-    {
-        Vector2Int below = coordinate + Vector2Int.down;
-
-        return grid.GetBlockAtTile(below) != null && grid.GetBlockAtTile(coordinate) == null;
-    }
-
-    static int Manhattan(Vector2Int a, Vector2Int b) => Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
+    static float Manhattan(Vector2 a, Vector2 b) => Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
 
     static void DebugDrawGraph(Graph graph, BoardGrid grid)
     {

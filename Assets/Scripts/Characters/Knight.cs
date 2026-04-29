@@ -14,7 +14,7 @@ public class Knight : MonoBehaviour
     public event Action PathEnded;
 
     bool isActivated = false, pathReachesGoal = false;
-    Vector2Int[] path;
+    Vector2[] path;
     Vector3 startPosition;
     int targetIndex = 0;
     float timer;
@@ -62,7 +62,7 @@ public class Knight : MonoBehaviour
 
         for (int i = 0; i < path.Length; i++)
         {
-            Vector2Int tile = path[i];
+            Vector2 tile = path[i];
             Vector3 nextPos = new(tile.x, tile.y + HeightOffset, depth);
             Gizmos.DrawLine(currentPos, nextPos);
             Gizmos.DrawSphere(currentPos, 0.1f);
@@ -73,7 +73,7 @@ public class Knight : MonoBehaviour
         Gizmos.DrawSphere(new(GetTargetPosition().x, GetTargetPosition().y, depth), 0.13f);
     }
 
-    public void StartPathAnimation(Vector2Int[] path, bool reachesGoal)
+    public void StartPathAnimation(Vector2[] path, bool reachesGoal)
     {
         startPosition = transform.position;
         pathReachesGoal = reachesGoal;

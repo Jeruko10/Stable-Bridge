@@ -64,7 +64,7 @@ public class BoardGrid : MonoBehaviour
 
     public IEnumerable<Block> GetAllBlocks() => blocks;
 
-    public Vector3 TileToWorld(Vector2Int tile) => new(tile.x * TileSize, tile.y * TileSize);
+    public Vector3 TileToWorld(Vector2 tile) => new(tile.x * TileSize, tile.y * TileSize);
 
     public Vector2Int WorldToTile(Vector3 worldPos)
     {

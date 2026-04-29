@@ -4,32 +4,34 @@ using UnityEngine;
 
 public class SlopeSegment : BlockSegment
 {
-    readonly LocalTransition[] transitions0Deg = new LocalTransition[]
-    {
-        new(from: new(0, 1), to: new(1, 0))
-    };
-
-    readonly LocalTransition[] transitions90Deg = new LocalTransition[]
-    {
-        new(from: new(-1, 0), to: new(0, 1))
-    };
-
-    readonly LocalTransition[] transitions180Deg = new LocalTransition[]
-    {
-        new(from: new(0, 1), to: new(1, 1)),
-        new(from: new(0, 1), to: new(-1, 1))
-    };
-
-    readonly LocalTransition[] transitions270Deg = new LocalTransition[]
-    {
-        new(from: new(0, 1), to: new(1, 1)),
-        new(from: new(0, 1), to: new(-1, 1))
-    };
-
+    LocalTransition[] transitions0Deg, transitions90Deg, transitions180Deg, transitions270Deg;
     Block parent;
     bool flipped = false;
     
-    public override void Initialize(Block parent) => this.parent = parent;
+    public override void Initialize(Block parent)
+    {
+        this.parent = parent;
+
+        transitions0Deg = new LocalTransition[]
+        {
+            new(from: TopLeft, to: BottomRight)
+        };
+
+        transitions90Deg = new LocalTransition[]
+        {
+            new(from: BottomLeft, to: TopRight)
+        };
+
+        transitions180Deg = new LocalTransition[]
+        {
+            new(from: TopLeft, to: TopRight),
+        };
+
+        transitions270Deg = new LocalTransition[]
+        {
+            new(from: TopLeft, to: TopRight),
+        };
+    }
     
     public override Block GetParent() => parent;
 

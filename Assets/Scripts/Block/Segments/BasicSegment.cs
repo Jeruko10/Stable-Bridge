@@ -4,16 +4,20 @@ using UnityEngine;
 
 public class BasicSegment : BlockSegment
 {
-    readonly LocalTransition[] transitions = new LocalTransition[]
-    {
-        new(from: new(0, 1), to: new(1, 1)),
-        new(from: new(0, 1), to: new(-1, 1))
-    };
+    LocalTransition[] transitions;
 
     Block parent;
     bool flipped = false;
-    
-    public override void Initialize(Block parent) => this.parent = parent;
+
+    public override void Initialize(Block parent)
+    {
+        this.parent = parent;
+
+        transitions = new LocalTransition[]
+        {
+            new(from: TopLeft, to: TopRight),
+        };
+    }
     
     public override Block GetParent() => parent;
 

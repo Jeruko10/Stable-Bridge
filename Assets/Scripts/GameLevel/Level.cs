@@ -31,7 +31,7 @@ public class Level : MonoBehaviour
     public event Action<bool> SuccessKnown;
 
     bool success, trainModeEnabled;
-    IEnumerable<Vector2Int> knightPath;
+    IEnumerable<Vector2> knightPath;
     GameObject blocksFolder;
     Knight knight;
 

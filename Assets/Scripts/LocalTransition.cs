@@ -2,10 +2,10 @@ using UnityEngine;
 
 public readonly struct LocalTransition
 {
-    public Vector2Int From { get; }
-    public Vector2Int To { get; }
+    public Vector2 From { get; }
+    public Vector2 To { get; }
 
-    public LocalTransition(Vector2Int from, Vector2Int to)
+    public LocalTransition(Vector2 from, Vector2 to)
     {
         From = from;
         To = to;
