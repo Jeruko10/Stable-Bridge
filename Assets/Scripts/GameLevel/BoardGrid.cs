@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class BoardGrid : MonoBehaviour
 {
-    [field: SerializeField] public float TileSize { get; set; } = 1f;
-    [field: SerializeField] public GameObject TileVisualPrefab { get; set; }
+    [field: SerializeField] public float TileSize { get; private set; } = BlockSegment.SideLength;
+    [field: SerializeField] public GameObject TileVisualPrefab { get; private set; }
     public Vector2Int Size { get; private set; }
     public enum Rotation { Deg0 = 0, Deg90 = 90, Deg180 = 180, Deg270 = 270 }
 

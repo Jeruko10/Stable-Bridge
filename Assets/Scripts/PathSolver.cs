@@ -11,19 +11,16 @@ public static class PathSolver
     {
         Graph graph = new();
 
-        foreach (var pair in grid.GetAllTiles())
-            graph.AddVertex(pair.Key);
-        
         AddTransitions(graph, grid);
 
-        if (!LevelManager.TrainModeEnabled) DebugDrawGraph(graph, grid);
+        // if (!LevelManager.TrainModeEnabled) DebugDrawGraph(graph, grid);
 
         return graph;
     }
 
     public static IEnumerable<Vector2> GetPath(Vector2Int startTile, Vector2Int endTile, Graph graph)
     {
-        Graph.Vertex start = graph.GetVertex(startTile);
+        Graph.Vertex start = graph.GetVertex((Vector2)startTile + BlockSegment.BottomRight);
         List<Vector2> path = new();
 
         if (start == null) return path;
@@ -66,7 +63,7 @@ public static class PathSolver
             Vector2Int tile = pair.Key;
             BlockSegment segment = pair.Value;
 
-            if (segment == null) continue;
+            if (segment == null || grid.GetBlockAtTile(tile + Vector2Int.up) != null) continue;
 
             foreach (LocalTransition transition in segment.GetTransitions())
             {
@@ -99,8 +96,8 @@ public static class PathSolver
                 Vector2 to = grid.TileToWorld(other.Coordinate);
 
                 Debug.DrawLine(
-                    new Vector3(from.x, from.y, -1),
-                    new Vector3(to.x, to.y, -1),
+                    new(from.x, from.y + 0.2f, -1),
+                    new(to.x, to.y + 0.2f, -1),
                     Color.white.WithAlpha(0.2f),
                     gizmoDuration
                 );

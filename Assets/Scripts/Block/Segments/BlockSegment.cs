@@ -9,8 +9,10 @@ public abstract class BlockSegment : MonoBehaviour
     public abstract void Flip();
     public abstract IEnumerable<LocalTransition> GetTransitions();
 
-    protected Vector2 TopLeft => new(-0.5f, 0.5f);
-    protected Vector2 TopRight => new(0.5f, 0.5f);
-    protected Vector2 BottomLeft => new(-0.5f, -0.5f);
-    protected Vector2 BottomRight => new(0.5f, -0.5f);
+    public const float SideLength = 1f;
+    public const float Apothem = SideLength / 2;
+    public static readonly Vector2 TopLeft = new(-Apothem, Apothem);
+    public static readonly Vector2 TopRight = new(Apothem, Apothem);
+    public static readonly Vector2 BottomLeft = new(-Apothem, -Apothem);
+    public static readonly Vector2 BottomRight = new(Apothem, -Apothem);
 }

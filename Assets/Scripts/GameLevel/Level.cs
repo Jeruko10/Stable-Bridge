@@ -96,7 +96,7 @@ public class Level : MonoBehaviour
         Graph graph = PathSolver.GridToGraph(Grid);
 
         knightPath = PathSolver.GetPath(StartPosition, EndPosition, graph);
-        success = knightPath.LastOrDefault() == EndPosition;
+        success = knightPath.LastOrDefault() == EndPosition + BlockSegment.BottomRight;
         SuccessKnown?.Invoke(success);
     }
 
@@ -107,8 +107,9 @@ public class Level : MonoBehaviour
             StartCoroutine(EndLevel(success));
             return;
         }
-
-        knight.StartPathAnimation(knightPath.ToArray(), success);
+        
+        Vector3[] worldPath = knightPath.Select(tile => Grid.TileToWorld(tile)).ToArray();
+        knight.StartPathAnimation(worldPath, success);
     }
 
     void OnPathEnded() => StartCoroutine(EndLevel(success));
@@ -173,8 +174,8 @@ public class Level : MonoBehaviour
 
     void CreateCharacters()
     {
-        Vector2 playerPos = Grid.TileToWorld(StartPosition) + new Vector3(0, CharactersHeightOffset, 0);
-        Vector2 goalPos = Grid.TileToWorld(EndPosition) + new Vector3(0, CharactersHeightOffset, 0);
+        Vector2 playerPos = Grid.TileToWorld(StartPosition);
+        Vector2 goalPos = Grid.TileToWorld(EndPosition);
 
         knight = Instantiate(knightPrefab, transform);
         knight.transform.position = playerPos;
