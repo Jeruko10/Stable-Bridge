@@ -6,10 +6,9 @@ public class GameActions : MonoBehaviour
     [SerializeField] Color highlightColor;
 
     public bool IsDragging { get; private set; }
-    public Block SelectedBlockRef => selectedBlock;
+    public Block SelectedBlock { get; private set; }
 
     Color defaultBlockColor;
-    Block selectedBlock;
     BlockSegment selectedSegment;
     SlotManager slotManager;
     BoardGrid grid;
@@ -34,16 +33,16 @@ public class GameActions : MonoBehaviour
     {
         if (IsDragging) return;
 
-        switch (selectedBlock.MobilityType)
+        switch (SelectedBlock.MobilityType)
         {
             case Block.Mobility.Free:
                 DragSelectedBlock();
                 break;
             case Block.Mobility.RotateOnly:
-                grid.TryRotateBlock(selectedBlock, true);
+                grid.TryRotateBlock(SelectedBlock, true);
                 break;
             case Block.Mobility.SlideOnly:
-                grid.TrySlideBlock(selectedBlock);
+                grid.TrySlideBlock(SelectedBlock);
                 break;
             case Block.Mobility.Fixed:
                 // Fixed blocks cannot be moved
@@ -53,11 +52,11 @@ public class GameActions : MonoBehaviour
 
     public bool IsBlockInSlot(Block block) => slotManager.IsBlockInSlot(block);
 
-    public bool IsBlockSelected() => selectedBlock != null;
+    public bool IsBlockSelected() => SelectedBlock != null;
 
-    public bool TryRotateSelectedBlock(bool clockwise) => grid.TryRotateBlock(selectedBlock, clockwise);
+    public bool TryRotateSelectedBlock(bool clockwise) => grid.TryRotateBlock(SelectedBlock, clockwise);
 
-    public bool TryFlipSelectedBlock() => grid.TryFlipBlock(selectedBlock);
+    public bool TryFlipSelectedBlock() => grid.TryFlipBlock(SelectedBlock);
 
     public void SelectBlock(Block block, BlockSegment segment)
     {
@@ -67,33 +66,33 @@ public class GameActions : MonoBehaviour
             baseColorPicked = true;
         }
 
-        selectedBlock = block;
+        SelectedBlock = block;
         selectedSegment = segment;
         block.Color = highlightColor;
     }
 
     public void UnselectBlock()
     {
-        if (selectedBlock == null) return;
+        if (SelectedBlock == null) return;
 
-        selectedBlock.Color = defaultBlockColor;
-        selectedBlock = null;
+        SelectedBlock.Color = defaultBlockColor;
+        SelectedBlock = null;
         selectedSegment = null;
     }
 
     public bool TryRemoveSelectedBlock()
     {
-        if (!slotManager.TryAsignAvailableSlot(selectedBlock))
+        if (!slotManager.TryAsignAvailableSlot(SelectedBlock))
             return false;
 
         IsDragging = false;
-        grid.RemoveBlock(selectedBlock);
+        grid.RemoveBlock(SelectedBlock);
         return true;
     }
 
     public void DragSelectedBlock()
     {
-        hasSavedGridPosition = grid.ContainsBlock(selectedBlock);
+        hasSavedGridPosition = grid.ContainsBlock(SelectedBlock);
         if (hasSavedGridPosition)
         {
             Vector2Int? tile = grid.GetTileOfBlock(selectedSegment);
@@ -101,16 +100,16 @@ public class GameActions : MonoBehaviour
             if (hasSavedGridPosition) savedPivotTile = tile.Value;
         }
 
-        grid.RemoveBlock(selectedBlock);
-        slotManager.FreeSlot(selectedBlock);
+        grid.RemoveBlock(SelectedBlock);
+        slotManager.FreeSlot(SelectedBlock);
         IsDragging = true;
     }
 
     public void StartDragSelectedBlock()
     {
-        if (selectedBlock == null || IsDragging) return;
+        if (SelectedBlock == null || IsDragging) return;
 
-        if (selectedBlock.MobilityType == Block.Mobility.Free)
+        if (SelectedBlock.MobilityType == Block.Mobility.Free)
         {
             DragSelectedBlock();
         }
@@ -120,15 +119,15 @@ public class GameActions : MonoBehaviour
     // Returns true if block was placed at the intended position.
     public bool DropDraggedBlock(Vector2 worldPosition)
     {
-        if (selectedBlock == null) return false;
+        if (SelectedBlock == null) return false;
 
         Vector2Int tile = grid.WorldToTile(worldPosition);
-        bool placed = grid.TryPlaceBlock(selectedBlock, tile, selectedSegment);
+        bool placed = grid.TryPlaceBlock(SelectedBlock, tile, selectedSegment);
 
         if (!placed)
         {
-            bool restored = hasSavedGridPosition && grid.TryPlaceBlock(selectedBlock, savedPivotTile, selectedSegment);
-            if (!restored) slotManager.TryAsignAvailableSlot(selectedBlock);
+            bool restored = hasSavedGridPosition && grid.TryPlaceBlock(SelectedBlock, savedPivotTile, selectedSegment);
+            if (!restored) slotManager.TryAsignAvailableSlot(SelectedBlock);
         }
 
         if (IsDragging) IsDragging = false;
@@ -139,12 +138,12 @@ public class GameActions : MonoBehaviour
     // Returns true if block was placed at the intended position.
     public bool DropDraggedBlockToSlot(Vector2 worldPosition)
     {
-        if (selectedBlock == null) return false;
+        if (SelectedBlock == null) return false;
 
         Vector2Int tile = grid.WorldToTile(worldPosition);
-        bool placed = grid.TryPlaceBlock(selectedBlock, tile, selectedSegment);
+        bool placed = grid.TryPlaceBlock(SelectedBlock, tile, selectedSegment);
 
-        if (!placed) slotManager.TryAsignAvailableSlot(selectedBlock);
+        if (!placed) slotManager.TryAsignAvailableSlot(SelectedBlock);
 
         if (IsDragging) IsDragging = false;
         return placed;
@@ -154,8 +153,8 @@ public class GameActions : MonoBehaviour
     {
         if (!IsDragging) return;
 
-        Vector2 offset = selectedBlock.transform.position - selectedSegment.transform.position;
+        Vector2 offset = SelectedBlock.transform.position - selectedSegment.transform.position;
         targetPosition += offset;
-        selectedBlock.Position2D = targetPosition;
+        SelectedBlock.Position2D = targetPosition;
     }
 }

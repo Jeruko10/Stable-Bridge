@@ -15,7 +15,6 @@ public class PlayerInput : MonoBehaviour
     readonly Plane interactionPlane = new(Vector3.forward, Vector3.zero);
 
     bool isHoldDragging;
-    bool isClickToMove;
     bool pressedOnBlock;
     Vector2 pressStartPosition;
 
@@ -62,20 +61,21 @@ public class PlayerInput : MonoBehaviour
 
         if (IsPointerOverUI()) return;
 
-        if (isClickToMove)
+        if (actions.IsDragging)
         {
-            if (TryRaycastToBlock(out BlockSegment segment) && segment.GetParent() == actions.SelectedBlockRef)
+            if (TryRaycastToBlock(out BlockSegment segment) && segment.GetParent() == actions.SelectedBlock)
             {
-                isClickToMove = false;
                 pressedOnBlock = true;
                 return;
             }
 
-            if (TryGetWorldPosition(out Vector3 dropPos))
-                actions.DropDraggedBlock(dropPos);
+            if (TryGetWorldPosition(out Vector3 dropPos) && actions.DropDraggedBlock(dropPos))
+            {
+                actions.StartDragSelectedBlock();
+                return;
+            }
 
             actions.UnselectBlock();
-            isClickToMove = false;
             return;
         }
 
@@ -90,8 +90,8 @@ public class PlayerInput : MonoBehaviour
 
     void OnPointerHeld()
     {
-        if (isClickToMove || !pressedOnBlock || !actions.IsBlockSelected()) return;
-        if (actions.SelectedBlockRef.MobilityType != Block.Mobility.Free) return;
+        if (!pressedOnBlock || !actions.IsBlockSelected()) return;
+        if (actions.SelectedBlock.MobilityType != Block.Mobility.Free) return;
 
         if (!isHoldDragging)
         {
@@ -107,8 +107,6 @@ public class PlayerInput : MonoBehaviour
 
     void OnPointerReleased()
     {
-        if (isClickToMove) return;
-
         if (isHoldDragging)
         {
             bool placed = TryGetWorldPosition(out Vector3 pos) && actions.DropDraggedBlockToSlot(pos);
@@ -117,18 +115,25 @@ public class PlayerInput : MonoBehaviour
             return;
         }
 
+        if (actions.IsDragging) return;
+
         if (IsPointerOverUI() || !actions.IsBlockSelected()) return;
 
         if (!pressedOnBlock)
         {
+            actions.StartDragSelectedBlock();
+            if (TryGetWorldPosition(out Vector3 pos) && actions.DropDraggedBlock(pos))
+            {
+                actions.StartDragSelectedBlock();
+                return;
+            }
             actions.UnselectBlock();
             return;
         }
 
-        if (actions.SelectedBlockRef.MobilityType == Block.Mobility.Free)
+        if (actions.SelectedBlock.MobilityType == Block.Mobility.Free)
         {
             actions.StartDragSelectedBlock();
-            isClickToMove = true;
             return;
         }
 
