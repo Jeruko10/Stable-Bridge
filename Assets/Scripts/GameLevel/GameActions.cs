@@ -6,6 +6,7 @@ public class GameActions : MonoBehaviour
     [SerializeField] Color highlightColor;
 
     public bool IsDragging { get; private set; }
+    public Block SelectedBlockRef => selectedBlock;
 
     Color defaultBlockColor;
     Block selectedBlock;
@@ -13,6 +14,9 @@ public class GameActions : MonoBehaviour
     SlotManager slotManager;
     BoardGrid grid;
     bool baseColorPicked = false;
+
+    Vector2Int savedPivotTile;
+    bool hasSavedGridPosition;
 
     void Awake()
     {
@@ -29,7 +33,7 @@ public class GameActions : MonoBehaviour
     public void TriggerSelectedBlockInteraction()
     {
         if (IsDragging) return;
-        
+
         switch (selectedBlock.MobilityType)
         {
             case Block.Mobility.Free:
@@ -89,27 +93,67 @@ public class GameActions : MonoBehaviour
 
     public void DragSelectedBlock()
     {
+        hasSavedGridPosition = grid.ContainsBlock(selectedBlock);
+        if (hasSavedGridPosition)
+        {
+            Vector2Int? tile = grid.GetTileOfBlock(selectedSegment);
+            hasSavedGridPosition = tile.HasValue;
+            if (hasSavedGridPosition) savedPivotTile = tile.Value;
+        }
+
         grid.RemoveBlock(selectedBlock);
         slotManager.FreeSlot(selectedBlock);
         IsDragging = true;
     }
 
-    public void DropDraggedBlock(Vector2 worldPosition)
+    public void StartDragSelectedBlock()
     {
-        if (!IsDragging) return;
+        if (selectedBlock == null || IsDragging) return;
+
+        if (selectedBlock.MobilityType == Block.Mobility.Free)
+        {
+            DragSelectedBlock();
+        }
+    }
+
+    // Used for click-to-move: if placement fails, restores to original grid position.
+    // Returns true if block was placed at the intended position.
+    public bool DropDraggedBlock(Vector2 worldPosition)
+    {
+        if (selectedBlock == null) return false;
 
         Vector2Int tile = grid.WorldToTile(worldPosition);
+        bool placed = grid.TryPlaceBlock(selectedBlock, tile, selectedSegment);
 
-        if (!grid.TryPlaceBlock(selectedBlock, tile, selectedSegment))
-            slotManager.TryAsignAvailableSlot(selectedBlock);
-        
-        IsDragging = false;
+        if (!placed)
+        {
+            bool restored = hasSavedGridPosition && grid.TryPlaceBlock(selectedBlock, savedPivotTile, selectedSegment);
+            if (!restored) slotManager.TryAsignAvailableSlot(selectedBlock);
+        }
+
+        if (IsDragging) IsDragging = false;
+        return placed;
+    }
+
+    // Used for hold-drag: if placement fails, sends block to slot (outside grid).
+    // Returns true if block was placed at the intended position.
+    public bool DropDraggedBlockToSlot(Vector2 worldPosition)
+    {
+        if (selectedBlock == null) return false;
+
+        Vector2Int tile = grid.WorldToTile(worldPosition);
+        bool placed = grid.TryPlaceBlock(selectedBlock, tile, selectedSegment);
+
+        if (!placed) slotManager.TryAsignAvailableSlot(selectedBlock);
+
+        if (IsDragging) IsDragging = false;
+        return placed;
     }
 
     public void MoveDraggedBlock(Vector2 targetPosition)
     {
         if (!IsDragging) return;
-        
+
         Vector2 offset = selectedBlock.transform.position - selectedSegment.transform.position;
         targetPosition += offset;
         selectedBlock.Position2D = targetPosition;

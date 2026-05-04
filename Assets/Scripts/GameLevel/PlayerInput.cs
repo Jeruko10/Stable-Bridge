@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -7,26 +6,32 @@ using UnityEngine.InputSystem;
 public class PlayerInput : MonoBehaviour
 {
     [field: SerializeField] public LayerMask BlockLayer { get; private set; }
-    [field: SerializeField] float rayDistance = 100f;
-    [field: SerializeField] UserInterfaceManager uiManager;
+    [field: SerializeField] float RayDistance { get; set; } = 100f;
+    [field: SerializeField] UserInterfaceManager UiManager { get; set; }
+    [field: SerializeField] float DragThresholdPixels { get; set; } = 10f;
 
     GameActions actions;
     Camera mainCamera;
     readonly Plane interactionPlane = new(Vector3.forward, Vector3.zero);
+
+    bool isHoldDragging;
+    bool isClickToMove;
+    bool pressedOnBlock;
+    Vector2 pressStartPosition;
 
     void Awake()
     {
         actions = GetComponent<GameActions>();
         mainCamera = Camera.main;
 
-        uiManager.RotateButton.clicked += OnRotateButtonClicked;
-        uiManager.FlipButton.clicked += OnFlipButtonClicked;
+        UiManager.RotateButton.clicked += OnRotateButtonClicked;
+        UiManager.FlipButton.clicked += OnFlipButtonClicked;
     }
 
     void Update()
     {
         HandleKeyboardInputs();
-        HandleMouseInputs();
+        HandlePointerInputs();
     }
 
     void HandleKeyboardInputs()
@@ -40,109 +45,131 @@ public class PlayerInput : MonoBehaviour
             LevelLayout.FromLevel(LevelManager.Current, new(0, 3), new(4, 3)).SaveAsAsset();
     }
 
-    void HandleMouseInputs()
+    void HandlePointerInputs()
     {
-        if (Mouse.current == null) return;
+        if (Pointer.current == null) return;
 
-        if (Mouse.current.leftButton.wasPressedThisFrame) HandleLeftClick();
-        else if (Mouse.current.rightButton.wasPressedThisFrame) HandleRightClick();
-
-        if (actions.IsDragging) UpdateDragging();
+        if (Pointer.current.press.wasPressedThisFrame)  OnPointerPressed();
+        if (Pointer.current.press.isPressed)            OnPointerHeld();
+        if (Pointer.current.press.wasReleasedThisFrame) OnPointerReleased();
     }
 
-    void HandleLeftClick()
+    void OnPointerPressed()
     {
-        if (EventSystem.current.IsPointerOverGameObject()) return;
+        pressStartPosition = Pointer.current.position.ReadValue();
+        isHoldDragging = false;
+        pressedOnBlock = false;
 
-        if (actions.IsDragging)
+        if (IsPointerOverUI()) return;
+
+        if (isClickToMove)
         {
-            if (TryGetMouseWorldPosition(out Vector3 pos))
-                actions.DropDraggedBlock(pos);
+            if (TryRaycastToBlock(out BlockSegment segment) && segment.GetParent() == actions.SelectedBlockRef)
+            {
+                isClickToMove = false;
+                pressedOnBlock = true;
+                return;
+            }
+
+            if (TryGetWorldPosition(out Vector3 dropPos))
+                actions.DropDraggedBlock(dropPos);
+
+            actions.UnselectBlock();
+            isClickToMove = false;
+            return;
         }
-        else
-        {
-            if (!TryRaycastToBlock(out BlockSegment segment)) return;
 
-            Block block = segment.GetParent();
+        if (!TryRaycastToBlock(out BlockSegment hit)) return;
 
-            if (block == null || block.MobilityType == Block.Mobility.Fixed) return;
+        Block block = hit.GetParent();
+        if (block == null || block.MobilityType == Block.Mobility.Fixed) return;
 
-            actions.SelectBlock(block, segment);
-            actions.TriggerSelectedBlockInteraction();
-        }
+        actions.SelectBlock(block, hit);
+        pressedOnBlock = true;
     }
 
-    void HandleRightClick()
+    void OnPointerHeld()
     {
-        if (!actions.IsDragging)
+        if (isClickToMove || !pressedOnBlock || !actions.IsBlockSelected()) return;
+        if (actions.SelectedBlockRef.MobilityType != Block.Mobility.Free) return;
+
+        if (!isHoldDragging)
         {
-            if (!TryRaycastToBlock(out BlockSegment segment)) return;
-            
-            Block block = segment.GetParent();
+            if ((Pointer.current.position.ReadValue() - pressStartPosition).magnitude < DragThresholdPixels) return;
 
-            if (block == null || actions.IsBlockInSlot(block) || block.MobilityType != Block.Mobility.Free) return;
-
-            actions.SelectBlock(block, segment);
+            actions.StartDragSelectedBlock();
+            isHoldDragging = true;
         }
 
-        actions.TryRemoveSelectedBlock();
-        actions.UnselectBlock();
+        if (actions.IsDragging && TryGetWorldPosition(out Vector3 pos))
+            actions.MoveDraggedBlock(pos);
+    }
+
+    void OnPointerReleased()
+    {
+        if (isClickToMove) return;
+
+        if (isHoldDragging)
+        {
+            bool placed = TryGetWorldPosition(out Vector3 pos) && actions.DropDraggedBlockToSlot(pos);
+            if (!placed) actions.UnselectBlock();
+            isHoldDragging = false;
+            return;
+        }
+
+        if (IsPointerOverUI() || !actions.IsBlockSelected()) return;
+
+        if (!pressedOnBlock)
+        {
+            actions.UnselectBlock();
+            return;
+        }
+
+        if (actions.SelectedBlockRef.MobilityType == Block.Mobility.Free)
+        {
+            actions.StartDragSelectedBlock();
+            isClickToMove = true;
+            return;
+        }
+
+        actions.TriggerSelectedBlockInteraction();
     }
 
     void OnFlipButtonClicked()
     {
-        if (actions.IsBlockSelected())
-            actions.TryFlipSelectedBlock();
+        if (actions.IsBlockSelected()) actions.TryFlipSelectedBlock();
     }
 
     void OnRotateButtonClicked()
     {
-        if (actions.IsBlockSelected())
-            actions.TryRotateSelectedBlock(clockwise: true);
+        if (actions.IsBlockSelected()) actions.TryRotateSelectedBlock(clockwise: true);
     }
 
-    Ray GetMouseRay() => mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+    bool IsPointerOverUI() => Pointer.current is Touchscreen
+        ? EventSystem.current.IsPointerOverGameObject(Pointer.current.deviceId)
+        : EventSystem.current.IsPointerOverGameObject();
 
-    bool TryGetMouseWorldPosition(out Vector3 worldPos)
+    Ray GetPointerRay() => mainCamera.ScreenPointToRay(Pointer.current.position.ReadValue());
+
+    bool TryGetWorldPosition(out Vector3 worldPos)
     {
-        Ray ray = GetMouseRay();
+        Ray ray = GetPointerRay();
         if (interactionPlane.Raycast(ray, out float distance))
         {
             worldPos = ray.GetPoint(distance);
             return true;
         }
-        
+
         worldPos = Vector3.zero;
         return false;
     }
 
-    bool TryRaycastToBlock(out BlockSegment clickedSegment)
+    bool TryRaycastToBlock(out BlockSegment segment)
     {
-        actions.UnselectBlock();
-        clickedSegment = null;
-        bool debugData = false;
+        segment = null;
+        if (!Physics.Raycast(GetPointerRay(), out RaycastHit hit, RayDistance, BlockLayer)) return false;
 
-        if (!Physics.Raycast(GetMouseRay(), out RaycastHit hit, rayDistance, BlockLayer))
-        {
-            if (debugData) Debug.Log("Click ray missed anything");
-            return false;
-        }
-
-        BlockSegment segment = hit.collider.GetComponentInParent<BlockSegment>();
-        if (segment == null)
-        {
-            if (debugData) Debug.Log($"Hit {hit.collider.name} but no BlockSegment");
-            return false;
-        }
-        
-        if (debugData) Debug.Log($"Hit block {segment.GetParent().name} segment {segment.name}");
-
-        clickedSegment = segment;
-        return true;
-    }
-
-    void UpdateDragging()
-    {
-        if (TryGetMouseWorldPosition(out Vector3 pos)) actions.MoveDraggedBlock(pos);
+        segment = hit.collider.GetComponentInParent<BlockSegment>();
+        return segment != null;
     }
 }

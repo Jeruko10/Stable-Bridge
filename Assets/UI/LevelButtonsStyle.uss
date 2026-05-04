@@ -8,4 +8,15 @@
     border-right-color: rgba(0, 0, 0, 0);
     border-top-color: rgba(0, 0, 0, 0);
     border-bottom-color: rgba(0, 0, 0, 0);
+    opacity: 0.5;
+}
+
+.scrollView {
+    left: auto;
+    justify-content: flex-start;
+    min-width: 400px;
+    background-color: rgba(30, 49, 49, 0.55);
+    background-position-y: center;
+    -unity-background-scale-mode: stretch-to-fill;
+    opacity: 1;
 }
