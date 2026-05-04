@@ -640,8 +640,9 @@ MonoBehaviour:
   <BlockLayer>k__BackingField:
     serializedVersion: 2
     m_Bits: 64
-  rayDistance: 1000
-  uiManager: {fileID: 1349540171}
+  <RayDistance>k__BackingField: 100
+  <UiManager>k__BackingField: {fileID: 1349540171}
+  <DragThresholdPixels>k__BackingField: 10
 --- !u!4 &6495907753749679937
 Transform:
   m_ObjectHideFlags: 0
