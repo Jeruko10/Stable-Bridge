@@ -69,7 +69,7 @@ public class PlayerInput : MonoBehaviour
                 return;
             }
 
-            if (TryGetWorldPosition(out Vector3 dropPos) && actions.DropDraggedBlock(dropPos))
+            if (TryGetWorldPosition(out Vector3 dropPos) && actions.TryDropDraggedBlock(dropPos))
             {
                 actions.StartDragSelectedBlock();
                 return;
@@ -118,7 +118,7 @@ public class PlayerInput : MonoBehaviour
     {
         if (isHoldDragging)
         {
-            bool placed = TryGetWorldPosition(out Vector3 pos) && actions.DropDraggedBlockToSlot(pos);
+            bool placed = TryGetWorldPosition(out Vector3 pos) && actions.TryDropDraggedBlock(pos, true);
             if (!placed) actions.UnselectBlock();
             isHoldDragging = false;
             return;
@@ -131,7 +131,7 @@ public class PlayerInput : MonoBehaviour
         if (!pressedOnBlock)
         {
             actions.StartDragSelectedBlock();
-            if (TryGetWorldPosition(out Vector3 pos) && actions.DropDraggedBlock(pos))
+            if (TryGetWorldPosition(out Vector3 pos) && actions.TryDropDraggedBlock(pos))
             {
                 actions.StartDragSelectedBlock();
                 return;

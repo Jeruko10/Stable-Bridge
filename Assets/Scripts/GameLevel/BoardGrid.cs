@@ -83,13 +83,13 @@ public class BoardGrid : MonoBehaviour
             return null;
         }
 
-        tileBlocks.TryGetValue(tile, out var block);
+        tileBlocks.TryGetValue(tile, out BlockSegment block);
         return block;
     }
 
     public Vector2Int? GetTileOfBlock(BlockSegment block)
     {
-        if (!blockTiles.TryGetValue(block, out var tile))
+        if (!blockTiles.TryGetValue(block, out Vector2Int tile))
         {
             Debug.LogWarning($"Block {block.name} is not placed on the grid");
             return null;
@@ -137,19 +137,19 @@ public class BoardGrid : MonoBehaviour
 
     public bool TryPlaceBlock(Block block, Vector2Int pivotTile, BlockSegment pivotSegment, bool tryAllPivots = false)
     {
-        if (tryAllPivots)
-            return TryPlaceWithAnyPivot(block, pivotTile);
-
         Vector3 requiredMovement = TileToWorld(pivotTile) - pivotSegment.transform.position;
 
+        // Check availability for all segments
         foreach (BlockSegment segment in block.Segments)
         {
             Vector2Int tile = WorldToTile(segment.transform.position + requiredMovement);
+            bool obstructedTile = tileBlocks.TryGetValue(tile, out BlockSegment existing) && existing != null && !block.Segments.Contains(existing);
+            bool success = IsValidTile(tile) && !obstructedTile;
 
-            if (!IsValidTile(tile) || (tileBlocks.TryGetValue(tile, out BlockSegment existing) && existing != null && !block.Segments.Contains(existing)))
-                return false;
+            if (!success) return tryAllPivots && TryPlaceBlockAllPivots(block, pivotTile);
         }
 
+        // Register all segment movements
         foreach (BlockSegment segment in block.Segments)
         {
             Vector2Int tile = WorldToTile(segment.transform.position + requiredMovement);
@@ -161,6 +161,14 @@ public class BoardGrid : MonoBehaviour
         blocks.Add(block);
 
         return true;
+    }
+
+    bool TryPlaceBlockAllPivots(Block block, Vector2Int pivotTile)
+    {
+        foreach (BlockSegment segment in block.Segments)
+            if (TryPlaceBlock(block, pivotTile, segment)) return true;
+        
+        return false;
     }
 
     bool TryPlaceWithAnyPivot(Block block, Vector2Int pivotTile)

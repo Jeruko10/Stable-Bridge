@@ -132,7 +132,7 @@ public class GameActions : MonoBehaviour
             DragSelectedBlock();
     }
 
-    public bool DropDraggedBlock(Vector2 worldPosition)
+    public bool TryDropDraggedBlock(Vector2 worldPosition, bool moveToSlotOnFailure = false)
     {
         if (SelectedBlock == null) return false;
 
@@ -142,23 +142,9 @@ public class GameActions : MonoBehaviour
 
         if (!placed)
         {
-            bool restored = hasSavedGridPosition && grid.TryPlaceBlock(SelectedBlock, savedPivotTile, SelectedBlock.Pivot);
+            bool restored = !moveToSlotOnFailure && hasSavedGridPosition && grid.TryPlaceBlock(SelectedBlock, savedPivotTile, SelectedBlock.Pivot);
             if (!restored) slotManager.TryAsignAvailableSlot(SelectedBlock);
         }
-
-        if (IsDragging) IsDragging = false;
-        return placed;
-    }
-
-    public bool DropDraggedBlockToSlot(Vector2 worldPosition)
-    {
-        if (SelectedBlock == null) return false;
-
-        Vector2Int tile = grid.WorldToTile(worldPosition);
-        bool tryAllPivots = SelectedBlock.MobilityType == Block.Mobility.Free;
-        bool placed = grid.TryPlaceBlock(SelectedBlock, tile, selectedSegment, tryAllPivots);
-
-        if (!placed) slotManager.TryAsignAvailableSlot(SelectedBlock);
 
         if (IsDragging) IsDragging = false;
         return placed;
