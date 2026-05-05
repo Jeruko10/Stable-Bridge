@@ -146,7 +146,7 @@ public class BoardGrid : MonoBehaviour
             bool obstructedTile = tileBlocks.TryGetValue(tile, out BlockSegment existing) && existing != null && !block.Segments.Contains(existing);
             bool success = IsValidTile(tile) && !obstructedTile;
 
-            if (!success) return tryAllPivots && TryPlaceBlockAllPivots(block, pivotTile);
+            if (!success) return tryAllPivots && TryPlaceWithAnyPivot(block, pivotTile);
         }
 
         // Register all segment movements
@@ -161,14 +161,6 @@ public class BoardGrid : MonoBehaviour
         blocks.Add(block);
 
         return true;
-    }
-
-    bool TryPlaceBlockAllPivots(Block block, Vector2Int pivotTile)
-    {
-        foreach (BlockSegment segment in block.Segments)
-            if (TryPlaceBlock(block, pivotTile, segment)) return true;
-        
-        return false;
     }
 
     bool TryPlaceWithAnyPivot(Block block, Vector2Int pivotTile)
