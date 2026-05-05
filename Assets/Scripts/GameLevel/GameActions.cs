@@ -45,7 +45,6 @@ public class GameActions : MonoBehaviour
                 grid.TrySlideBlock(SelectedBlock);
                 break;
             case Block.Mobility.Fixed:
-                // Fixed blocks cannot be moved
                 break;
         }
     }
@@ -54,12 +53,32 @@ public class GameActions : MonoBehaviour
 
     public bool IsBlockSelected() => SelectedBlock != null;
 
-    public bool TryRotateSelectedBlock(bool clockwise) => grid.TryRotateBlock(SelectedBlock, clockwise);
+    public bool TryRotateSelectedBlock(bool clockwise)
+    {
+        if (IsDragging && hasSavedGridPosition && grid.TryPlaceBlock(SelectedBlock, savedPivotTile, SelectedBlock.Pivot))
+        {
+            bool rotated = grid.TryRotateBlock(SelectedBlock, clockwise);
+            RefreshSavedPivotAndLift();
+            return rotated;
+        }
+        return grid.TryRotateBlock(SelectedBlock, clockwise);
+    }
 
-    public bool TryFlipSelectedBlock() => grid.TryFlipBlock(SelectedBlock);
+    public bool TryFlipSelectedBlock()
+    {
+        if (IsDragging && hasSavedGridPosition && grid.TryPlaceBlock(SelectedBlock, savedPivotTile, SelectedBlock.Pivot))
+        {
+            bool flipped = grid.TryFlipBlock(SelectedBlock);
+            RefreshSavedPivotAndLift();
+            return flipped;
+        }
+        return grid.TryFlipBlock(SelectedBlock);
+    }
 
     public void SelectBlock(Block block, BlockSegment segment)
     {
+        UnselectBlock();
+
         if (!baseColorPicked)
         {
             defaultBlockColor = block.Color;
@@ -95,7 +114,7 @@ public class GameActions : MonoBehaviour
         hasSavedGridPosition = grid.ContainsBlock(SelectedBlock);
         if (hasSavedGridPosition)
         {
-            Vector2Int? tile = grid.GetTileOfBlock(selectedSegment);
+            Vector2Int? tile = grid.GetTileOfBlock(SelectedBlock.Pivot);
             hasSavedGridPosition = tile.HasValue;
             if (hasSavedGridPosition) savedPivotTile = tile.Value;
         }
@@ -110,23 +129,20 @@ public class GameActions : MonoBehaviour
         if (SelectedBlock == null || IsDragging) return;
 
         if (SelectedBlock.MobilityType == Block.Mobility.Free)
-        {
             DragSelectedBlock();
-        }
     }
 
-    // Used for click-to-move: if placement fails, restores to original grid position.
-    // Returns true if block was placed at the intended position.
     public bool DropDraggedBlock(Vector2 worldPosition)
     {
         if (SelectedBlock == null) return false;
 
         Vector2Int tile = grid.WorldToTile(worldPosition);
-        bool placed = grid.TryPlaceBlock(SelectedBlock, tile, selectedSegment);
+        bool tryAllPivots = SelectedBlock.MobilityType == Block.Mobility.Free;
+        bool placed = grid.TryPlaceBlock(SelectedBlock, tile, selectedSegment, tryAllPivots);
 
         if (!placed)
         {
-            bool restored = hasSavedGridPosition && grid.TryPlaceBlock(SelectedBlock, savedPivotTile, selectedSegment);
+            bool restored = hasSavedGridPosition && grid.TryPlaceBlock(SelectedBlock, savedPivotTile, SelectedBlock.Pivot);
             if (!restored) slotManager.TryAsignAvailableSlot(SelectedBlock);
         }
 
@@ -134,14 +150,13 @@ public class GameActions : MonoBehaviour
         return placed;
     }
 
-    // Used for hold-drag: if placement fails, sends block to slot (outside grid).
-    // Returns true if block was placed at the intended position.
     public bool DropDraggedBlockToSlot(Vector2 worldPosition)
     {
         if (SelectedBlock == null) return false;
 
         Vector2Int tile = grid.WorldToTile(worldPosition);
-        bool placed = grid.TryPlaceBlock(SelectedBlock, tile, selectedSegment);
+        bool tryAllPivots = SelectedBlock.MobilityType == Block.Mobility.Free;
+        bool placed = grid.TryPlaceBlock(SelectedBlock, tile, selectedSegment, tryAllPivots);
 
         if (!placed) slotManager.TryAsignAvailableSlot(SelectedBlock);
 
@@ -156,5 +171,12 @@ public class GameActions : MonoBehaviour
         Vector2 offset = SelectedBlock.transform.position - selectedSegment.transform.position;
         targetPosition += offset;
         SelectedBlock.Position2D = targetPosition;
+    }
+
+    void RefreshSavedPivotAndLift()
+    {
+        Vector2Int? tile = grid.GetTileOfBlock(SelectedBlock.Pivot);
+        if (tile.HasValue) savedPivotTile = tile.Value;
+        grid.RemoveBlock(SelectedBlock);
     }
 }

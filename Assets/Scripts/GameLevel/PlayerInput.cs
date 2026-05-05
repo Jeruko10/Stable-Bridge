@@ -75,7 +75,16 @@ public class PlayerInput : MonoBehaviour
                 return;
             }
 
-            actions.UnselectBlock();
+            Block hitBlock = segment != null ? segment.GetParent() : null;
+            if (hitBlock != null && hitBlock.MobilityType != Block.Mobility.Fixed)
+            {
+                actions.SelectBlock(hitBlock, segment);
+                pressedOnBlock = true;
+            }
+            else
+            {
+                actions.UnselectBlock();
+            }
             return;
         }
 

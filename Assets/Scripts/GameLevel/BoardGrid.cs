@@ -135,14 +135,17 @@ public class BoardGrid : MonoBehaviour
             tileBlocks[tile] = null;
     }
 
-    public bool TryPlaceBlock(Block block, Vector2Int pivotTile, BlockSegment pivotSegment)
+    public bool TryPlaceBlock(Block block, Vector2Int pivotTile, BlockSegment pivotSegment, bool tryAllPivots = false)
     {
+        if (tryAllPivots)
+            return TryPlaceWithAnyPivot(block, pivotTile);
+
         Vector3 requiredMovement = TileToWorld(pivotTile) - pivotSegment.transform.position;
 
         foreach (BlockSegment segment in block.Segments)
         {
             Vector2Int tile = WorldToTile(segment.transform.position + requiredMovement);
-            
+
             if (!IsValidTile(tile) || (tileBlocks.TryGetValue(tile, out BlockSegment existing) && existing != null && !block.Segments.Contains(existing)))
                 return false;
         }
@@ -153,35 +156,43 @@ public class BoardGrid : MonoBehaviour
             tileBlocks[tile] = segment;
             blockTiles[segment] = tile;
         }
-        
+
         block.Position2D = block.transform.position + requiredMovement;
         blocks.Add(block);
-        
+
         return true;
+    }
+
+    bool TryPlaceWithAnyPivot(Block block, Vector2Int pivotTile)
+    {
+        foreach (BlockSegment segment in block.Segments)
+            if (TryPlaceBlock(block, pivotTile, segment)) return true;
+        return false;
     }
 
     public bool TryRotateBlock(Block block, bool clockwise)
     {
         if (block.MobilityType != Block.Mobility.Free && block.MobilityType != Block.Mobility.RotateOnly) return false;
-        
+
         if (!ContainsBlock(block))
         {
             block.Rotate(block.Pivot, clockwise);
             return true;
         }
-        
+
+        bool multiPivot = block.MobilityType == Block.Mobility.Free;
         Vector2Int pivotTile = WorldToTile(block.Pivot.transform.position);
         RemoveBlock(block);
 
         for (int i = 0; i < 3; i++)
         {
             block.Rotate(block.Pivot, clockwise);
-            if (TryPlaceBlock(block, pivotTile, block.Pivot)) return true;
+            bool fits = multiPivot ? TryPlaceWithAnyPivot(block, pivotTile) : TryPlaceBlock(block, pivotTile, block.Pivot);
+            if (fits) return true;
         }
 
         block.Rotate(block.Pivot, clockwise);
         TryPlaceBlock(block, pivotTile, block.Pivot);
-
         return false;
     }
 
@@ -194,16 +205,15 @@ public class BoardGrid : MonoBehaviour
             block.Flip();
             return true;
         }
-        
+
         Vector2Int pivotTile = WorldToTile(block.Pivot.transform.position);
         RemoveBlock(block);
 
         block.Flip();
-        if (TryPlaceBlock(block, pivotTile, block.Pivot)) return true;
+        if (TryPlaceWithAnyPivot(block, pivotTile)) return true;
 
         block.Flip();
         TryPlaceBlock(block, pivotTile, block.Pivot);
-
         return false;
     }
 
