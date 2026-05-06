@@ -7,24 +7,20 @@ public class PlayerInput : MonoBehaviour
 {
     [field: SerializeField] public LayerMask BlockLayer { get; private set; }
     [field: SerializeField] float RayDistance { get; set; } = 100f;
-    [field: SerializeField] UserInterfaceManager UiManager { get; set; }
     [field: SerializeField] float DragThresholdPixels { get; set; } = 10f;
+    [field: SerializeField] float FlipHoldTime { get; set; } = 0.4f;
 
     GameActions actions;
     Camera mainCamera;
-    readonly Plane interactionPlane = new(Vector3.forward, Vector3.zero);
-
-    bool isHoldDragging;
-    bool pressedOnBlock;
     Vector2 pressStartPosition;
+    readonly Plane interactionPlane = new(Vector3.forward, Vector3.zero);
+    bool isHoldDragging, pressedOnBlock, reselecting, flipTriggered;
+    float pressStartTime;
 
     void Awake()
     {
         actions = GetComponent<GameActions>();
         mainCamera = Camera.main;
-
-        UiManager.RotateButton.onClick.AddListener(OnRotateButtonClicked);
-        UiManager.FlipButton.onClick.AddListener(OnFlipButtonClicked);
     }
 
     void Update()
@@ -56,58 +52,43 @@ public class PlayerInput : MonoBehaviour
     void OnPointerPressed()
     {
         pressStartPosition = Pointer.current.position.ReadValue();
+        pressStartTime = Time.time;
         isHoldDragging = false;
         pressedOnBlock = false;
+        reselecting = false;
+        flipTriggered = false;
 
         if (IsPointerOverUI()) return;
 
-        if (actions.IsDragging)
-        {
-            if (TryRaycastToBlock(out BlockSegment segment) && segment.GetParent() == actions.SelectedBlock)
-            {
-                pressedOnBlock = true;
-                return;
-            }
+        if (!TryRaycastToBlock(out BlockSegment segment)) return;
 
-            if (TryGetWorldPosition(out Vector3 dropPos) && actions.TryDropDraggedBlock(dropPos))
-            {
-                actions.StartDragSelectedBlock();
-                return;
-            }
-
-            Block hitBlock = segment != null ? segment.GetParent() : null;
-            if (hitBlock != null && hitBlock.MobilityType != Block.Mobility.Fixed)
-            {
-                actions.SelectBlock(hitBlock, segment);
-                pressedOnBlock = true;
-            }
-            else
-            {
-                actions.UnselectBlock();
-            }
-            return;
-        }
-
-        if (!TryRaycastToBlock(out BlockSegment hit)) return;
-
-        Block block = hit.GetParent();
+        Block block = segment.GetParent();
         if (block == null || block.MobilityType == Block.Mobility.Fixed) return;
 
-        actions.SelectBlock(block, hit);
+        reselecting = actions.SelectedBlock == block;
+        actions.SelectBlock(block, segment);
         pressedOnBlock = true;
     }
 
     void OnPointerHeld()
     {
-        if (!pressedOnBlock || !actions.IsBlockSelected()) return;
-        if (actions.SelectedBlock.MobilityType != Block.Mobility.Free) return;
+        if (!pressedOnBlock) return;
 
-        if (!isHoldDragging)
+        bool dragThresholdExceeded = (Pointer.current.position.ReadValue() - pressStartPosition).magnitude >= DragThresholdPixels;
+
+        if (dragThresholdExceeded)
         {
-            if ((Pointer.current.position.ReadValue() - pressStartPosition).magnitude < DragThresholdPixels) return;
-
-            actions.StartDragSelectedBlock();
-            isHoldDragging = true;
+            flipTriggered = true;
+            if (!isHoldDragging)
+            {
+                actions.StartDragSelectedBlock();
+                isHoldDragging = actions.IsDragging;
+            }
+        }
+        else if (!flipTriggered && Time.time - pressStartTime >= FlipHoldTime)
+        {
+            actions.TryFlipSelectedBlock();
+            flipTriggered = true;
         }
 
         if (actions.IsDragging && TryGetWorldPosition(out Vector3 pos))
@@ -124,39 +105,16 @@ public class PlayerInput : MonoBehaviour
             return;
         }
 
-        if (actions.IsDragging) return;
-
-        if (IsPointerOverUI() || !actions.IsBlockSelected()) return;
+        if (IsPointerOverUI()) return;
 
         if (!pressedOnBlock)
         {
-            actions.StartDragSelectedBlock();
-            if (TryGetWorldPosition(out Vector3 pos) && actions.TryDropDraggedBlock(pos))
-            {
-                actions.StartDragSelectedBlock();
-                return;
-            }
             actions.UnselectBlock();
             return;
         }
 
-        if (actions.SelectedBlock.MobilityType == Block.Mobility.Free)
-        {
-            actions.StartDragSelectedBlock();
-            return;
-        }
-
-        actions.TriggerSelectedBlockInteraction();
-    }
-
-    void OnFlipButtonClicked()
-    {
-        if (actions.IsBlockSelected()) actions.TryFlipSelectedBlock();
-    }
-
-    void OnRotateButtonClicked()
-    {
-        if (actions.IsBlockSelected()) actions.TryRotateSelectedBlock(clockwise: true);
+        if (!flipTriggered && reselecting)
+            actions.TryRotateSelectedBlock(clockwise: true);
     }
 
     bool IsPointerOverUI() => Pointer.current is Touchscreen

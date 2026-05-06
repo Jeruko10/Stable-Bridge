@@ -670,8 +670,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   <RayDistance>k__BackingField: 100
-  <UiManager>k__BackingField: {fileID: 0}
   <DragThresholdPixels>k__BackingField: 10
+  <FlipHoldTime>k__BackingField: 0.4
 --- !u!4 &6495907753749679937
 Transform:
   m_ObjectHideFlags: 0
