@@ -1,22 +1,8 @@
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
-[RequireComponent(typeof(UIDocument))]
 public class UserInterfaceManager : MonoBehaviour
 {
-    VisualElement root;
-    public Button RotateButton { get; private set; }
-    public Button FlipButton { get; private set; }
-
-    void OnEnable()
-    {
-        root = GetComponent<UIDocument>().rootVisualElement;
-        RotateButton = root.Q<Button>("RotateButton");
-        FlipButton = root.Q<Button>("FlipButton");
-    }
-
-    void Update()
-    {
-        
-    }
+    [field: SerializeField] public Button RotateButton { get; private set; }
+    [field: SerializeField] public Button FlipButton { get; private set; }
 }

@@ -23,8 +23,8 @@ public class PlayerInput : MonoBehaviour
         actions = GetComponent<GameActions>();
         mainCamera = Camera.main;
 
-        UiManager.RotateButton.clicked += OnRotateButtonClicked;
-        UiManager.FlipButton.clicked += OnFlipButtonClicked;
+        UiManager.RotateButton.onClick.AddListener(OnRotateButtonClicked);
+        UiManager.FlipButton.onClick.AddListener(OnFlipButtonClicked);
     }
 
     void Update()
