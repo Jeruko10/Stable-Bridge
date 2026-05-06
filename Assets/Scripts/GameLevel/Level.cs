@@ -16,7 +16,6 @@ public class Level : MonoBehaviour
     [field: SerializeField] public float CharactersHeightOffset { get; set; } = 0f;
     [field: SerializeField] Knight knightPrefab;
     [field: SerializeField] Goal goalPrefab;
-    [field: SerializeField] GameObject backgroundPrefab;
     [field: SerializeField] Block baseBlockPrefab;
     [field: SerializeField] BasicSegment basicSegmentPrefab;
 
@@ -52,7 +51,7 @@ public class Level : MonoBehaviour
         StartPosition = layout.StartPosition;
         EndPosition = layout.EndPosition;
 
-        SetLevelAesthetic();
+        SetCamera();
         
         foreach (BlockPlacementData blockData in layout.Blocks)
             InterpretBlockData(blockData);
@@ -109,7 +108,7 @@ public class Level : MonoBehaviour
         }
         
         Vector3[] worldPath = knightPath.Select(tile => Grid.TileToWorld(tile)).ToArray();
-        knight.StartPathAnimation(worldPath, success);
+        knight.StartPath(worldPath, success);
     }
 
     void OnPathEnded() => StartCoroutine(EndLevel(success));
@@ -158,18 +157,12 @@ public class Level : MonoBehaviour
         Slots.TryAsignAvailableSlot(block);
     }
 
-    void SetLevelAesthetic()
+    void SetCamera()
     {
         // Camera
         Vector3 center = Grid.GetGridCenter();
         float boardSize = Grid.Size.x * Grid.Size.y;
         Camera.main.transform.position = center + new Vector3(0f, 0f, boardSize * -CameraDistance);
-
-        // Background
-        if (!Camera.main.orthographic) return;
-
-        GameObject background = Instantiate(backgroundPrefab, transform);
-        background.transform.position = center + new Vector3(0f, 0f, boardSize * BackgroundDistance);
     }
 
     void CreateCharacters()

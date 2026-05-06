@@ -29,6 +29,10 @@ public class GameActions : MonoBehaviour
         grid = level.Grid;
     }
 
+    public void ExitEditorMode() => LevelManager.Current.ExitEditMode();
+
+    public void SaveCurrentLevel() => LevelLayout.FromLevel(LevelManager.Current, new(0, 3), new(4, 3)).SaveAsAsset();
+
     public void TriggerSelectedBlockInteraction()
     {
         if (IsDragging) return;

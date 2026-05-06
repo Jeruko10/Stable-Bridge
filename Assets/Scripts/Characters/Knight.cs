@@ -73,7 +73,7 @@ public class Knight : MonoBehaviour
         Gizmos.DrawSphere(new(GetTargetPosition().x, GetTargetPosition().y, depth), 0.13f);
     }
 
-    public void StartPathAnimation(Vector3[] path, bool reachesGoal)
+    public void StartPath(Vector3[] path, bool reachesGoal)
     {
         startPosition = transform.position;
         pathReachesGoal = reachesGoal;
@@ -81,8 +81,6 @@ public class Knight : MonoBehaviour
 
         if (this.path.Length <= 0)
         {
-            Debug.LogWarning($"Path is too short: {this.path.Length} animations. Check if it was intentional.");
-
             targetIndex = 0;
             CompletePath();
             return;

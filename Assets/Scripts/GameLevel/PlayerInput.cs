@@ -25,27 +25,10 @@ public class PlayerInput : MonoBehaviour
 
     void Update()
     {
-        HandleKeyboardInputs();
-        HandlePointerInputs();
-    }
-
-    void HandleKeyboardInputs()
-    {
-        if (Keyboard.current == null) return;
-
-        if (Keyboard.current.enterKey.wasPressedThisFrame)
-            LevelManager.Current.ExitEditMode();
-
-        if (Keyboard.current.sKey.wasPressedThisFrame)
-            LevelLayout.FromLevel(LevelManager.Current, new(0, 3), new(4, 3)).SaveAsAsset();
-    }
-
-    void HandlePointerInputs()
-    {
         if (Pointer.current == null) return;
 
-        if (Pointer.current.press.wasPressedThisFrame)  OnPointerPressed();
-        if (Pointer.current.press.isPressed)            OnPointerHeld();
+        if (Pointer.current.press.wasPressedThisFrame) OnPointerPressed();
+        if (Pointer.current.press.isPressed) OnPointerHeld();
         if (Pointer.current.press.wasReleasedThisFrame) OnPointerReleased();
     }
 
