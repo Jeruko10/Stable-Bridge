@@ -50,6 +50,7 @@ public class SlotManager : MonoBehaviour
 
             slot.Occupant = block;
             block.Position2D = slot.Position;
+            return;
         }
     }
 
