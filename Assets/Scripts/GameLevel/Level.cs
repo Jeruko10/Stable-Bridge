@@ -135,7 +135,7 @@ public class Level : MonoBehaviour
         block.Initialize(data.BlockPrefab, data.PivotIndex, data.MobilityType);
         block.SetRotation(block.Pivot, data.StartingRotation);
 
-        if (data.Flipped) block.Flip();
+        if (data.Flipped) block.Flip(block.Pivot);
 
         if (data.MobilityType != Block.Mobility.Free)
         {

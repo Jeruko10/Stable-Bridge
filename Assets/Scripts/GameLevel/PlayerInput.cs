@@ -69,7 +69,7 @@ public class PlayerInput : MonoBehaviour
         }
         else if (!flipTriggered && Time.time - pressStartTime >= FlipHoldTime)
         {
-            grid.TryFlipBlock(activeSegment.GetParent());
+            grid.TryFlipBlock(activeSegment.GetParent(), activeSegment);
             flipTriggered = true;
         }
 
@@ -89,7 +89,7 @@ public class PlayerInput : MonoBehaviour
         if (IsPointerOverUI()) return;
 
         if (activeSegment != null && !flipTriggered)
-            grid.TryRotateBlock(activeSegment.GetParent(), clockwise: true);
+            grid.TryRotateBlock(activeSegment.GetParent(), activeSegment, clockwise: true);
     }
 
     void StartDrag()

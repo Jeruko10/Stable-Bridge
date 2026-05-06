@@ -170,50 +170,51 @@ public class BoardGrid : MonoBehaviour
         return false;
     }
 
-    public bool TryRotateBlock(Block block, bool clockwise)
+    public bool TryRotateBlock(Block block, BlockSegment pivot, bool clockwise)
     {
-        if (block.MobilityType != Block.Mobility.Free && block.MobilityType != Block.Mobility.RotateOnly) return false;
+        if (block.MobilityType == Block.Mobility.RotateOnly) pivot = block.Pivot;
+        else if (block.MobilityType != Block.Mobility.Free) return false;
 
         if (!ContainsBlock(block))
         {
-            block.Rotate(block.Pivot, clockwise);
+            block.Rotate(pivot, clockwise);
             return true;
         }
 
         bool multiPivot = block.MobilityType == Block.Mobility.Free;
-        Vector2Int pivotTile = WorldToTile(block.Pivot.transform.position);
+        Vector2Int pivotTile = WorldToTile(pivot.transform.position);
         RemoveBlock(block);
 
         for (int i = 0; i < 3; i++)
         {
-            block.Rotate(block.Pivot, clockwise);
-            bool fits = multiPivot ? TryPlaceWithAnyPivot(block, pivotTile) : TryPlaceBlock(block, pivotTile, block.Pivot);
+            block.Rotate(pivot, clockwise);
+            bool fits = multiPivot ? TryPlaceWithAnyPivot(block, pivotTile) : TryPlaceBlock(block, pivotTile, pivot);
             if (fits) return true;
         }
 
-        block.Rotate(block.Pivot, clockwise);
-        TryPlaceBlock(block, pivotTile, block.Pivot);
+        block.Rotate(pivot, clockwise);
+        TryPlaceBlock(block, pivotTile, pivot);
         return false;
     }
 
-    public bool TryFlipBlock(Block block)
+    public bool TryFlipBlock(Block block, BlockSegment pivot)
     {
         if (block.MobilityType != Block.Mobility.Free) return false;
 
         if (!ContainsBlock(block))
         {
-            block.Flip();
+            block.Flip(pivot);
             return true;
         }
 
-        Vector2Int pivotTile = WorldToTile(block.Pivot.transform.position);
+        Vector2Int pivotTile = WorldToTile(pivot.transform.position);
         RemoveBlock(block);
 
-        block.Flip();
+        block.Flip(pivot);
         if (TryPlaceWithAnyPivot(block, pivotTile)) return true;
 
-        block.Flip();
-        TryPlaceBlock(block, pivotTile, block.Pivot);
+        block.Flip(pivot);
+        TryPlaceBlock(block, pivotTile, pivot);
         return false;
     }
 

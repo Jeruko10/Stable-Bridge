@@ -85,16 +85,19 @@ public class Block : MonoBehaviour
 
     public void SetRotation(BlockSegment pivotSegment, BoardGrid.Rotation newRotation)
     {
-        Rotation = newRotation;
-        Quaternion newQuaternion = Quaternion.Euler(0f, IsFlipped ? 180f : 0f, (float)Rotation);
+        Vector2 pivotBefore = pivotSegment.transform.position;
 
-        transform.rotation = newQuaternion;
+        Rotation = newRotation;
+        transform.rotation = Quaternion.Euler(0f, IsFlipped ? 180f : 0f, (float)Rotation);
+
+        Vector2 delta = pivotBefore - (Vector2)pivotSegment.transform.position;
+        transform.position += (Vector3)delta;
+        targetPosition2D += delta;
     }
 
-    public void Flip(BlockSegment pivotSegment = null)
+    public void Flip(BlockSegment pivotSegment)
     {
         IsFlipped = !IsFlipped;
-        pivotSegment = pivotSegment == null ? Pivot : pivotSegment;
         
         SetRotation(pivotSegment, Rotation);
 
