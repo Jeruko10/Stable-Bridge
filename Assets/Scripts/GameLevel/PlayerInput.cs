@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(GameActions))]
 public class PlayerInput : MonoBehaviour
 {
     [field: SerializeField] public LayerMask BlockLayer { get; private set; }
@@ -10,21 +9,26 @@ public class PlayerInput : MonoBehaviour
     [field: SerializeField] float DragThresholdPixels { get; set; } = 10f;
     [field: SerializeField] float FlipHoldTime { get; set; } = 0.4f;
 
-    GameActions actions;
     Camera mainCamera;
     readonly Plane interactionPlane = new(Vector3.forward, Vector3.zero);
-
-    bool isHoldDragging;
-    bool flipTriggered;
-    float pressStartTime;
+    SlotManager slotManager;
+    BoardGrid grid;
     Vector2 pressStartPosition;
-    Block pressedBlock;
-    BlockSegment pressedSegment;
+    BlockSegment activeSegment;
+    Vector2Int savedPivotTile;
+    bool isDragging, flipTriggered, hasSavedGridPosition;
+    float pressStartTime;
 
     void Awake()
     {
-        actions = GetComponent<GameActions>();
         mainCamera = Camera.main;
+        LevelManager.LevelLoaded += OnLevelLoaded;
+    }
+
+    void OnLevelLoaded(Level level)
+    {
+        slotManager = level.Slots;
+        grid = level.Grid;
     }
 
     void Update()
@@ -40,10 +44,8 @@ public class PlayerInput : MonoBehaviour
     {
         pressStartPosition = Pointer.current.position.ReadValue();
         pressStartTime = Time.time;
-        isHoldDragging = false;
         flipTriggered = false;
-        pressedBlock = null;
-        pressedSegment = null;
+        activeSegment = null;
 
         if (IsPointerOverUI()) return;
         if (!TryRaycastToBlock(out BlockSegment segment)) return;
@@ -51,49 +53,80 @@ public class PlayerInput : MonoBehaviour
         Block block = segment.GetParent();
         if (block == null || block.MobilityType == Block.Mobility.Fixed) return;
 
-        pressedBlock = block;
-        pressedSegment = segment;
+        activeSegment = segment;
     }
 
     void OnPointerHeld()
     {
-        if (pressedBlock == null) return;
+        if (activeSegment == null) return;
 
         bool dragThresholdExceeded = (Pointer.current.position.ReadValue() - pressStartPosition).magnitude >= DragThresholdPixels;
 
         if (dragThresholdExceeded)
         {
             flipTriggered = true;
-            if (!isHoldDragging)
-            {
-                actions.StartDragBlock(pressedBlock, pressedSegment);
-                isHoldDragging = actions.IsDragging;
-            }
+            if (!isDragging) StartDrag();
         }
         else if (!flipTriggered && Time.time - pressStartTime >= FlipHoldTime)
         {
-            actions.TryFlipBlock(pressedBlock);
+            grid.TryFlipBlock(activeSegment.GetParent());
             flipTriggered = true;
         }
 
-        if (actions.IsDragging && TryGetWorldPosition(out Vector3 pos))
-            actions.MoveDraggedBlock(pos);
+        if (isDragging && TryGetWorldPosition(out Vector3 pos))
+            MoveDrag(pos);
     }
 
     void OnPointerReleased()
     {
-        if (isHoldDragging)
+        if (isDragging)
         {
             TryGetWorldPosition(out Vector3 pos);
-            actions.TryDropDraggedBlock(pos, moveToSlotOnFailure: true);
-            isHoldDragging = false;
+            DropDrag(pos, moveToSlotOnFailure: true);
             return;
         }
 
         if (IsPointerOverUI()) return;
 
-        if (pressedBlock != null && !flipTriggered)
-            actions.TryRotateBlock(pressedBlock, clockwise: true);
+        if (activeSegment != null && !flipTriggered)
+            grid.TryRotateBlock(activeSegment.GetParent(), clockwise: true);
+    }
+
+    void StartDrag()
+    {
+        Block block = activeSegment.GetParent();
+        if (block.MobilityType != Block.Mobility.Free) return;
+
+        Vector2Int? savedTile = grid.ContainsBlock(block) ? grid.GetTileOfBlock(block.Pivot) : null;
+        hasSavedGridPosition = savedTile.HasValue;
+        if (hasSavedGridPosition) savedPivotTile = savedTile.Value;
+
+        grid.RemoveBlock(block);
+        slotManager.FreeSlot(block);
+        isDragging = true;
+    }
+
+    void MoveDrag(Vector2 targetPosition)
+    {
+        Block block = activeSegment.GetParent();
+        Vector2 offset = block.transform.position - activeSegment.transform.position;
+        block.Position2D = targetPosition + offset;
+    }
+
+    void DropDrag(Vector2 worldPosition, bool moveToSlotOnFailure = false)
+    {
+        Block block = activeSegment.GetParent();
+        Vector2Int tile = grid.WorldToTile(worldPosition);
+        bool placed = grid.TryPlaceBlock(block, tile, activeSegment, tryAllPivots: true);
+
+        if (!placed)
+        {
+            bool restored = !moveToSlotOnFailure && hasSavedGridPosition && grid.TryPlaceBlock(block, savedPivotTile, block.Pivot);
+            if (!restored) slotManager.TryAsignAvailableSlot(block);
+        }
+
+        isDragging = false;
+        activeSegment = null;
     }
 
     bool IsPointerOverUI() => Pointer.current is Touchscreen

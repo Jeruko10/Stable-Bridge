@@ -841,7 +841,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7323901932309852164}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GameActions, Assembly-CSharp
         m_MethodName: ExitEditorMode
         m_Mode: 1
@@ -1118,19 +1118,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7323901932309852164
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8951539525778895713}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fb39c33cb3c69747b64f9e062785cea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameActions
-  highlightColor: {r: 0, g: 0.9684601, b: 1, a: 0}
 --- !u!222 &8526414225438520400
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1165,7 +1152,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6495907753749679937}
-  - component: {fileID: 7323901932309852164}
   - component: {fileID: 4570241015352345212}
   m_Layer: 0
   m_Name: InputHandler
