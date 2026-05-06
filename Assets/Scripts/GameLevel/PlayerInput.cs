@@ -12,10 +12,14 @@ public class PlayerInput : MonoBehaviour
 
     GameActions actions;
     Camera mainCamera;
-    Vector2 pressStartPosition;
     readonly Plane interactionPlane = new(Vector3.forward, Vector3.zero);
-    bool isHoldDragging, pressedOnBlock, reselecting, flipTriggered;
+
+    bool isHoldDragging;
+    bool flipTriggered;
     float pressStartTime;
+    Vector2 pressStartPosition;
+    Block pressedBlock;
+    BlockSegment pressedSegment;
 
     void Awake()
     {
@@ -27,8 +31,8 @@ public class PlayerInput : MonoBehaviour
     {
         if (Pointer.current == null) return;
 
-        if (Pointer.current.press.wasPressedThisFrame) OnPointerPressed();
-        if (Pointer.current.press.isPressed) OnPointerHeld();
+        if (Pointer.current.press.wasPressedThisFrame)  OnPointerPressed();
+        if (Pointer.current.press.isPressed)            OnPointerHeld();
         if (Pointer.current.press.wasReleasedThisFrame) OnPointerReleased();
     }
 
@@ -37,25 +41,23 @@ public class PlayerInput : MonoBehaviour
         pressStartPosition = Pointer.current.position.ReadValue();
         pressStartTime = Time.time;
         isHoldDragging = false;
-        pressedOnBlock = false;
-        reselecting = false;
         flipTriggered = false;
+        pressedBlock = null;
+        pressedSegment = null;
 
         if (IsPointerOverUI()) return;
-
         if (!TryRaycastToBlock(out BlockSegment segment)) return;
 
         Block block = segment.GetParent();
         if (block == null || block.MobilityType == Block.Mobility.Fixed) return;
 
-        reselecting = actions.SelectedBlock == block;
-        actions.SelectBlock(block, segment);
-        pressedOnBlock = true;
+        pressedBlock = block;
+        pressedSegment = segment;
     }
 
     void OnPointerHeld()
     {
-        if (!pressedOnBlock) return;
+        if (pressedBlock == null) return;
 
         bool dragThresholdExceeded = (Pointer.current.position.ReadValue() - pressStartPosition).magnitude >= DragThresholdPixels;
 
@@ -64,13 +66,13 @@ public class PlayerInput : MonoBehaviour
             flipTriggered = true;
             if (!isHoldDragging)
             {
-                actions.StartDragSelectedBlock();
+                actions.StartDragBlock(pressedBlock, pressedSegment);
                 isHoldDragging = actions.IsDragging;
             }
         }
         else if (!flipTriggered && Time.time - pressStartTime >= FlipHoldTime)
         {
-            actions.TryFlipSelectedBlock();
+            actions.TryFlipBlock(pressedBlock);
             flipTriggered = true;
         }
 
@@ -82,22 +84,16 @@ public class PlayerInput : MonoBehaviour
     {
         if (isHoldDragging)
         {
-            bool placed = TryGetWorldPosition(out Vector3 pos) && actions.TryDropDraggedBlock(pos, true);
-            if (!placed) actions.UnselectBlock();
+            TryGetWorldPosition(out Vector3 pos);
+            actions.TryDropDraggedBlock(pos, moveToSlotOnFailure: true);
             isHoldDragging = false;
             return;
         }
 
         if (IsPointerOverUI()) return;
 
-        if (!pressedOnBlock)
-        {
-            actions.UnselectBlock();
-            return;
-        }
-
-        if (!flipTriggered && reselecting)
-            actions.TryRotateSelectedBlock(clockwise: true);
+        if (pressedBlock != null && !flipTriggered)
+            actions.TryRotateBlock(pressedBlock, clockwise: true);
     }
 
     bool IsPointerOverUI() => Pointer.current is Touchscreen

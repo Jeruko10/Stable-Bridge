@@ -51,3 +51,10 @@ MonoBehaviour:
     <StartingRotation>k__BackingField: 0
     <StartingTile>k__BackingField: {x: 0, y: 0}
     <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: a6fa536024b6c494e90d5c6835ef9f4a, type: 3}
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
