@@ -90,10 +90,7 @@ public class BoardGrid : MonoBehaviour
     public Vector2Int? GetTileOfBlock(BlockSegment block)
     {
         if (!blockTiles.TryGetValue(block, out Vector2Int tile))
-        {
-            Debug.LogWarning($"Block {block.name} is not placed on the grid");
             return null;
-        }
 
         return tile;
     }

@@ -147,14 +147,12 @@ public class Level : MonoBehaviour
                 startingTile = data.SlideTiles.FirstOrDefault();
             }
 
-            if (Grid.TryPlaceBlock(block, startingTile, block.Pivot))
-                return;
-            else
-                Debug.LogWarning($"Failed to place block {block.name} at {data.StartingTile} during level load. Check if the tile is valid and unoccupied.");
+            if (Grid.TryPlaceBlock(block, startingTile, block.Pivot)) return;
+            else Debug.LogWarning($"Failed to place block {block.name} at {data.StartingTile} during level load. Check if the tile is valid and unoccupied.");
         }
         
         // Block has Free Mobility or failed to place: assign to slot
-        Slots.TryAsignAvailableSlot(block);
+        Slots.AsignSlot(block);
     }
 
     void SetCamera()

@@ -42,9 +42,7 @@ public class SlotManager : MonoBehaviour
         for (int i = 0; i < rightCount; i++) slots.Add(new(new Vector2(rightX, CalculateY(i, rightCount, center.y))));
     }
 
-    public bool IsBlockInSlot(Block block) => slots.Exists(slot => slot.Occupant == block);
-
-    public bool TryAsignAvailableSlot(Block block)
+    public void AsignSlot(Block block)
     {
         foreach (Slot slot in slots)
         {
@@ -52,9 +50,7 @@ public class SlotManager : MonoBehaviour
 
             slot.Occupant = block;
             block.Position2D = slot.Position;
-            return true;
         }
-        return false;
     }
 
     public void FreeSlot(Block block)

@@ -9,14 +9,15 @@ public class PlayerInput : MonoBehaviour
     [field: SerializeField] float DragThresholdPixels { get; set; } = 10f;
     [field: SerializeField] float FlipHoldTime { get; set; } = 0.4f;
 
+    Block ActiveBlock => activeSegment.GetParent();
+    BlockSegment activeSegment;
     Camera mainCamera;
     readonly Plane interactionPlane = new(Vector3.forward, Vector3.zero);
     SlotManager slotManager;
     BoardGrid grid;
     Vector2 pressStartPosition;
-    BlockSegment activeSegment;
     Vector2Int savedPivotTile;
-    bool isDragging, flipTriggered, hasSavedGridPosition;
+    bool isDragging, flipTriggered;
     float pressStartTime;
 
     void Awake()
@@ -69,7 +70,7 @@ public class PlayerInput : MonoBehaviour
         }
         else if (!flipTriggered && Time.time - pressStartTime >= FlipHoldTime)
         {
-            grid.TryFlipBlock(activeSegment.GetParent(), activeSegment);
+            grid.TryFlipBlock(ActiveBlock, activeSegment);
             flipTriggered = true;
         }
 
@@ -89,40 +90,37 @@ public class PlayerInput : MonoBehaviour
         if (IsPointerOverUI()) return;
 
         if (activeSegment != null && !flipTriggered)
-            grid.TryRotateBlock(activeSegment.GetParent(), activeSegment, clockwise: true);
+            grid.TryRotateBlock(ActiveBlock, activeSegment, clockwise: true);
     }
 
     void StartDrag()
     {
-        Block block = activeSegment.GetParent();
-        if (block.MobilityType != Block.Mobility.Free) return;
+        if (ActiveBlock.MobilityType != Block.Mobility.Free) return;
 
-        Vector2Int? savedTile = grid.ContainsBlock(block) ? grid.GetTileOfBlock(block.Pivot) : null;
-        hasSavedGridPosition = savedTile.HasValue;
-        if (hasSavedGridPosition) savedPivotTile = savedTile.Value;
+        Vector2Int? savedTile = grid.GetTileOfBlock(ActiveBlock.Pivot);
+        if (savedTile.HasValue) savedPivotTile = savedTile.Value;
 
-        grid.RemoveBlock(block);
-        slotManager.FreeSlot(block);
+        grid.RemoveBlock(ActiveBlock);
+        slotManager.FreeSlot(ActiveBlock);
         isDragging = true;
     }
 
     void MoveDrag(Vector2 targetPosition)
     {
-        Block block = activeSegment.GetParent();
+        Block block = ActiveBlock;
         Vector2 offset = block.transform.position - activeSegment.transform.position;
         block.Position2D = targetPosition + offset;
     }
 
     void DropDrag(Vector2 worldPosition, bool moveToSlotOnFailure = false)
     {
-        Block block = activeSegment.GetParent();
         Vector2Int tile = grid.WorldToTile(worldPosition);
-        bool placed = grid.TryPlaceBlock(block, tile, activeSegment, tryAllPivots: true);
+        bool placed = grid.TryPlaceBlock(ActiveBlock, tile, activeSegment, tryAllPivots: true);
 
         if (!placed)
         {
-            bool restored = !moveToSlotOnFailure && hasSavedGridPosition && grid.TryPlaceBlock(block, savedPivotTile, block.Pivot);
-            if (!restored) slotManager.TryAsignAvailableSlot(block);
+            bool restored = !moveToSlotOnFailure && grid.TryPlaceBlock(ActiveBlock, savedPivotTile, ActiveBlock.Pivot);
+            if (!restored) slotManager.AsignSlot(ActiveBlock);
         }
 
         isDragging = false;
