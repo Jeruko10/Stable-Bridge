@@ -141,7 +141,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7855030459324787859}
-  - component: {fileID: 5754606445808524483}
   m_Layer: 5
   m_Name: LevelSelector
   m_TagString: Untagged
@@ -170,21 +169,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &5754606445808524483
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3636614152254435715}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 896bc5cea1d2c5e49b856aa5787fbd6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UserInterfaceManager
-  gameplayInterface: {fileID: 0}
-  pauseMenu: {fileID: 0}
-  mainMenu: {fileID: 0}
 --- !u!1 &3933120185414196053
 GameObject:
   m_ObjectHideFlags: 0

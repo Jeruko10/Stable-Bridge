@@ -5,6 +5,7 @@ public class UserInterfaceManager : MonoBehaviour
 {
     [field: SerializeField] GameObject gameplayInterface;
     [field: SerializeField] GameObject pauseMenu;
+    [field: SerializeField] GameObject levelSelector;
     [field: SerializeField] GameObject mainMenu;
 
     void Start()
@@ -20,8 +21,7 @@ public class UserInterfaceManager : MonoBehaviour
     public void OnPlayButtonPressed() // Connected through the editor
     {
         mainMenu.SetActive(false);
-        gameplayInterface.SetActive(true);
-        LevelManager.LoadLevel(LevelManager.LastLevelIndex);
+        levelSelector.SetActive(true);
     }
 
     public void OnExitButtonPressed() // Connected through the editor
