@@ -13,12 +13,12 @@ public class LevelManager : MonoBehaviour
     [field: SerializeField] Level levelPrefab;
 
     public static Level Current { get; private set; }
+    public static int LastLevelIndex { get; private set; }
     public static bool TrainModeEnabled => instance.trainModeEnabled;
     public static event Action<Level> LevelLoaded;
 
     static LevelManager instance;
     LevelLayout[] levels;
-    int currentLevelIndex = 0;
 
     void Awake()
     {
@@ -32,30 +32,26 @@ public class LevelManager : MonoBehaviour
         levels = Resources.LoadAll<LevelLayout>("Levels");
     }
 
-    void Start()
-    {
-        LoadLevel(currentLevelIndex);
-    }
-
     public static Level PassLevel()
     {
-        instance.currentLevelIndex++;
+        LastLevelIndex++;
 
-        if (instance.currentLevelIndex >= instance.levels.Count())
+        if (LastLevelIndex >= instance.levels.Count())
         {
             TriggerVictory();
             return null;
         }
 
-        return LoadLevel(instance.currentLevelIndex);
+        return LoadLevel(LastLevelIndex);
     }
 
-    public static void RestartLevel() => LoadLevel(instance.currentLevelIndex);
+    public static void RestartLevel() => LoadLevel(LastLevelIndex);
 
     public static Level LoadLevel(int levelIndex)
     {
-        if (Current != null) Destroy(Current.gameObject);
-        Current = Instantiate(instance.levelPrefab);
+        ExitLevel();
+        Current = Instantiate(instance.levelPrefab, instance.transform);
+        Current.name = $"Level {levelIndex}";
 
         LevelLayout lvlData = instance.levels[levelIndex];
 
@@ -65,11 +61,19 @@ public class LevelManager : MonoBehaviour
         return Current;
     }
 
+    public static void ExitLevel()
+    {
+        if (Current == null) return;
+
+        Destroy(Current.gameObject);
+        Current = null;
+    }
+
     static void TriggerVictory()
     {
         Debug.Log("All levels completed! Victory!");
 
-        instance.currentLevelIndex = 0;
+        LastLevelIndex = 0;
         LoadLevel(0);
     }
 }

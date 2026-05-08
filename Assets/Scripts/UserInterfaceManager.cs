@@ -1,8 +1,12 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class UserInterfaceManager : MonoBehaviour
 {
-    
+    [field: SerializeField] GameObject gameplayInterface;
+    [field: SerializeField] GameObject pauseMenu;
+    [field: SerializeField] GameObject mainMenu;
+
     void Start()
     {
         
@@ -13,18 +17,49 @@ public class UserInterfaceManager : MonoBehaviour
         
     }
 
-    public void OnReadyButtonClicked() // Connected through the editor
+    public void OnPlayButtonPressed() // Connected through the editor
+    {
+        mainMenu.SetActive(false);
+        gameplayInterface.SetActive(true);
+        LevelManager.LoadLevel(LevelManager.LastLevelIndex);
+    }
+
+    public void OnExitButtonPressed() // Connected through the editor
+    {
+        #if UNITY_ANDROID && !UNITY_EDITOR
+            AndroidJavaObject activity = new AndroidJavaClass("com.unity3d.player.UnityPlayer")
+                .GetStatic<AndroidJavaObject>("currentActivity");
+            activity.Call<bool>("moveTaskToBack", true);
+        #else
+            Application.Quit();
+        #endif
+    }
+
+    public void OnReadyButtonPressed() // Connected through the editor
     {
         LevelManager.Current.ExitEditMode();
     }
 
-    public void OnPauseButtonClicked() // Connected through the editor
+    public void OnPauseButtonPressed() // Connected through the editor
     {
-        
+        pauseMenu.SetActive(true);
     }
 
-    public void OnHintButtonClicked() // Connected through the editor
+    public void OnHintButtonPressed() // Connected through the editor
     {
-        
+        // TODO
+    }
+
+    public void OnResumeButtonPressed() // Connected through the editor
+    {
+        pauseMenu.SetActive(false);
+    }
+
+    public void OnMenuButtonPressed() // Connected through the editor
+    {
+        LevelManager.ExitLevel();
+        mainMenu.SetActive(true);
+        pauseMenu.SetActive(false);
+        gameplayInterface.SetActive(false);
     }
 }

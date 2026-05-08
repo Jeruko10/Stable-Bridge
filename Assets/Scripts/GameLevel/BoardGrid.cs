@@ -36,7 +36,9 @@ public class BoardGrid : MonoBehaviour
             {
                 Vector2Int tileCoord = new(x, y);
                 tileBlocks[tileCoord] = null;
-                GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, visualsFolder.transform);
+                Vector3 visualPos = TileToWorld(tileCoord);
+                visualPos.z = 1f;
+                GameObject instance = Instantiate(TileVisualPrefab, visualPos, Quaternion.identity, visualsFolder.transform);
                 tileVisuals.Add(tileCoord, instance);
             }
         }
