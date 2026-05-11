@@ -16,6 +16,7 @@ public class LevelManager : MonoBehaviour
     public static int LastLevelIndex { get; private set; }
     public static bool TrainModeEnabled => instance.trainModeEnabled;
     public static event Action<Level> LevelLoaded;
+    public static event Action Victory;
 
     static LevelManager instance;
     LevelLayout[] levels;
@@ -38,7 +39,9 @@ public class LevelManager : MonoBehaviour
 
         if (LastLevelIndex >= instance.levels.Count())
         {
-            TriggerVictory();
+            LastLevelIndex = 0;
+            Victory?.Invoke();
+            ExitLevel();
             return null;
         }
 
@@ -67,13 +70,5 @@ public class LevelManager : MonoBehaviour
 
         Destroy(Current.gameObject);
         Current = null;
-    }
-
-    static void TriggerVictory()
-    {
-        Debug.Log("All levels completed! Victory!");
-
-        LastLevelIndex = 0;
-        LoadLevel(0);
     }
 }

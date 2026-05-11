@@ -128,7 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7063234aadf61449892ec4978b4b11f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBehaviour
-  <Speed>k__BackingField: 1
+  <Speed>k__BackingField: 2
   <MaxTime>k__BackingField: 20
   <ArrivalThreshold>k__BackingField: 0.05
   <EndKeepDistance>k__BackingField: 1

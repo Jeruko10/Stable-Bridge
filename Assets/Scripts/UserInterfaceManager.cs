@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -10,12 +11,25 @@ public class UserInterfaceManager : MonoBehaviour
 
     void Start()
     {
-        
+        LevelManager.Victory += OnVictory;
     }
 
     void Update()
     {
         
+    }
+
+    void OnVictory()
+    {
+        gameplayInterface.SetActive(false);
+        levelSelector.SetActive(true);
+    }
+
+    public void OnTestLevelButtonPressed()
+    {
+        levelSelector.SetActive(false);
+        gameplayInterface.SetActive(true);
+        LevelManager.LoadLevel(0);
     }
 
     public void OnPlayButtonPressed() // Connected through the editor
