@@ -82,25 +82,25 @@ public static class PathSolver
 
     static float Manhattan(Vector2 a, Vector2 b) => Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
 
-    static void DebugDrawGraph(Graph graph, BoardGrid grid)
-    {
-        const float gizmoDuration = 3f;
+    // static void DebugDrawGraph(Graph graph, BoardGrid grid)
+    // {
+    //     const float gizmoDuration = 3f;
 
-        foreach (Graph.Vertex v in graph.Vertices)
-            foreach (Graph.Edge e in v.Edges)
-            {
-                Graph.Vertex other = e.GetOther(v);
-                if (other == null) continue;
+    //     foreach (Graph.Vertex v in graph.Vertices)
+    //         foreach (Graph.Edge e in v.Edges)
+    //         {
+    //             Graph.Vertex other = e.GetOther(v);
+    //             if (other == null) continue;
 
-                Vector2 from = grid.TileToWorld(v.Coordinate);
-                Vector2 to = grid.TileToWorld(other.Coordinate);
+    //             Vector2 from = grid.TileToWorld(v.Coordinate);
+    //             Vector2 to = grid.TileToWorld(other.Coordinate);
 
-                Debug.DrawLine(
-                    new(from.x, from.y + 0.2f, -1),
-                    new(to.x, to.y + 0.2f, -1),
-                    Color.white.WithAlpha(0.2f),
-                    gizmoDuration
-                );
-            }
-    }
+    //             Debug.DrawLine(
+    //                 new(from.x, from.y + 0.2f, -1),
+    //                 new(to.x, to.y + 0.2f, -1),
+    //                 Color.white.WithAlpha(0.2f),
+    //                 gizmoDuration
+    //             );
+    //         }
+    // }
 }

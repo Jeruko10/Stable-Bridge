@@ -14,12 +14,13 @@ public class LevelManager : MonoBehaviour
 
     public static Level Current { get; private set; }
     public static int LastLevelIndex { get; private set; }
+    public static int LevelAmount => levels.Count();
     public static bool TrainModeEnabled => instance.trainModeEnabled;
     public static event Action<Level> LevelLoaded;
     public static event Action Victory;
 
     static LevelManager instance;
-    LevelLayout[] levels;
+    static LevelLayout[] levels;
 
     void Awake()
     {
@@ -37,7 +38,7 @@ public class LevelManager : MonoBehaviour
     {
         LastLevelIndex++;
 
-        if (LastLevelIndex >= instance.levels.Count())
+        if (LastLevelIndex >= LevelAmount)
         {
             LastLevelIndex = 0;
             Victory?.Invoke();
@@ -56,7 +57,7 @@ public class LevelManager : MonoBehaviour
         Current = Instantiate(instance.levelPrefab, instance.transform);
         Current.name = $"Level {levelIndex}";
 
-        LevelLayout lvlData = instance.levels[levelIndex];
+        LevelLayout lvlData = levels[levelIndex];
 
         Current.Initialize(lvlData, instance.trainModeEnabled);
         LevelLoaded?.Invoke(Current);

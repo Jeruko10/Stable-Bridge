@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(Get-ChildItem -Recurse -Filter *.cs)",
-      "Bash(Select-Object -ExpandProperty Name)"
+      "Bash(Select-Object -ExpandProperty Name)",
+      "Bash(Get-Content \"c:\\\\Users\\\\jerui\\\\Documents\\\\_JERUDEV\\\\Unity\\\\SpatialReasoningInvestigation\\\\Assets\\\\Scenes\\\\Main.unity\")",
+      "Bash(Select-String \"^--- !u!\")",
+      "Bash(Select-Object -Last 20)"
     ]
   }
 }
