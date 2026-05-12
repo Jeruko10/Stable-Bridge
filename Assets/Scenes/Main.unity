@@ -124,6 +124,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2234208589925915935, guid: 184fce9c799d489449d1246d77da1f5d, type: 3}
   m_PrefabInstance: {fileID: 118458316314954938}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &320593663 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3677247993713451051, guid: 184fce9c799d489449d1246d77da1f5d, type: 3}
+  m_PrefabInstance: {fileID: 118458316314954938}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1642,6 +1653,7 @@ MonoBehaviour:
   pauseMenu: {fileID: 520618224}
   levelSelector: {fileID: 7812193799356688087}
   mainMenu: {fileID: 1027733920}
+  levelSelectorScroll: {fileID: 320593663}
   levelButtonPrefab: {fileID: 985786324757061826, guid: 1f20b699c429d4c40aea52374c23d68b, type: 3}
   topLayout: {fileID: 1920031246}
   bottomLayout: {fileID: 299430912}
