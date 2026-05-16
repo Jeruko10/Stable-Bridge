@@ -165,8 +165,8 @@ public class Level : MonoBehaviour
 
     void CreateCharacters()
     {
-        Vector2 playerPos = Grid.TileToWorld(StartPosition);
-        Vector2 goalPos = Grid.TileToWorld(EndPosition);
+        Vector2 playerPos = Grid.TileToWorld((Vector2)StartPosition) + new Vector3(0f, CharactersHeightOffset);
+        Vector2 goalPos = Grid.TileToWorld((Vector2)EndPosition) + new Vector3(0f, CharactersHeightOffset);
 
         knight = Instantiate(knightPrefab, transform);
         knight.transform.position = playerPos;
