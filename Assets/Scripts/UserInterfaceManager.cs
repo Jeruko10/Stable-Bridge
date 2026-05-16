@@ -36,7 +36,14 @@ public class UserInterfaceManager : MonoBehaviour
         pauseMenu.SetActive(false);
 
         if (state == UIState.LevelSelector)
+        {
             levelSelectorScroll.horizontalNormalizedPosition = 0f;
+        }
+        else if (state == UIState.MainMenu)
+        {
+            AudioManager.StopAll();
+            AudioManager.Play(AudioManager.Instance.MenuTheme);
+        }
     }
 
     void PopulateLevelButtons()
@@ -57,6 +64,7 @@ public class UserInterfaceManager : MonoBehaviour
 
     void OnLevelButtonPressed(int index)
     {
+        AudioManager.Play(AudioManager.Instance.UIButtonClick);
         ShowState(UIState.Gameplay);
         LevelManager.LoadLevel(index);
     }
@@ -71,39 +79,39 @@ public class UserInterfaceManager : MonoBehaviour
         currentHints = level.GetComponent<HintManager>();
     }
 
-    public void OnTestLevelButtonPressed()
-    {
-        ShowState(UIState.Gameplay);
-        LevelManager.LoadLevel(0);
-    }
-
     public void OnPlayButtonPressed()
     {
+        AudioManager.Play(AudioManager.Instance.UIButtonClick);
         ShowState(UIState.LevelSelector);
     }
 
     public void OnReadyButtonPressed()
     {
+        AudioManager.Play(AudioManager.Instance.UIStartPath);
         LevelManager.Current.ExitEditMode();
     }
 
     public void OnPauseButtonPressed()
     {
+        AudioManager.Play(AudioManager.Instance.UIConfirmation);
         pauseMenu.SetActive(true);
     }
 
     public void OnHintButtonPressed()
     {
+        AudioManager.Play(AudioManager.Instance.UIButtonClick);
         currentHints.DisplayTestHint();
     }
 
     public void OnResumeButtonPressed()
     {
+        AudioManager.Play(AudioManager.Instance.UIButtonClick);
         pauseMenu.SetActive(false);
     }
 
     public void OnMenuButtonPressed()
     {
+        AudioManager.Play(AudioManager.Instance.UIButtonClick);
         LevelManager.ExitLevel();
         ShowState(UIState.LevelSelector);
     }

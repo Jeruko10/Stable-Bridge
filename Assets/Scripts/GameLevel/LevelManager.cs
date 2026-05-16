@@ -60,6 +60,8 @@ public class LevelManager : MonoBehaviour
         LevelLayout lvlData = levels[levelIndex];
 
         Current.Initialize(lvlData, instance.trainModeEnabled);
+        AudioManager.StopAll();
+        AudioManager.Play(AudioManager.Instance.LevelTheme);
         LevelLoaded?.Invoke(Current);
 
         return Current;

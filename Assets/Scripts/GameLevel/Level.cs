@@ -119,11 +119,13 @@ public class Level : MonoBehaviour
 
         if (success)
         {
+            AudioManager.Play(AudioManager.Instance.Success);
             if (!trainModeEnabled) yield return new WaitForSeconds(1f);
             LevelManager.PassLevel();
         }
         else
         {
+            AudioManager.Play(AudioManager.Instance.Failure);
             if (!trainModeEnabled) yield return new WaitForSeconds(3f);
             LevelManager.RestartLevel();
         }

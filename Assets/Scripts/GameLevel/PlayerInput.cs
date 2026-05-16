@@ -50,8 +50,9 @@ public class PlayerInput : MonoBehaviour
 
         if (IsPointerOverUI()) return;
         if (!TryRaycastToBlock(out BlockSegment segment)) return;
-
+        
         Block block = segment.GetParent();
+        AudioManager.Play(AudioManager.Instance.Blocks);
         if (block == null || block.MobilityType == Block.Mobility.Fixed) return;
 
         activeSegment = segment;

@@ -1,43 +1,44 @@
-using System.Diagnostics;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
 public class AudioManager : MonoBehaviour
 {
-    [field: SerializeField] public AudioClip UIConfirmation { get; private set; }
-    [field: SerializeField] public AudioClip UIStartPath { get; private set; }
-    [field: SerializeField] public AudioClip UIButtonClick { get; private set; }
-    [field: SerializeField] public AudioClip Failure { get; private set; }
-    [field: SerializeField] public AudioClip Success { get; private set; }
-    [field: SerializeField] public AudioClip MenuTheme { get; private set; }
-    [field: SerializeField] public AudioClip GameplayTheme { get; private set; }
-    [field: SerializeField] public AudioClip[] Blocks { get; private set; }
+    [field: SerializeField] public AudioEntry UIConfirmation { get; private set; }
+    [field: SerializeField] public AudioEntry UIStartPath { get; private set; }
+    [field: SerializeField] public AudioEntry UIButtonClick { get; private set; }
+    [field: SerializeField] public AudioEntry Failure { get; private set; }
+    [field: SerializeField] public AudioEntry Success { get; private set; }
+    [field: SerializeField] public AudioEntry MenuTheme { get; private set; }
+    [field: SerializeField] public AudioEntry LevelTheme { get; private set; }
+    [field: SerializeField] public AudioEntry[] Blocks { get; private set; }
 
-    static AudioManager instance;
-    AudioSource source;
+    public static AudioManager Instance { get; private set; }
+    static AudioSource source;
 
     void Awake()
     {
-        if (instance != null)
+        if (Instance != null)
         {
             Destroy(gameObject);
             return;
         }
 
-        instance = this;
+        Instance = this;
         DontDestroyOnLoad(gameObject);
         source = GetComponent<AudioSource>();
     }
 
-    public static void Play(AudioClip clip)
+    public static void Play(AudioEntry entry)
     {
-        if (clip == null) return;
-        instance.source.PlayOneShot(clip);
+        if (entry?.Clip == null) return;
+        source.PlayOneShot(entry.Clip, entry.Volume);
     }
 
-    public static void Play(AudioClip[] clips)
+    public static void Play(AudioEntry[] entries)
     {
-        if (clips == null || clips.Length == 0) return;
-        Play(clips[Random.Range(0, clips.Length)]);
+        if (entries == null || entries.Length == 0) return;
+        Play(entries[Random.Range(0, entries.Length)]);
     }
+
+    public static void StopAll() => source.Stop();
 }
