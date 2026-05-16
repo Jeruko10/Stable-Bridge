@@ -576,6 +576,9 @@ MonoBehaviour:
   <UIButtonClick>k__BackingField:
     Clip: {fileID: 8300000, guid: 7e97674d25d77194688fdf1b78992ff8, type: 3}
     Volume: 0.664
+  <GridSnap>k__BackingField:
+    Clip: {fileID: 8300000, guid: 8d8b5e29b52aba14abcdc7cdc394aff6, type: 3}
+    Volume: 1
   <Failure>k__BackingField:
     Clip: {fileID: 8300000, guid: 442fe66c021b4894a854e61952da60cd, type: 3}
     Volume: 1
@@ -584,19 +587,19 @@ MonoBehaviour:
     Volume: 1
   <MenuTheme>k__BackingField:
     Clip: {fileID: 8300000, guid: 7806b984efbad7c4ebe8d18f870ea04e, type: 3}
-    Volume: 1
+    Volume: 0.412
   <LevelTheme>k__BackingField:
     Clip: {fileID: 8300000, guid: d04ef4a896bd57944915bba9fb5f8fe4, type: 3}
-    Volume: 1
+    Volume: 0.398
   <Blocks>k__BackingField:
   - Clip: {fileID: 8300000, guid: 53ba446c2408666458c85ebc341c62ae, type: 3}
-    Volume: 0
+    Volume: 0.762
   - Clip: {fileID: 8300000, guid: 5da215f41cd612c41a7f3e545517896f, type: 3}
-    Volume: 0
+    Volume: 0.738
   - Clip: {fileID: 8300000, guid: 6a2d9d2185992004fa0ad798dc622995, type: 3}
-    Volume: 0
+    Volume: 0.703
   - Clip: {fileID: 8300000, guid: 7b568500d0203c7438a83632fdfe6a88, type: 3}
-    Volume: 0
+    Volume: 0.703
 --- !u!82 &1137845879
 AudioSource:
   m_ObjectHideFlags: 0

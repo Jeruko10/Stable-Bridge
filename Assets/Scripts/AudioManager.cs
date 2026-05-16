@@ -6,6 +6,7 @@ public class AudioManager : MonoBehaviour
     [field: SerializeField] public AudioEntry UIConfirmation { get; private set; }
     [field: SerializeField] public AudioEntry UIStartPath { get; private set; }
     [field: SerializeField] public AudioEntry UIButtonClick { get; private set; }
+    [field: SerializeField] public AudioEntry GridSnap { get; private set; }
     [field: SerializeField] public AudioEntry Failure { get; private set; }
     [field: SerializeField] public AudioEntry Success { get; private set; }
     [field: SerializeField] public AudioEntry MenuTheme { get; private set; }

@@ -101,6 +101,7 @@ public class PlayerInput : MonoBehaviour
         Vector2Int? savedTile = grid.GetTileOfBlock(ActiveBlock.Pivot);
         if (savedTile.HasValue) savedPivotTile = savedTile.Value;
 
+        AudioManager.Play(AudioManager.Instance.GridSnap);
         grid.RemoveBlock(ActiveBlock);
         slotManager.FreeSlot(ActiveBlock);
         isDragging = true;
@@ -123,6 +124,7 @@ public class PlayerInput : MonoBehaviour
             bool restored = !moveToSlotOnFailure && grid.TryPlaceBlock(ActiveBlock, savedPivotTile, ActiveBlock.Pivot);
             if (!restored) slotManager.AsignSlot(ActiveBlock);
         }
+        else AudioManager.Play(AudioManager.Instance.GridSnap);
 
         isDragging = false;
         activeSegment = null;
