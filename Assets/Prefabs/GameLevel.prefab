@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3576078010110399064}
   - component: {fileID: 1451513084614940299}
   - component: {fileID: 8345308581521168132}
+  - component: {fileID: 3556020635173263016}
   m_Layer: 0
   m_Name: GameLevel
   m_TagString: Untagged
@@ -99,3 +100,16 @@ MonoBehaviour:
   linearThreshold: 2
   angularThreshold: 2
   removalImpulse: 1000
+--- !u!114 &3556020635173263016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3182774261277865950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13267c2922db98a479b79f82c8a1ad5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HintManager
+  hintAlpha: 0.4

@@ -4,33 +4,42 @@ using UnityEngine.Rendering;
 [RequireComponent(typeof(BoardGrid))]
 public class HintManager : MonoBehaviour
 {
-    [SerializeField] float hintAlpha = 0.4f;
-
     BoardGrid grid;
+    Block[] blockPrefabs;
     Block currentHint;
 
     void Awake() => grid = GetComponent<BoardGrid>();
 
-    public void DisplayHint(Block block, Vector2Int cell)
+    void Start()
     {
+        blockPrefabs = Resources.LoadAll<Block>("Blocks");
+    }
+
+    public void DisplayTestHint()
+    {
+        DisplayHint(blockPrefabs[1], new(2, 1), BoardGrid.Rotation.Deg0, false, 0);
+    }
+
+    public void DisplayHint(Block block, Vector2Int cell, BoardGrid.Rotation rotation, bool flipped, int pivotIndex)
+    {
+        Debug.Log($"Displaying hint for block {block.name} at cell {cell} with rotation {rotation} and flipped {flipped}");
         HideHint();
 
-        if (block.Prefab == null) return;
+        Block prefab = block.Prefab != null ? block.Prefab : block;
 
-        currentHint = Instantiate(block.Prefab, transform);
-        currentHint.Initialize(block.Prefab, 0, Block.Mobility.Fixed);
-        currentHint.SetRotation(currentHint.Pivot, block.Rotation);
-        if (block.IsFlipped) currentHint.Flip(currentHint.Pivot);
+        currentHint = Instantiate(prefab, transform);
+        currentHint.Initialize(prefab, pivotIndex, Block.Mobility.Fixed);
+        currentHint.SetRotation(currentHint.Pivot, rotation);
+        if (flipped) currentHint.Flip(currentHint.Pivot);
 
         Vector3 pivotTarget = grid.TileToWorld(cell);
         Vector3 delta = pivotTarget - currentHint.Pivot.transform.position;
         Vector3 placedPos = currentHint.transform.position + delta;
         currentHint.transform.position = placedPos;
         currentHint.Position2D = placedPos;
+        currentHint.DepthOffset = 0.1f;
 
-        Color color = block.Color;
-        color.a = hintAlpha;
-        ApplyTransparentColor(currentHint, color);
+        ApplyTransparentColor(currentHint, Color.cyan);
     }
 
     public void HideHint()

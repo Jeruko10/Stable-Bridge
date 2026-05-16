@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,9 +18,12 @@ public class UserInterfaceManager : MonoBehaviour
     [SerializeField] Transform topLayout;
     [SerializeField] Transform bottomLayout;
 
+    HintManager currentHints;
+
     void Start()
     {
         LevelManager.Victory += OnVictory;
+        LevelManager.LevelLoaded += OnLevelLoaded;
         PopulateLevelButtons();
         ShowState(UIState.MainMenu);
     }
@@ -60,6 +66,11 @@ public class UserInterfaceManager : MonoBehaviour
         ShowState(UIState.LevelSelector);
     }
 
+    void OnLevelLoaded(Level level)
+    {
+        currentHints = level.GetComponent<HintManager>();
+    }
+
     public void OnTestLevelButtonPressed()
     {
         ShowState(UIState.Gameplay);
@@ -83,7 +94,7 @@ public class UserInterfaceManager : MonoBehaviour
 
     public void OnHintButtonPressed()
     {
-        // TODO
+        currentHints.DisplayTestHint();
     }
 
     public void OnResumeButtonPressed()

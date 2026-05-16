@@ -23,6 +23,7 @@ public class Block : MonoBehaviour
     public Vector2 Position2D { get => targetPosition2D; set => targetPosition2D = value; }
     public Rigidbody Rigidbody { get; private set; }
     public bool IsFlipped { get; private set; }
+    public float DepthOffset { get; set; } = 0f;
 
     public enum Mobility { Free, RotateOnly, SlideOnly, Fixed }
 
@@ -57,7 +58,7 @@ public class Block : MonoBehaviour
         if (physicsEnabled) return;
         
         bool beingDragged = !LevelManager.Current.Grid.ContainsBlock(this) && MobilityType == Mobility.Free;
-        float targetZ = beingDragged ? unsnappedZOffset : 0f;
+        float targetZ = beingDragged ? unsnappedZOffset : DepthOffset;
         float newZ = Mathf.Lerp(transform.position.z, targetZ, Time.deltaTime * snapAnimSpeed);
         Vector2 newPos2D = Vector2.Lerp(transform.position, targetPosition2D, Time.deltaTime * moveLerpSpeed);
 

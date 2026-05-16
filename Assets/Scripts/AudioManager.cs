@@ -4,14 +4,16 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class AudioManager : MonoBehaviour
 {
-    [field: SerializeField] public AudioClip BlockPlace { get; private set; }
-    [field: SerializeField] public AudioClip BlockPickup { get; private set; }
-    [field: SerializeField] public AudioClip LevelSuccess { get; private set; }
-    [field: SerializeField] public AudioClip LevelFail { get; private set; }
-    [field: SerializeField] public AudioClip MinerWalk { get; private set; }
-    [field: SerializeField] public AudioClip ButtonClick { get; private set; }
+    [field: SerializeField] public AudioClip UIConfirmation { get; private set; }
+    [field: SerializeField] public AudioClip UIStartPath { get; private set; }
+    [field: SerializeField] public AudioClip UIButtonClick { get; private set; }
+    [field: SerializeField] public AudioClip Failure { get; private set; }
+    [field: SerializeField] public AudioClip Success { get; private set; }
+    [field: SerializeField] public AudioClip MenuTheme { get; private set; }
+    [field: SerializeField] public AudioClip GameplayTheme { get; private set; }
+    [field: SerializeField] public AudioClip[] Blocks { get; private set; }
 
-    public static AudioManager instance;
+    static AudioManager instance;
     AudioSource source;
 
     void Awake()
@@ -31,5 +33,11 @@ public class AudioManager : MonoBehaviour
     {
         if (clip == null) return;
         instance.source.PlayOneShot(clip);
+    }
+
+    public static void Play(AudioClip[] clips)
+    {
+        if (clips == null || clips.Length == 0) return;
+        Play(clips[Random.Range(0, clips.Length)]);
     }
 }
