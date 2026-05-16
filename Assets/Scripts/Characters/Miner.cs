@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Knight : MonoBehaviour
+public class Miner : MonoBehaviour
 {
     [field: SerializeField] public float Speed { get; set; } = 1f;
     [field: SerializeField] public float MaxTime { get; set; } = 20f;
@@ -63,19 +62,19 @@ public class Knight : MonoBehaviour
         for (int i = 0; i < path.Length; i++)
         {
             Vector2 tile = path[i];
-            Vector3 nextPos = new(tile.x, tile.y + HeightOffset, depth);
+            Vector3 nextPos = new(tile.x, tile.y, depth);
             Gizmos.DrawLine(currentPos, nextPos);
             Gizmos.DrawSphere(currentPos, 0.1f);
             currentPos = nextPos;
         }
         Gizmos.DrawSphere(currentPos, 0.1f);
         Gizmos.color = Color.green;
-        Gizmos.DrawSphere(new(GetTargetPosition().x, GetTargetPosition().y, depth), 0.13f);
+        Gizmos.DrawSphere(new(path[targetIndex].x, path[targetIndex].y, depth), 0.13f);
     }
 
     public void StartPath(Vector3[] path, bool reachesGoal)
     {
-        startPosition = transform.position;
+        startPosition = path.FirstOrDefault();
         pathReachesGoal = reachesGoal;
         this.path = path;
 

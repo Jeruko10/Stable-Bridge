@@ -14,7 +14,7 @@ public class Level : MonoBehaviour
     [field: SerializeField] public float CameraDistance { get; set; } = 1f;
     [field: SerializeField] public float BackgroundDistance { get; set; } = 1f;
     [field: SerializeField] public float CharactersHeightOffset { get; set; } = 0f;
-    [field: SerializeField] Knight knightPrefab;
+    [field: SerializeField] Miner minerPrefab;
     [field: SerializeField] Goal goalPrefab;
     [field: SerializeField] Block baseBlockPrefab;
     [field: SerializeField] BasicSegment basicSegmentPrefab;
@@ -30,9 +30,9 @@ public class Level : MonoBehaviour
     public event Action<bool> SuccessKnown;
 
     bool success, trainModeEnabled;
-    IEnumerable<Vector2> knightPath;
+    IEnumerable<Vector2> minerPath;
     GameObject blocksFolder;
-    Knight knight;
+    Miner miner;
 
     public void Initialize(LevelLayout layout, bool trainModeEnabled = false)
     {
@@ -61,7 +61,7 @@ public class Level : MonoBehaviour
 
         SimulationObserver.SimulationEnded += OnSimulationEnded;
         SimulationObserver.StabilityKnown += OnStabilityKnown;
-        knight.PathEnded += OnPathEnded;
+        miner.PathEnded += OnPathEnded;
     }
 
     public void ExitEditMode()
@@ -94,8 +94,8 @@ public class Level : MonoBehaviour
         Grid.AddRow(false);
         Graph graph = PathSolver.GridToGraph(Grid);
 
-        knightPath = PathSolver.GetPath(StartPosition, EndPosition, graph);
-        success = knightPath.LastOrDefault() == EndPosition + BlockSegment.BottomRight;
+        minerPath = PathSolver.GetPath(StartPosition, EndPosition, graph);
+        success = minerPath.LastOrDefault() == EndPosition + BlockSegment.BottomRight;
         SuccessKnown?.Invoke(success);
     }
 
@@ -107,8 +107,8 @@ public class Level : MonoBehaviour
             return;
         }
         
-        Vector3[] worldPath = knightPath.Select(tile => Grid.TileToWorld(tile)).ToArray();
-        knight.StartPath(worldPath, success);
+        Vector3[] worldPath = minerPath.Select(tile => Grid.TileToWorld(tile)).ToArray();
+        miner.StartPath(worldPath, success);
     }
 
     void OnPathEnded() => StartCoroutine(EndLevel(success));
@@ -165,13 +165,13 @@ public class Level : MonoBehaviour
 
     void CreateCharacters()
     {
-        Vector2 playerPos = Grid.TileToWorld((Vector2)StartPosition) + new Vector3(0f, CharactersHeightOffset);
-        Vector2 goalPos = Grid.TileToWorld((Vector2)EndPosition) + new Vector3(0f, CharactersHeightOffset);
+        Vector2 playerPos = Grid.TileToWorld(StartPosition) + (CharactersHeightOffset - BlockSegment.Apothem) * Vector3.up;
+        Vector2 goalPos = Grid.TileToWorld(EndPosition) + (CharactersHeightOffset - BlockSegment.Apothem) * Vector3.up;
 
-        knight = Instantiate(knightPrefab, transform);
-        knight.transform.position = playerPos;
-        knight.name = "Player";
-        knight.HeightOffset = CharactersHeightOffset;
+        miner = Instantiate(minerPrefab, transform);
+        miner.transform.position = playerPos;
+        miner.name = "Player";
+        miner.HeightOffset = CharactersHeightOffset;
 
         Goal goal = Instantiate(goalPrefab, transform);
         goal.transform.position = goalPos;
