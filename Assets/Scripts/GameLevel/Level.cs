@@ -25,6 +25,7 @@ public class Level : MonoBehaviour
     public Vector2Int StartPosition { get; private set; }
     public Vector2Int EndPosition { get; private set; }
     public bool IsEditing { get; private set; } = true;
+    public List<Block> Inventory { get; private set; } = new();
 
     public event Action<bool> LevelComplete;
     public event Action<bool> SuccessKnown;
@@ -51,6 +52,7 @@ public class Level : MonoBehaviour
         StartPosition = layout.StartPosition;
         EndPosition = layout.EndPosition;
 
+        Inventory.Clear();
         SetCamera();
         
         foreach (BlockPlacementData blockData in layout.Blocks)
@@ -155,6 +157,7 @@ public class Level : MonoBehaviour
         
         // Block has Free Mobility or failed to place: assign to slot
         Slots.AsignSlot(block);
+        Inventory.Add(block);
     }
 
     void SetCamera()

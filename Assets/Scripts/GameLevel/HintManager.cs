@@ -38,8 +38,12 @@ public class HintManager : MonoBehaviour
         currentHint.transform.position = placedPos;
         currentHint.Position2D = placedPos;
         currentHint.DepthOffset = 0.1f;
+        currentHint.Color = Color.cyan;
+    }
 
-        ApplyTransparentColor(currentHint, Color.cyan);
+    public void HighlightBlock(Block block)
+    {
+        block.Color = Color.cyan;
     }
 
     public void HideHint()
@@ -47,22 +51,5 @@ public class HintManager : MonoBehaviour
         if (currentHint == null) return;
         Destroy(currentHint.gameObject);
         currentHint = null;
-    }
-
-    void ApplyTransparentColor(Block block, Color color)
-    {
-        foreach (Renderer r in block.GetComponentsInChildren<Renderer>())
-        {
-            Material mat = r.material;
-            mat.SetFloat("_Mode", 3);
-            mat.SetInt("_SrcBlend", (int)BlendMode.SrcAlpha);
-            mat.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
-            mat.SetInt("_ZWrite", 0);
-            mat.DisableKeyword("_ALPHATEST_ON");
-            mat.EnableKeyword("_ALPHABLEND_ON");
-            mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-            mat.renderQueue = 3000;
-            mat.color = color;
-        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -100,7 +101,8 @@ public class UserInterfaceManager : MonoBehaviour
     public void OnHintButtonPressed()
     {
         AudioManager.Play(AudioManager.Instance.UIButtonClick);
-        currentHints.DisplayTestHint();
+        // currentHints.DisplayTestHint();
+        currentHints.HighlightBlock(LevelManager.Current.Inventory.FirstOrDefault());
     }
 
     public void OnResumeButtonPressed()
