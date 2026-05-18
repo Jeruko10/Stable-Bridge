@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -5,8 +6,7 @@ using UnityEngine.UI;
 
 public class BlockSlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler
 {
-    [SerializeField] TMP_Text label;
-
+    [SerializeField] Image image;
     Block block;
     PlayerInput playerInput;
 
@@ -15,7 +15,7 @@ public class BlockSlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler
         block = b;
         playerInput = input;
 
-        if (label != null) label.text = block.name;
+        image.sprite = block.Prefab.InterfaceImage;
     }
 
     public void OnBeginDrag(PointerEventData eventData)

@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Block : MonoBehaviour
 {
+    [field: SerializeField] public Sprite InterfaceImage { get; private set; }
     [field: SerializeField] GameObject rotatePivotPrefab;
     [field: SerializeField] GameObject slidePivotPrefab;
     [field: SerializeField] GameObject fixedPivotPrefab;
