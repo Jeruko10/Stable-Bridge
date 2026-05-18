@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7352895058481562851}
-  - component: {fileID: 4117199903356899918}
   - component: {fileID: 3576078010110399064}
   - component: {fileID: 1451513084614940299}
   - component: {fileID: 8345308581521168132}
@@ -36,20 +35,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4117199903356899918
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3182774261277865950}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 440c495aa28737f4b93ac46297138799, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SlotManager
-  <HorizontalMargin>k__BackingField: 3
-  <TotalVerticalSpace>k__BackingField: 5
 --- !u!114 &3576078010110399064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112,4 +97,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13267c2922db98a479b79f82c8a1ad5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HintManager
-  hintAlpha: 0.4

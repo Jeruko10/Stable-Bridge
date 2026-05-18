@@ -11,6 +11,7 @@ public class LevelManager : MonoBehaviour
 {
     [SerializeField] bool trainModeEnabled;
     [field: SerializeField] Level levelPrefab;
+    [SerializeField] BlockInventory blockInventory;
 
     public static Level Current { get; private set; }
     public static int LastLevelIndex { get; private set; }
@@ -59,7 +60,7 @@ public class LevelManager : MonoBehaviour
 
         LevelLayout lvlData = levels[levelIndex];
 
-        Current.Initialize(lvlData, instance.trainModeEnabled);
+        Current.Initialize(lvlData, instance.trainModeEnabled, instance.blockInventory);
         AudioManager.StopAll();
         AudioManager.Play(AudioManager.Instance.LevelTheme);
         LevelLoaded?.Invoke(Current);
@@ -71,6 +72,7 @@ public class LevelManager : MonoBehaviour
     {
         if (Current == null) return;
 
+        instance.blockInventory.Clear();
         Destroy(Current.gameObject);
         Current = null;
     }

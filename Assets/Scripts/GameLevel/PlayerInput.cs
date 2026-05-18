@@ -8,12 +8,12 @@ public class PlayerInput : MonoBehaviour
     [field: SerializeField] float RayDistance { get; set; } = 100f;
     [field: SerializeField] float DragThresholdPixels { get; set; } = 10f;
     [field: SerializeField] float FlipHoldTime { get; set; } = 0.4f;
+    [field: SerializeField] BlockInventory blockInventory;
 
     Block ActiveBlock => activeSegment.GetParent();
     BlockSegment activeSegment;
     Camera mainCamera;
     readonly Plane interactionPlane = new(Vector3.forward, Vector3.zero);
-    SlotManager slotManager;
     BoardGrid grid;
     Vector2 pressStartPosition;
     Vector2Int savedPivotTile;
@@ -28,7 +28,6 @@ public class PlayerInput : MonoBehaviour
 
     void OnLevelLoaded(Level level)
     {
-        slotManager = level.Slots;
         grid = level.Grid;
     }
 
@@ -103,7 +102,6 @@ public class PlayerInput : MonoBehaviour
 
         AudioManager.Play(AudioManager.Instance.GridSnap);
         grid.RemoveBlock(ActiveBlock);
-        slotManager.FreeSlot(ActiveBlock);
         isDragging = true;
     }
 
@@ -122,12 +120,30 @@ public class PlayerInput : MonoBehaviour
         if (!placed)
         {
             bool restored = !moveToSlotOnFailure && grid.TryPlaceBlock(ActiveBlock, savedPivotTile, ActiveBlock.Pivot);
-            if (!restored) slotManager.AsignSlot(ActiveBlock);
+            if (!restored) blockInventory.AddBlock(ActiveBlock);
         }
         else AudioManager.Play(AudioManager.Instance.GridSnap);
 
         isDragging = false;
         activeSegment = null;
+    }
+
+    public void BeginDragFromInventory(Block block)
+    {
+        blockInventory.RemoveBlock(block);
+
+        if (TryGetWorldPosition(out Vector3 worldPos))
+        {
+            // Teleport to cursor immediately so MoveDrag offset is correct from the first frame
+            block.transform.position = new Vector3(worldPos.x, worldPos.y, block.transform.position.z);
+            block.Position2D = worldPos;
+        }
+
+        activeSegment = block.Pivot;
+        savedPivotTile = default;
+        pressStartPosition = Pointer.current.position.ReadValue();
+        flipTriggered = true;
+        isDragging = true;
     }
 
     bool IsPointerOverUI() => Pointer.current is Touchscreen

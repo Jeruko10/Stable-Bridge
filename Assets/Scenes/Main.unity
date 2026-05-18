@@ -532,6 +532,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &939925794 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4868465232946439424, guid: e2170314ed83be846a56eeb6927f3d66, type: 3}
+  m_PrefabInstance: {fileID: 8153924061312296102}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e801ae5fb5518543aad2ceef9472b71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockInventory
 --- !u!1 &1027733920 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7812193799492024293, guid: 06ace777658800e4f80675c5e6b256c3, type: 3}
@@ -894,6 +905,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelManager
   trainModeEnabled: 0
   levelPrefab: {fileID: 1451513084614940299, guid: 565349de2962d744fa77427b39fccdb6, type: 3}
+  blockInventory: {fileID: 939925794}
 --- !u!4 &1970737892
 Transform:
   m_ObjectHideFlags: 0
@@ -1692,6 +1704,7 @@ MonoBehaviour:
   <RayDistance>k__BackingField: 100
   <DragThresholdPixels>k__BackingField: 10
   <FlipHoldTime>k__BackingField: 0.4
+  blockInventory: {fileID: 939925794}
 --- !u!1 &4643403417897207789
 GameObject:
   m_ObjectHideFlags: 0
@@ -1920,6 +1933,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: -114.40997
       objectReference: {fileID: 0}
+    - target: {fileID: 3352495623661632174, guid: e2170314ed83be846a56eeb6927f3d66, type: 3}
+      propertyPath: m_Color.a
+      value: 0.12941177
+      objectReference: {fileID: 0}
+    - target: {fileID: 4868465232946439424, guid: e2170314ed83be846a56eeb6927f3d66, type: 3}
+      propertyPath: playerInput
+      value: 
+      objectReference: {fileID: 4570241015352345212}
     - target: {fileID: 6574058553243420394, guid: e2170314ed83be846a56eeb6927f3d66, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -1948,7 +1969,7 @@ GameObject:
   - component: {fileID: 6495907753749679937}
   - component: {fileID: 4570241015352345212}
   m_Layer: 0
-  m_Name: InputHandler
+  m_Name: PlayerInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

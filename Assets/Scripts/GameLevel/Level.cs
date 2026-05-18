@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(BoardGrid))]
-[RequireComponent(typeof(SlotManager))]
 [RequireComponent(typeof(SimulationObserver))]
 public class Level : MonoBehaviour
 {
@@ -20,7 +19,6 @@ public class Level : MonoBehaviour
     [field: SerializeField] BasicSegment basicSegmentPrefab;
 
     public BoardGrid Grid { get; private set; }
-    public SlotManager Slots { get; private set; }
     public SimulationObserver SimulationObserver { get; private set; }
     public Vector2Int StartPosition { get; private set; }
     public Vector2Int EndPosition { get; private set; }
@@ -34,20 +32,20 @@ public class Level : MonoBehaviour
     IEnumerable<Vector2> minerPath;
     GameObject blocksFolder;
     Miner miner;
+    BlockInventory blockInventory;
 
-    public void Initialize(LevelLayout layout, bool trainModeEnabled = false)
+    public void Initialize(LevelLayout layout, bool trainModeEnabled, BlockInventory blockInventory)
     {
         this.trainModeEnabled = trainModeEnabled;
+        this.blockInventory = blockInventory;
 
         blocksFolder = new GameObject("Blocks");
         blocksFolder.transform.SetParent(transform);
 
         Grid = GetComponent<BoardGrid>();
-        Slots = GetComponent<SlotManager>();
         SimulationObserver = GetComponent<SimulationObserver>();
 
         Grid.Initialize(layout.LevelSize);
-        Slots.Initialize(layout.Blocks.Count(b => b.MobilityType == Block.Mobility.Free));
         
         StartPosition = layout.StartPosition;
         EndPosition = layout.EndPosition;
@@ -155,8 +153,8 @@ public class Level : MonoBehaviour
             else Debug.LogWarning($"Failed to place block {block.name} at {data.StartingTile} during level load. Check if the tile is valid and unoccupied.");
         }
         
-        // Block has Free Mobility or failed to place: assign to slot
-        Slots.AsignSlot(block);
+        // Block has Free Mobility or failed to place: send to inventory
+        blockInventory.AddBlock(block);
         Inventory.Add(block);
     }
 
