@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
+[RequireComponent(typeof(BoardGrid))]
 public class SimulationObserver : MonoBehaviour
 {
     [SerializeField] int stabilityRequiredFrames = 60;
     [SerializeField] int unstabilityFrameLimit = 500;
     [SerializeField] float positionThreshold = 0.001f;
     [SerializeField] float rotationThreshold = 0.1f;
-    [SerializeField] float removalImpulse = 10000f;
-
+    [SerializeField] bool showDebugColors = false;
     public event Action SimulationEnded;
     public event Action<IEnumerable<Block>> StabilityKnown;
 
@@ -20,9 +19,15 @@ public class SimulationObserver : MonoBehaviour
     readonly Dictionary<Block, Vector3> prevPositions = new();
     readonly Dictionary<Block, Quaternion> prevRotations = new();
     bool simulationFinished = true, stabilityChecked = false, instantSimulation = false;
+    BoardGrid grid;
     int simulationFramesTimer = 0;
 
-    enum StabilityState { Pendant, Stable, Unstable, Removed }
+    enum StabilityState { Pendant, Stable, Unstable }
+
+    void Awake()
+    {
+        grid = GetComponent<BoardGrid>();
+    }
 
     public void Initialize(IEnumerable<Block> blocks, bool instantSimulation = false)
     {
@@ -81,7 +86,7 @@ public class SimulationObserver : MonoBehaviour
             foreach (Block block in blocks) UpdateBlockState(block);
         }
 
-        DebugColorBlocks();
+        if (showDebugColors) DebugColorBlocks();
     }
 
     void CheckStability()
@@ -98,7 +103,7 @@ public class SimulationObserver : MonoBehaviour
 
     void UpdateBlockState(Block block)
     {        
-        if (blockStates[block] == StabilityState.Removed) return;
+        if (!blockStates.ContainsKey(block)) return;
 
         bool positionMoved = Vector3.Distance(block.transform.position, prevPositions[block]) > positionThreshold;
         bool rotationMoved = Quaternion.Angle(block.transform.rotation, prevRotations[block]) > rotationThreshold;
@@ -107,7 +112,11 @@ public class SimulationObserver : MonoBehaviour
         prevPositions[block] = block.transform.position;
         prevRotations[block] = block.transform.rotation;
 
-        if (!isMoving && blockStates[block] == StabilityState.Unstable) RemoveBlock(block);
+        if (!isMoving && blockStates[block] == StabilityState.Unstable)
+        {
+            RemoveBlock(block);
+            return;
+        }
 
         if (blockStates[block] == StabilityState.Pendant)
         {
@@ -124,12 +133,16 @@ public class SimulationObserver : MonoBehaviour
         }
     }
 
-    bool AllBlocksStable() => blockStates.Values.All(state => state == StabilityState.Stable || state == StabilityState.Removed);
+    bool AllBlocksStable() => blockStates.Values.All(state => state == StabilityState.Stable);
 
     void RemoveBlock(Block block)
     {
-        blockStates[block] = StabilityState.Removed;
-        block.Rigidbody.AddForce(new(0f, 0f, -removalImpulse));
+        blockStates.Remove(block);
+        blockStabilityTimers.Remove(block);
+        prevPositions.Remove(block);
+        prevRotations.Remove(block);
+        grid.RemoveBlock(block);
+        block.Destroy();
     }
 
     void EndSimulation()
@@ -138,8 +151,8 @@ public class SimulationObserver : MonoBehaviour
 
         if (!stabilityChecked) CheckStability();
 
-        foreach (var pair in blockStates)
-            if (pair.Value == StabilityState.Unstable) RemoveBlock(pair.Key);
+        foreach (Block block in blockStates.Keys.ToList())
+            if (blockStates[block] == StabilityState.Unstable) RemoveBlock(block);
 
         Physics.simulationMode = SimulationMode.FixedUpdate;
         SimulationEnded?.Invoke();
@@ -154,7 +167,6 @@ public class SimulationObserver : MonoBehaviour
                 StabilityState.Pendant => Color.yellow,
                 StabilityState.Stable => Color.green,
                 StabilityState.Unstable => Color.red,
-                StabilityState.Removed => Color.darkRed,
                 _ => Color.white
             };
         }

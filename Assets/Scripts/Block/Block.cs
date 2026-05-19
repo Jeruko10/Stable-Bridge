@@ -9,6 +9,7 @@ public class Block : MonoBehaviour
     [field: SerializeField] GameObject rotatePivotPrefab;
     [field: SerializeField] GameObject slidePivotPrefab;
     [field: SerializeField] GameObject fixedPivotPrefab;
+    [field: SerializeField] ParticleSystem destroyFXPrefab;
     [field: SerializeField] float unsnappedZOffset = -2f;
     [field: SerializeField] float snapAnimSpeed = 10f;
     [field: SerializeField] float moveLerpSpeed = 10f;
@@ -67,7 +68,12 @@ public class Block : MonoBehaviour
 
     public void Destroy()
     {
-        
+        if (destroyFXPrefab != null)
+            foreach (BlockSegment segment in segments)
+                Instantiate(destroyFXPrefab, segment.transform.position, Quaternion.identity);
+
+        AudioManager.Play(AudioManager.Instance.BlockBreaking);
+        Destroy(gameObject);
     }
 
     public void SetPhysics(bool enabled)

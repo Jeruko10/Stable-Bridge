@@ -12,6 +12,7 @@ public class AudioManager : MonoBehaviour
     [field: SerializeField] public AudioEntry MenuTheme { get; private set; }
     [field: SerializeField] public AudioEntry LevelTheme { get; private set; }
     [field: SerializeField] public AudioEntry[] Blocks { get; private set; }
+    [field: SerializeField] public AudioEntry BlockBreaking { get; private set; }
 
     public static AudioManager Instance { get; private set; }
     static AudioSource source;

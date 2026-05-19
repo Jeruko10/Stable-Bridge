@@ -627,6 +627,9 @@ MonoBehaviour:
     Volume: 0.703
   - Clip: {fileID: 8300000, guid: 7b568500d0203c7438a83632fdfe6a88, type: 3}
     Volume: 0.703
+  <BlockBreaking>k__BackingField:
+    Clip: {fileID: 8300000, guid: e58d838e3ef532e4993134d67842d295, type: 3}
+    Volume: 1
 --- !u!82 &1137845879
 AudioSource:
   m_ObjectHideFlags: 0
