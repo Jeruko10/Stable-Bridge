@@ -52,7 +52,7 @@ public class PlayerInput : MonoBehaviour
         
         Block block = segment.GetParent();
         AudioManager.Play(AudioManager.Instance.Blocks);
-        if (block == null || block.MobilityType == Block.Mobility.Fixed) return;
+        if (block == null || block.MobilityType == Block.Mobility.Fixed || block.MobilityType == Block.Mobility.Ground) return;
 
         activeSegment = segment;
     }

@@ -28,6 +28,7 @@ public class BlockInventory : MonoBehaviour
     public void AddBlock(Block block)
     {
         block.Position2D = HiddenPosition;
+        block.SetRotation(block.Pivot, BoardGrid.Rotation.Deg0);
         GameObject slotObject = Instantiate(blockSlotPrefab, scrollRect.content);
         BlockSlotUI slotUI = slotObject.GetComponent<BlockSlotUI>();
         slotUI.Setup(block, playerInput);

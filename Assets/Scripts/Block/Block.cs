@@ -26,7 +26,7 @@ public class Block : MonoBehaviour
     public bool IsFlipped { get; private set; }
     public float DepthOffset { get; set; } = 0f;
 
-    public enum Mobility { Free, RotateOnly, SlideOnly, Fixed }
+    public enum Mobility { Free, RotateOnly, SlideOnly, Fixed, Ground }
 
     readonly List<BlockSegment> segments = new();
     Vector2 targetPosition2D;
@@ -51,7 +51,7 @@ public class Block : MonoBehaviour
 
         if (MobilityType == Mobility.RotateOnly) CreateRotateVisual();
         else if (MobilityType == Mobility.SlideOnly) CreateSlideVisual();
-        else if (MobilityType == Mobility.Fixed) CreateFixedVisual();
+        else if (MobilityType == Mobility.Ground) CreateGroundVisual();
     }
 
     void Update()
@@ -140,7 +140,7 @@ public class Block : MonoBehaviour
         pivot.transform.Rotate(90f, 0f, 0f);
     }
 
-    void CreateFixedVisual()
+    void CreateGroundVisual()
     {
         foreach (BlockSegment segment in segments)
         {

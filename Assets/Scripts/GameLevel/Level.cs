@@ -64,7 +64,7 @@ public class Level : MonoBehaviour
         miner.PathEnded += OnPathEnded;
     }
 
-    public void ExitEditMode()
+    public async void ExitEditMode()
     {
         if (!IsEditing) return;
 
@@ -81,6 +81,9 @@ public class Level : MonoBehaviour
             Debug.LogError("Level.ExitEditMode: SimulationObserver es null.");
             return;
         }
+
+        Camera.main.orthographic = false;
+        await Camera.main.GetComponent<CameraController>().DoCinematic();
 
         SimulationObserver.Initialize(Grid.GetAllBlocks(), trainModeEnabled);
     }
@@ -164,6 +167,8 @@ public class Level : MonoBehaviour
         Vector3 center = Grid.GetGridCenter();
         float boardSize = Grid.Size.x * Grid.Size.y;
         Camera.main.transform.position = center + new Vector3(0f, 0f, boardSize * -CameraDistance);
+        Camera.main.GetComponent<CameraController>().LookTarget = center;
+        Camera.main.orthographic = true;
     }
 
     void CreateCharacters()
@@ -205,7 +210,7 @@ public class Level : MonoBehaviour
             segmentObj.transform.localPosition = new Vector3(x * Grid.TileSize, 0, 0);
         }
 
-        ground.Initialize(null, 0, Block.Mobility.Fixed);
+        ground.Initialize(null, 0, Block.Mobility.Ground);
         Grid.TryPlaceBlock(ground, Vector2Int.zero, ground.Segments.FirstOrDefault());
     }
 }

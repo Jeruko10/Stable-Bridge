@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SimulationObserver : MonoBehaviour
 {
     [SerializeField] int stabilityRequiredFrames = 60;
     [SerializeField] int unstabilityFrameLimit = 500;
-    [SerializeField] float linearThreshold = 0.01f;
-    [SerializeField] float angularThreshold = 0.01f;
+    [SerializeField] float positionThreshold = 0.001f;
+    [SerializeField] float rotationThreshold = 0.1f;
     [SerializeField] float removalImpulse = 10000f;
 
     public event Action SimulationEnded;
@@ -16,6 +17,8 @@ public class SimulationObserver : MonoBehaviour
 
     readonly Dictionary<Block, StabilityState> blockStates = new();
     readonly Dictionary<Block, int> blockStabilityTimers = new();
+    readonly Dictionary<Block, Vector3> prevPositions = new();
+    readonly Dictionary<Block, Quaternion> prevRotations = new();
     bool simulationFinished = true, stabilityChecked = false, instantSimulation = false;
     int simulationFramesTimer = 0;
 
@@ -31,12 +34,14 @@ public class SimulationObserver : MonoBehaviour
         simulationFramesTimer = 0;
         blockStates.Clear();
         blockStabilityTimers.Clear();
+        prevPositions.Clear();
+        prevRotations.Clear();
 
         foreach (Block block in blocks)
         {
             StabilityState initialState;
-            
-            if (block.MobilityType == Block.Mobility.Free)
+
+            if (block.MobilityType == Block.Mobility.Free || block.MobilityType == Block.Mobility.Fixed)
             {
                 initialState = StabilityState.Pendant;
                 block.SetPhysics(true);
@@ -45,6 +50,8 @@ public class SimulationObserver : MonoBehaviour
 
             blockStates.Add(block, initialState);
             blockStabilityTimers.Add(block, 0);
+            prevPositions.Add(block, block.transform.position);
+            prevRotations.Add(block, block.transform.rotation);
         }
     }
 
@@ -73,6 +80,8 @@ public class SimulationObserver : MonoBehaviour
             List<Block> blocks = blockStates.Keys.ToList();
             foreach (Block block in blocks) UpdateBlockState(block);
         }
+
+        DebugColorBlocks();
     }
 
     void CheckStability()
@@ -81,23 +90,34 @@ public class SimulationObserver : MonoBehaviour
         List<Block> unstableBlocks = new();
 
         foreach (var pair in blockStates)
-            if (pair.Value == StabilityState.Stable) pair.Key.SetPhysics(false);
+            if (pair.Value == StabilityState.Stable) pair.Key.Rigidbody.isKinematic =  true;
             else unstableBlocks.Add(pair.Key);
 
         StabilityKnown?.Invoke(unstableBlocks);
     }
 
     void UpdateBlockState(Block block)
-    {
+    {        
         if (blockStates[block] == StabilityState.Removed) return;
 
-        bool isMoving = block.Rigidbody.linearVelocity.magnitude > linearThreshold || block.Rigidbody.angularVelocity.magnitude > angularThreshold;
-        
+        bool positionMoved = Vector3.Distance(block.transform.position, prevPositions[block]) > positionThreshold;
+        bool rotationMoved = Quaternion.Angle(block.transform.rotation, prevRotations[block]) > rotationThreshold;
+        bool isMoving = positionMoved || rotationMoved;
+
+        prevPositions[block] = block.transform.position;
+        prevRotations[block] = block.transform.rotation;
+
         if (!isMoving && blockStates[block] == StabilityState.Unstable) RemoveBlock(block);
 
         if (blockStates[block] == StabilityState.Pendant)
         {
-            if (isMoving) { blockStates[block] = StabilityState.Unstable; return; }
+            if (isMoving)
+            {
+                if (positionMoved) Debug.Log($"{block.name} unstable: position delta > {positionThreshold}");
+                if (rotationMoved) Debug.Log($"{block.name} unstable: rotation delta > {rotationThreshold}°");
+                blockStates[block] = StabilityState.Unstable;
+                return;
+            }
 
             blockStabilityTimers[block]++;
             if (blockStabilityTimers[block] >= stabilityRequiredFrames) blockStates[block] = StabilityState.Stable;
@@ -123,5 +143,20 @@ public class SimulationObserver : MonoBehaviour
 
         Physics.simulationMode = SimulationMode.FixedUpdate;
         SimulationEnded?.Invoke();
+    }
+
+    void DebugColorBlocks()
+    {
+        foreach (var pair in blockStates)
+        {
+            pair.Key.Color = pair.Value switch
+            {
+                StabilityState.Pendant => Color.yellow,
+                StabilityState.Stable => Color.green,
+                StabilityState.Unstable => Color.red,
+                StabilityState.Removed => Color.darkRed,
+                _ => Color.white
+            };
+        }
     }
 }

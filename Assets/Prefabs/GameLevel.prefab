@@ -61,9 +61,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54f4bd96da6e35b4ca7d36a31a515867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Level
-  <CameraDistance>k__BackingField: 3
+  <CameraDistance>k__BackingField: 2
   <BackgroundDistance>k__BackingField: 0.05
-  <CharactersHeightOffset>k__BackingField: 0.8
+  <CharactersHeightOffset>k__BackingField: 0.85
   minerPrefab: {fileID: 4025562664279505487, guid: 6d06e2c49f7901c4ebf372f8ea21f106, type: 3}
   goalPrefab: {fileID: 7237816119617500010, guid: eb86b9885ff0d3149a749c2f74446f5b, type: 3}
   baseBlockPrefab: {fileID: 2853534257233814302, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
@@ -81,9 +81,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimulationObserver
   stabilityRequiredFrames: 60
-  unstabilityFrameLimit: 200
-  linearThreshold: 2
-  angularThreshold: 2
+  unstabilityFrameLimit: 2000
+  positionThreshold: 0.025
+  rotationThreshold: 2
   removalImpulse: 1000
 --- !u!114 &3556020635173263016
 MonoBehaviour:
