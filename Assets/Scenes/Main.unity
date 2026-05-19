@@ -285,7 +285,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e21e47fe76ce5eb418ac9062976ea2e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
-  cinematicDistance: 1
   cinematicHorizontalAngle: 30
   cinematicVerticalAngle: 15
   transitionDuration: 0.8

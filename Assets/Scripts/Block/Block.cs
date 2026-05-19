@@ -21,7 +21,7 @@ public class Block : MonoBehaviour
     public BlockSegment Pivot { get; private set; }
     public Mobility MobilityType { get; private set; } = Mobility.Free;
     public BoardGrid.Rotation Rotation { get; private set; } = BoardGrid.Rotation.Deg0;
-    public Vector2 Position2D { get => targetPosition2D; set => targetPosition2D = value; }
+    public Vector2 Position2D { get; set; }
     public Rigidbody Rigidbody { get; private set; }
     public bool IsFlipped { get; private set; }
     public float DepthOffset { get; set; } = 0f;
@@ -29,7 +29,6 @@ public class Block : MonoBehaviour
     public enum Mobility { Free, RotateOnly, SlideOnly, Fixed, Ground }
 
     readonly List<BlockSegment> segments = new();
-    Vector2 targetPosition2D;
     bool physicsEnabled;
     Color materialColor;
 
@@ -61,9 +60,14 @@ public class Block : MonoBehaviour
         bool beingDragged = !LevelManager.Current.Grid.ContainsBlock(this) && MobilityType == Mobility.Free;
         float targetZ = beingDragged ? unsnappedZOffset : DepthOffset;
         float newZ = Mathf.Lerp(transform.position.z, targetZ, Time.deltaTime * snapAnimSpeed);
-        Vector2 newPos2D = Vector2.Lerp(transform.position, targetPosition2D, Time.deltaTime * moveLerpSpeed);
+        Vector2 newPos2D = Vector2.Lerp(transform.position, Position2D, Time.deltaTime * moveLerpSpeed);
 
         transform.position = new Vector3(newPos2D.x, newPos2D.y, newZ);
+    }
+
+    public void Destroy()
+    {
+        
     }
 
     public void SetPhysics(bool enabled)
@@ -71,8 +75,6 @@ public class Block : MonoBehaviour
         physicsEnabled = enabled;
         Rigidbody.isKinematic = !enabled;
     }
-
-    public bool ContainsSegment(BlockSegment segment) => segments.Contains(segment);
 
     public void Rotate(BlockSegment pivotSegment, bool clockwise)
     {
@@ -94,7 +96,7 @@ public class Block : MonoBehaviour
 
         Vector2 delta = pivotBefore - (Vector2)pivotSegment.transform.position;
         transform.position += (Vector3)delta;
-        targetPosition2D += delta;
+        Position2D += delta;
     }
 
     public void Flip(BlockSegment pivotSegment)
