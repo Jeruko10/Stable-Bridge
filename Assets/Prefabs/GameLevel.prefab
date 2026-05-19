@@ -83,7 +83,7 @@ MonoBehaviour:
   stabilityRequiredFrames: 60
   unstabilityFrameLimit: 2000
   positionThreshold: 0.025
-  rotationThreshold: 2
+  rotationThreshold: 0.7
   removalImpulse: 1000
 --- !u!114 &3556020635173263016
 MonoBehaviour:

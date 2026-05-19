@@ -1,28 +1,41 @@
-using System.Collections;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    [SerializeField] float cinematicDistance = 10f;
     [SerializeField] float cinematicHorizontalAngle = 30f;
     [SerializeField] float cinematicVerticalAngle = 15f;
     [SerializeField] float transitionDuration = 1.5f;
 
     public Vector3 LookTarget { get; set; }
 
+    Vector3 travelStart;
+    Vector3 travelTarget;
+    float elapsed;
+    bool travelling;
+
     void Update()
     {
+        if (travelling)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / transitionDuration);
+            transform.position = Vector3.Lerp(travelStart, travelTarget, t);
+
+            if (elapsed >= transitionDuration)
+                travelling = false;
+        }
+
         transform.LookAt(LookTarget);
     }
 
-    public Task DoCinematic() => TravelTo(CinematicPosition());
+    public void DoCinematic() => TravelTo(CinematicPosition());
 
-    public Task TravelTo(Vector3 target)
+    public void TravelTo(Vector3 target)
     {
-        var tcs = new TaskCompletionSource<bool>();
-        StartCoroutine(TransitionRoutine(target, tcs));
-        return tcs.Task;
+        travelStart = transform.position;
+        travelTarget = target;
+        elapsed = 0f;
+        travelling = true;
     }
 
     Vector3 CinematicPosition()
@@ -34,21 +47,6 @@ public class CameraController : MonoBehaviour
             Mathf.Sin(v),
             -Mathf.Cos(h) * Mathf.Cos(v)
         );
-        return LookTarget + offset * cinematicDistance;
-    }
-
-    IEnumerator TransitionRoutine(Vector3 target, TaskCompletionSource<bool> tcs)
-    {
-        Vector3 startPos = transform.position;
-        float elapsed = 0f;
-
-        while (elapsed < transitionDuration)
-        {
-            elapsed += Time.deltaTime;
-            transform.position = Vector3.Lerp(startPos, target, elapsed / transitionDuration);
-            yield return null;
-        }
-
-        tcs.SetResult(true);
+        return LookTarget + offset * Vector3.Distance(transform.position, LookTarget);
     }
 }

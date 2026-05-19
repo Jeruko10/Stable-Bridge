@@ -64,7 +64,7 @@ public class Level : MonoBehaviour
         miner.PathEnded += OnPathEnded;
     }
 
-    public async void ExitEditMode()
+    public void ExitEditMode()
     {
         if (!IsEditing) return;
 
@@ -82,9 +82,7 @@ public class Level : MonoBehaviour
             return;
         }
 
-        Camera.main.orthographic = false;
-        await Camera.main.GetComponent<CameraController>().DoCinematic();
-
+        Camera.main.GetComponent<CameraController>().DoCinematic();
         SimulationObserver.Initialize(Grid.GetAllBlocks(), trainModeEnabled);
     }
 
