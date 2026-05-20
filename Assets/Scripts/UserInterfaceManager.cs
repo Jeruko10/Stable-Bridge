@@ -86,6 +86,12 @@ public class UserInterfaceManager : MonoBehaviour
         ShowState(UIState.LevelSelector);
     }
 
+    public void OnMasterButtonPressed()
+    {
+        AudioManager.Play(AudioManager.Instance.UIButtonClick);
+        //TODO
+    }
+
     public void OnReadyButtonPressed()
     {
         AudioManager.Play(AudioManager.Instance.UIStartPath);
@@ -101,7 +107,7 @@ public class UserInterfaceManager : MonoBehaviour
     public void OnHintButtonPressed()
     {
         AudioManager.Play(AudioManager.Instance.UIButtonClick);
-        if (hintRenderer != null) hintRenderer.DisplayHint();
+        if (hintRenderer != null) hintRenderer.SpawnHardCodedHint();
     }
 
     public void OnResumeButtonPressed()

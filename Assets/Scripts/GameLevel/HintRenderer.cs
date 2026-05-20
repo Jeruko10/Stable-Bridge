@@ -48,6 +48,19 @@ public class HintRenderer : MonoBehaviour
         revealedCount++;
     }
 
+    public void SpawnHardCodedHint()
+    {
+        LevelSolver.HintStep step = new()
+        {
+            block = level.Inventory[0],
+            position = new Vector2(2f, 1f),
+            rotation = BoardGrid.Rotation.Deg0,
+            flipped = false
+        };
+
+        ghosts.Add(SpawnGhost(step));
+    }
+
     public void ResetHints()
     {
         foreach (Block ghost in ghosts)
