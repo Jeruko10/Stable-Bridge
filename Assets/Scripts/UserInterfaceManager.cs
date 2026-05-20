@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,7 +19,7 @@ public class UserInterfaceManager : MonoBehaviour
     [SerializeField] Transform topLayout;
     [SerializeField] Transform bottomLayout;
 
-    HintManager currentHints;
+    HintRenderer hintRenderer;
 
     void Start()
     {
@@ -80,7 +77,7 @@ public class UserInterfaceManager : MonoBehaviour
 
     void OnLevelLoaded(Level level)
     {
-        currentHints = level.GetComponent<HintManager>();
+        hintRenderer = level.GetComponent<HintRenderer>();
     }
 
     public void OnPlayButtonPressed()
@@ -104,8 +101,7 @@ public class UserInterfaceManager : MonoBehaviour
     public void OnHintButtonPressed()
     {
         AudioManager.Play(AudioManager.Instance.UIButtonClick);
-        currentHints.DisplayTestHint();
-        // currentHints.HighlightBlock(LevelManager.Current.Inventory.FirstOrDefault());
+        if (hintRenderer != null) hintRenderer.DisplayHint();
     }
 
     public void OnResumeButtonPressed()
