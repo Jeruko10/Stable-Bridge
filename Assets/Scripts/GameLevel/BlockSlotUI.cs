@@ -6,7 +6,9 @@ using UnityEngine.UI;
 
 public class BlockSlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler
 {
+    [Header("References")]
     [SerializeField] Image image;
+    
     Block block;
     PlayerInput playerInput;
 

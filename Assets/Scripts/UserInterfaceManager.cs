@@ -10,10 +10,13 @@ public class UserInterfaceManager : MonoBehaviour
 {
     enum UIState { MainMenu, LevelSelector, Gameplay }
 
-    [field: SerializeField] GameObject gameplayInterface;
-    [field: SerializeField] GameObject pauseMenu;
-    [field: SerializeField] GameObject levelSelector;
-    [field: SerializeField] GameObject mainMenu;
+    [Header("Environments")]
+    [SerializeField] GameObject gameplayInterface;
+    [SerializeField] GameObject pauseMenu;
+    [SerializeField] GameObject levelSelector;
+    [SerializeField] GameObject mainMenu;
+    
+    [Header("References")]
     [SerializeField] ScrollRect levelSelectorScroll;
     [SerializeField] GameObject levelButtonPrefab;
     [SerializeField] Transform topLayout;

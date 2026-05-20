@@ -6,7 +6,10 @@ using UnityEngine;
 public class BoardGrid : MonoBehaviour
 {
     [field: SerializeField] public float TileSize { get; private set; } = BlockSegment.SideLength;
+
+    [field: Header("References")]
     [field: SerializeField] public GameObject TileVisualPrefab { get; private set; }
+
     public Vector2Int Size { get; private set; }
     public enum Rotation { Deg0 = 0, Deg90 = 90, Deg180 = 180, Deg270 = 270 }
 

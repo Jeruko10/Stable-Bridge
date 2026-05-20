@@ -8,6 +8,8 @@ public class PlayerInput : MonoBehaviour
     [field: SerializeField] float RayDistance { get; set; } = 100f;
     [field: SerializeField] float DragThresholdPixels { get; set; } = 10f;
     [field: SerializeField] float FlipHoldTime { get; set; } = 0.4f;
+    
+    [Header("References")]
     [field: SerializeField] BlockInventory blockInventory;
 
     Block ActiveBlock => activeSegment.GetParent();
@@ -35,8 +37,8 @@ public class PlayerInput : MonoBehaviour
     {
         if (Pointer.current == null) return;
 
-        if (Pointer.current.press.wasPressedThisFrame)  OnPointerPressed();
-        if (Pointer.current.press.isPressed)            OnPointerHeld();
+        if (Pointer.current.press.wasPressedThisFrame) OnPointerPressed();
+        if (Pointer.current.press.isPressed) OnPointerHeld();
         if (Pointer.current.press.wasReleasedThisFrame) OnPointerReleased();
     }
 
@@ -52,6 +54,7 @@ public class PlayerInput : MonoBehaviour
         
         Block block = segment.GetParent();
         AudioManager.Play(AudioManager.Instance.Blocks);
+        
         if (block == null || block.MobilityType == Block.Mobility.Fixed || block.MobilityType == Block.Mobility.Ground) return;
 
         activeSegment = segment;

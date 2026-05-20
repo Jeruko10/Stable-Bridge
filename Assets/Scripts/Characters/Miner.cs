@@ -9,6 +9,7 @@ public class Miner : MonoBehaviour
     [field: SerializeField] public float MaxTime { get; set; } = 20f;
     [field: SerializeField] public float ArrivalThreshold { get; set; } = 0.05f;
     [field: SerializeField] public float EndKeepDistance { get; set; } = 0.5f;
+    
     public float HeightOffset { get; set; }
     public event Action PathEnded;
 
@@ -74,6 +75,7 @@ public class Miner : MonoBehaviour
 
     public void StartPath(Vector3[] path, bool reachesGoal)
     {
+        Debug.Log("Starting path");
         startPosition = path.FirstOrDefault();
         pathReachesGoal = reachesGoal;
         this.path = path;

@@ -13,6 +13,8 @@ public class Level : MonoBehaviour
     [field: SerializeField] public float CameraDistance { get; set; } = 1f;
     [field: SerializeField] public float BackgroundDistance { get; set; } = 1f;
     [field: SerializeField] public float CharactersHeightOffset { get; set; } = 0f;
+
+    [Header("References")]
     [field: SerializeField] Miner minerPrefab;
     [field: SerializeField] Goal goalPrefab;
     [field: SerializeField] Block baseBlockPrefab;

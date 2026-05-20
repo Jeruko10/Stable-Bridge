@@ -1,22 +1,22 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 
 
 public class LevelManager : MonoBehaviour
 {
+    [Header("Dev Tools")]
     [SerializeField] bool trainModeEnabled;
+    [SerializeField] bool levelCreationEnabled;
+
+    [Header("References")]
     [field: SerializeField] Level levelPrefab;
     [SerializeField] BlockInventory blockInventory;
 
     public static Level Current { get; private set; }
     public static int LastLevelIndex { get; private set; }
     public static int LevelAmount => levels.Count();
-    public static bool TrainModeEnabled => instance.trainModeEnabled;
+    public static bool LevelCreationEnabled => instance.levelCreationEnabled;
     public static event Action<Level> LevelLoaded;
     public static event Action Victory;
 

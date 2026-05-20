@@ -5,6 +5,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(ScrollRect))]
 public class BlockInventory : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] GameObject blockSlotPrefab;
     [SerializeField] PlayerInput playerInput;
 
