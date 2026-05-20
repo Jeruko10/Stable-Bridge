@@ -64,6 +64,69 @@ public class BoardGrid : MonoBehaviour
         }
     }
 
+    public void AddColumn(bool isVisual)
+    {
+        int newX = Size.x;
+        Size += Vector2Int.right;
+
+        for (int y = 0; y < Size.y; y++)
+        {
+            Vector2Int tileCoord = new(newX, y);
+            tileBlocks[tileCoord] = null;
+
+            if (!isVisual) continue;
+
+            GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, visualsFolder.transform);
+            tileVisuals.Add(tileCoord, instance);
+        }
+    }
+
+    public void RemoveRow()
+    {
+        if (Size.y <= 1) return;
+
+        int removeY = Size.y - 1;
+
+        for (int x = 0; x < Size.x; x++)
+        {
+            Vector2Int tileCoord = new(x, removeY);
+            if (tileBlocks.TryGetValue(tileCoord, out BlockSegment segment) && segment != null)
+                blockTiles.Remove(segment);
+            tileBlocks.Remove(tileCoord);
+
+            if (tileVisuals.TryGetValue(tileCoord, out GameObject visual))
+            {
+                Destroy(visual);
+                tileVisuals.Remove(tileCoord);
+            }
+        }
+
+        Size -= Vector2Int.up;
+    }
+
+    public void RemoveColumn()
+    {
+        if (Size.x <= 1) return;
+
+        int removeX = Size.x - 1;
+
+        for (int y = 0; y < Size.y; y++)
+        {
+            Vector2Int tileCoord = new(removeX, y);
+            if (tileBlocks.TryGetValue(tileCoord, out BlockSegment segment) && segment != null)
+                blockTiles.Remove(segment);
+            tileBlocks.Remove(tileCoord);
+
+            if (tileVisuals.TryGetValue(tileCoord, out GameObject visual))
+            {
+                Destroy(visual);
+                tileVisuals.Remove(tileCoord);
+            }
+        }
+
+        Size -= Vector2Int.right;
+    }
+
     public Dictionary<Vector2Int, BlockSegment> GetAllTiles() => tileBlocks;
 
     public IEnumerable<Block> GetAllBlocks() => blocks;

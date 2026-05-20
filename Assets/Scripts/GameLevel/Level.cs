@@ -30,15 +30,15 @@ public class Level : MonoBehaviour
     public event Action<bool> LevelComplete;
     public event Action<bool> SuccessKnown;
 
-    bool success, trainModeEnabled;
+    bool success, fastGameplay;
     IEnumerable<Vector2> minerPath;
     GameObject blocksFolder;
     Miner miner;
     BlockInventory blockInventory;
 
-    public void Initialize(LevelLayout layout, bool trainModeEnabled, BlockInventory blockInventory)
+    public void Initialize(LevelLayout layout, bool fastGameplay, BlockInventory blockInventory)
     {
-        this.trainModeEnabled = trainModeEnabled;
+        this.fastGameplay = fastGameplay;
         this.blockInventory = blockInventory;
 
         blocksFolder = new GameObject("Blocks");
@@ -56,7 +56,7 @@ public class Level : MonoBehaviour
         SetCamera();
         
         foreach (BlockPlacementData blockData in layout.Blocks)
-            InterpretBlockData(blockData);
+            CreateBlock(blockData);
 
         CreateGround();
         CreateCharacters();
@@ -85,7 +85,7 @@ public class Level : MonoBehaviour
         }
 
         Camera.main.GetComponent<CameraController>().DoCinematic();
-        SimulationObserver.Initialize(Grid.GetAllBlocks(), trainModeEnabled);
+        SimulationObserver.Initialize(Grid.GetAllBlocks(), fastGameplay);
     }
 
     void OnStabilityKnown(IEnumerable<Block> unstableBlocks)
@@ -104,7 +104,7 @@ public class Level : MonoBehaviour
 
     void OnSimulationEnded()
     {
-        if (trainModeEnabled)
+        if (fastGameplay)
         {
             StartCoroutine(EndLevel(success));
             return;
@@ -123,18 +123,18 @@ public class Level : MonoBehaviour
         if (success)
         {
             AudioManager.Play(AudioManager.Instance.Success);
-            if (!trainModeEnabled) yield return new WaitForSeconds(1f);
+            if (!fastGameplay) yield return new WaitForSeconds(1f);
             LevelManager.PassLevel();
         }
         else
         {
             AudioManager.Play(AudioManager.Instance.Failure);
-            if (!trainModeEnabled) yield return new WaitForSeconds(3f);
+            if (!fastGameplay) yield return new WaitForSeconds(3f);
             LevelManager.RestartLevel();
         }
     }
 
-    void InterpretBlockData(BlockPlacementData data)
+    public Block CreateBlock(BlockPlacementData data, bool forcePosition = false)
     {
         Block block = Instantiate(data.BlockPrefab, blocksFolder.transform);
         block.Initialize(data.BlockPrefab, data.PivotIndex, data.MobilityType);
@@ -152,13 +152,13 @@ public class Level : MonoBehaviour
                 startingTile = data.SlideTiles.FirstOrDefault();
             }
 
-            if (Grid.TryPlaceBlock(block, startingTile, block.Pivot)) return;
-            else Debug.LogWarning($"Failed to place block {block.name} at {data.StartingTile} during level load. Check if the tile is valid and unoccupied.");
+            if (Grid.TryPlaceBlock(block, startingTile, block.Pivot)) return block;
+            Debug.LogWarning($"Failed to place block {block.name} at {data.StartingTile}. Check if the tile is valid and unoccupied.");
         }
-        
-        // Block has Free Mobility or failed to place: send to inventory
+
         blockInventory.AddBlock(block);
         Inventory.Add(block);
+        return block;
     }
 
     void SetCamera()

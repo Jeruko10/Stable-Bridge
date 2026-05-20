@@ -6,7 +6,7 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     [Header("Dev Tools")]
-    [SerializeField] bool trainModeEnabled;
+    [SerializeField] bool fastGameplay;
     [SerializeField] bool levelCreationEnabled;
 
     [Header("References")]
@@ -60,7 +60,7 @@ public class LevelManager : MonoBehaviour
 
         LevelLayout lvlData = levels[levelIndex];
 
-        Current.Initialize(lvlData, instance.trainModeEnabled, instance.blockInventory);
+        Current.Initialize(lvlData, instance.fastGameplay, instance.blockInventory);
         AudioManager.StopAll();
         AudioManager.Play(AudioManager.Instance.LevelTheme);
         LevelLoaded?.Invoke(Current);
