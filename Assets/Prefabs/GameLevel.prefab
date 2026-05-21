@@ -100,5 +100,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c73282971d743f04e82bf33ecd5d0078, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HintRenderer
-  depthOffset: -0.5
+  depthOffset: 0.05
   color: {r: 0, g: 1, b: 1, a: 1}

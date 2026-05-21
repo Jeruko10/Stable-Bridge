@@ -70,6 +70,7 @@ public class LevelSolver
         {
             foreach (BoardGrid.Rotation rotation in AllRotations)
             {
+                RestoreState(block, saved);
                 ApplyTransform(block, rotation, flip);
 
                 for (int x = 0; x < grid.Size.x; x++)
