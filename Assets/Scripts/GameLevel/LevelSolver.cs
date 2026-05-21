@@ -31,6 +31,9 @@ public class LevelSolver
 
     readonly BoardGrid grid;
     readonly Vector2Int start, end;
+    int iterations;
+    int maxIterations;
+    bool aborted;
 
     public LevelSolver(BoardGrid grid, Vector2Int start, Vector2Int end)
     {
@@ -39,8 +42,12 @@ public class LevelSolver
         this.end = end;
     }
 
-    public List<HintStep> Solve(List<Block> blocks)
+    public List<HintStep> Solve(List<Block> blocks, int maxIterations = 100000)
     {
+        this.maxIterations = maxIterations;
+        iterations = 0;
+        aborted = false;
+
         var saved = blocks.ToDictionary(b => b, SaveState);
         var result = new List<HintStep>();
         bool found = Backtrack(blocks, 0, result);
@@ -56,16 +63,20 @@ public class LevelSolver
 
     bool Backtrack(List<Block> blocks, int index, List<HintStep> current)
     {
-        if (PathExists()) return true;
-        if (index >= blocks.Count) return false;
+        if (aborted) return false;
+
+        if (++iterations > maxIterations)
+        {
+            Debug.LogWarning($"LevelSolver: hit iteration limit ({maxIterations}), aborting search.");
+            aborted = true;
+            return false;
+        }
+
+        if (index >= blocks.Count) return PathExists();
 
         Block block = blocks[index];
         BlockState saved = SaveState(block);
 
-        // Try skipping first — finds minimal solutions
-        if (Backtrack(blocks, index + 1, current)) return true;
-
-        // Try all placements for this block
         foreach (bool flip in new[] { false, true })
         {
             foreach (BoardGrid.Rotation rotation in AllRotations)
@@ -92,6 +103,8 @@ public class LevelSolver
                             });
 
                             if (Backtrack(blocks, index + 1, current)) return true;
+
+                            if (aborted) return false;
 
                             current.RemoveAt(current.Count - 1);
                             grid.RemoveBlock(block);

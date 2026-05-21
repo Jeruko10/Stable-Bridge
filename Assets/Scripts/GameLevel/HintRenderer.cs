@@ -9,6 +9,7 @@ public class HintRenderer : MonoBehaviour
 {
     [SerializeField] float depthOffset = -0.5f;
     [SerializeField] Color color = Color.cyan;
+    [SerializeField] int maxSolverIterations = 100000;
 
     BoardGrid grid;
     Level level;
@@ -24,14 +25,12 @@ public class HintRenderer : MonoBehaviour
 
     public void DisplayHint()
     {
+        Debug.Log(level.Inventory.Count);
+
         if (steps == null)
         {
-            List<Block> unplaced = level.Inventory
-                .Where(b => b != null && !grid.ContainsBlock(b))
-                .ToList();
-
             List<LevelSolver.HintStep> solution =
-                new LevelSolver(grid, level.StartPosition, level.EndPosition).Solve(unplaced);
+                new LevelSolver(grid, level.StartPosition, level.EndPosition).Solve(level.Inventory, maxSolverIterations);
 
             if (solution == null)
             {
@@ -46,6 +45,7 @@ public class HintRenderer : MonoBehaviour
 
         ghosts.Add(SpawnGhost(steps[revealedCount]));
         revealedCount++;
+        Debug.Log($"HintRenderer: revealed hint {revealedCount}/{steps.Count}.");
     }
 
     public void SpawnHardCodedHint()
@@ -63,6 +63,7 @@ public class HintRenderer : MonoBehaviour
 
     public void ResetHints()
     {
+        Debug.Log("HintRenderer: resetting hints.");
         foreach (Block ghost in ghosts)
             if (ghost != null) Destroy(ghost.gameObject);
         ghosts.Clear();

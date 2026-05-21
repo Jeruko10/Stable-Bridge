@@ -24,7 +24,6 @@ public class UserInterfaceManager : MonoBehaviour
     void Start()
     {
         LevelManager.Victory += OnVictory;
-        LevelManager.LevelLoaded += OnLevelLoaded;
         PopulateLevelButtons();
         ShowState(UIState.MainMenu);
     }
@@ -75,11 +74,6 @@ public class UserInterfaceManager : MonoBehaviour
         ShowState(UIState.LevelSelector);
     }
 
-    void OnLevelLoaded(Level level)
-    {
-        hintRenderer = level.GetComponent<HintRenderer>();
-    }
-
     public void OnPlayButtonPressed()
     {
         AudioManager.Play(AudioManager.Instance.UIButtonClick);
@@ -107,7 +101,7 @@ public class UserInterfaceManager : MonoBehaviour
     public void OnHintButtonPressed()
     {
         AudioManager.Play(AudioManager.Instance.UIButtonClick);
-        if (hintRenderer != null) hintRenderer.SpawnHardCodedHint();
+        LevelManager.Current.HintRenderer.DisplayHint();
     }
 
     public void OnResumeButtonPressed()

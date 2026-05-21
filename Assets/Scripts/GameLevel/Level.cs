@@ -5,9 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
 [RequireComponent(typeof(BoardGrid))]
 [RequireComponent(typeof(SimulationObserver))]
+
+[RequireComponent(typeof(HintRenderer))]
 public class Level : MonoBehaviour
 {
     [field: SerializeField] public float CameraDistance { get; set; } = 1f;
@@ -22,6 +23,7 @@ public class Level : MonoBehaviour
 
     public BoardGrid Grid { get; private set; }
     public SimulationObserver SimulationObserver { get; private set; }
+    public HintRenderer HintRenderer { get; private set; }
     public Vector2Int StartPosition { get; private set; }
     public Vector2Int EndPosition { get; private set; }
     public bool IsEditing { get; private set; } = true;
@@ -46,6 +48,7 @@ public class Level : MonoBehaviour
 
         Grid = GetComponent<BoardGrid>();
         SimulationObserver = GetComponent<SimulationObserver>();
+        HintRenderer = GetComponent<HintRenderer>();
 
         Grid.Initialize(layout.LevelSize);
         
@@ -74,16 +77,21 @@ public class Level : MonoBehaviour
 
         if (Grid == null)
         {
-            Debug.LogError("Level.ExitEditMode: Grid es null.");
+            Debug.LogError("Level.ExitEditMode: Grid is null.");
             return;
         }
-
         if (SimulationObserver == null)
         {
-            Debug.LogError("Level.ExitEditMode: SimulationObserver es null.");
+            Debug.LogError("Level.ExitEditMode: SimulationObserver is null.");
+            return;
+        }
+        if (HintRenderer == null)
+        {
+            Debug.LogError("Level.ExitEditMode: HintRenderer is null.");
             return;
         }
 
+        HintRenderer.ResetHints();
         Camera.main.GetComponent<CameraController>().DoCinematic();
         SimulationObserver.Initialize(Grid.GetAllBlocks(), fastGameplay);
     }
