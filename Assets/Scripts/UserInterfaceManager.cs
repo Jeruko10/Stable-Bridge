@@ -101,7 +101,7 @@ public class UserInterfaceManager : MonoBehaviour
     public void OnHintButtonPressed()
     {
         AudioManager.Play(AudioManager.Instance.UIButtonClick);
-        LevelManager.Current.HintRenderer.DisplayHint();
+        LevelManager.Current.HintRenderer.SpawnHardCodedHint();
     }
 
     public void OnResumeButtonPressed()
