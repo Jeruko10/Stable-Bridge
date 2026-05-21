@@ -45,6 +45,7 @@ public class HintRenderer : MonoBehaviour
 
         ghosts.Add(SpawnGhost(steps[revealedCount]));
         revealedCount++;
+        DataCollectionManager.Instance?.RecordHint();
         Debug.Log($"HintRenderer: revealed hint {revealedCount}/{steps.Count}.");
     }
 

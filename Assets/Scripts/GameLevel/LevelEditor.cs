@@ -35,7 +35,6 @@ public class LevelEditor : MonoBehaviour
 
         if (Keyboard.current.sKey.wasPressedThisFrame) SaveLevel();
         if (Keyboard.current.rKey.wasPressedThisFrame) LevelManager.RestartLevel();
-
 #endif
     }
 

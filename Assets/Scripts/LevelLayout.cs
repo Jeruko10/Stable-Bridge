@@ -50,9 +50,9 @@ public class LevelLayout : ScriptableObject
         return instance;
     }
 
-#if UNITY_EDITOR
     public void SaveAsAsset()
     {
+#if UNITY_EDITOR
         const string folder = "Assets/Resources/Levels";
         
         if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
@@ -71,6 +71,6 @@ public class LevelLayout : ScriptableObject
         AssetDatabase.Refresh();
 
         Debug.Log($"Level Saved: Level{index}");
-    }
 #endif
+    }
 }

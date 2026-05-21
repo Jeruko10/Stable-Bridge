@@ -75,6 +75,7 @@ public class PlayerInput : MonoBehaviour
         {
             grid.TryFlipBlock(ActiveBlock, activeSegment);
             flipTriggered = true;
+            DataCollectionManager.Instance?.RecordMove();
         }
 
         if (isDragging && TryGetWorldPosition(out Vector3 pos))
@@ -93,7 +94,10 @@ public class PlayerInput : MonoBehaviour
         if (IsPointerOverUI()) return;
 
         if (activeSegment != null && !flipTriggered)
+        {
             grid.TryRotateBlock(ActiveBlock, activeSegment, clockwise: true);
+            DataCollectionManager.Instance?.RecordMove();
+        }
     }
 
     void StartDrag()
@@ -125,7 +129,11 @@ public class PlayerInput : MonoBehaviour
             bool restored = !moveToSlotOnFailure && grid.TryPlaceBlock(ActiveBlock, savedPivotTile, ActiveBlock.Pivot);
             if (!restored) blockInventory.AddBlock(ActiveBlock);
         }
-        else AudioManager.Play(AudioManager.Instance.GridSnap);
+        else
+        {
+            AudioManager.Play(AudioManager.Instance.GridSnap);
+            DataCollectionManager.Instance?.RecordMove();
+        }
 
         isDragging = false;
         activeSegment = null;

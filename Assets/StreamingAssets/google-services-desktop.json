@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "978193579829",
+    "project_id": "spatialreasoninginvestigation",
+    "storage_bucket": "spatialreasoninginvestigation.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978193579829:android:877fb290d7bc6f02f3567c",
+        "android_client_info": {
+          "package_name": "jeruko.game"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBX_512bDLnFxxV34QqhpquTqWOll-Jh4Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
