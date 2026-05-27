@@ -1,0 +1,20 @@
+Solving Test 1...
+
+Test 1 done. Solutions: 2. Stable configs: 14. Frustration: 7.000. Static Entanglement: 3.91 bits.
+
+Solving Test 2...
+
+Test 2 done. Solutions: 28. Stable configs: 10032. Frustration: 358.286. Static Entanglement: 11.59 bits.
+
+Solving Test 3...
+
+Test 3 done. Solutions: 128. Stable configs: 16008. Frustration: 125.062. Static Entanglement: 11.03 bits.
+
+Solving Test 4...
+
+Test 4 done. Solutions: 18. Stable configs: 60815. Frustration: 3378.611. Static Entanglement: 14.40 bits.
+
+Solving Test 5...
+
+Test 5 done. Solutions: 140. Stable configs: 336495. Frustration: 2403.536. Static Entanglement: 15.98 bits.
+

@@ -1,0 +1,62 @@
+[
+  {
+    "name": "warmup_walk",
+    "_comment": "Straight horizontal walk. Single flat piece fills the floor between miner and goal.",
+    "miner": [0, 1],
+    "goal":  [4, 1],
+    "towers": [],
+    "inventory": [
+      { "id": 10, "w": 4, "h": 1, "is_stair": false }
+    ]
+  },
+  {
+    "name": "short_climb",
+    "_comment": "One step up. Solver must orient a stair piece so the miner can ascend.",
+    "miner": [0, 1],
+    "goal":  [3, 2],
+    "towers": [],
+    "inventory": [
+      { "id": 10, "w": 2, "h": 1, "is_stair": false },
+      { "id": 11, "w": 2, "h": 1, "is_stair": true  },
+      { "id": 12, "w": 1, "h": 1, "is_stair": false }
+    ]
+  },
+  {
+    "name": "bridged_gap",
+    "_comment": "Central tower obstructs the ground path. Bridge across at y=1 with the tower acting as the middle support.",
+    "miner": [0, 2],
+    "goal":  [4, 2],
+    "towers": [[2, 0]],
+    "inventory": [
+      { "id": 10, "w": 5, "h": 1, "is_stair": false },
+      { "id": 11, "w": 2, "h": 1, "is_stair": false },
+      { "id": 12, "w": 1, "h": 1, "is_stair": false }
+    ]
+  },
+  {
+    "name": "double_stair_ascent",
+    "_comment": "Climb two levels using two stair pieces chained vertically. Requires a flat platform between the stairs.",
+    "miner": [0, 1],
+    "goal":  [2, 3],
+    "towers": [],
+    "inventory": [
+      { "id": 10, "w": 1, "h": 1, "is_stair": false },
+      { "id": 11, "w": 2, "h": 1, "is_stair": true  },
+      { "id": 12, "w": 1, "h": 1, "is_stair": false },
+      { "id": 13, "w": 2, "h": 1, "is_stair": true  }
+    ]
+  },
+  {
+    "name": "tall_summit",
+    "_comment": "Tall climb with a mid-level pillar tower acting as a free support. Inventory kept small to keep search tractable.",
+    "miner": [0, 1],
+    "goal":  [3, 3],
+    "towers": [[2, 0]],
+    "inventory": [
+      { "id": 10, "w": 1, "h": 1, "is_stair": false },
+      { "id": 11, "w": 2, "h": 1, "is_stair": true  },
+      { "id": 12, "w": 2, "h": 1, "is_stair": true  },
+      { "id": 13, "w": 2, "h": 1, "is_stair": false }
+    ]
+  }
+]

@@ -78,7 +78,7 @@ public class DataCollectionManager : MonoBehaviour
         string url = $"https://firestore.googleapis.com/v1/projects/{firebaseProjectId}/databases/(default)/documents/level_sessions?key={firebaseApiKey}";
 
         byte[] body = Encoding.UTF8.GetBytes(json);
-        using var request = new UnityWebRequest(url, "POST");
+        using UnityWebRequest request = new(url, "POST");
         request.uploadHandler = new UploadHandlerRaw(body);
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
