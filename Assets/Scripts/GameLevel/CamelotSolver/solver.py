@@ -1,22 +1,30 @@
-"""CamelotSolverComplete — orchestrates inventory, placement, search, and output."""
+"""CamelotSolverComplete — orchestrates inventory, placement, search, output.
+
+Segment-aware backtracking solver:
+  - `self.grid`        stores integer occupancy (0 empty, 1 tower, >=10 piece id)
+  - `self.segment_map` stores the per-cell Segment for every placed piece
+  - `self.placed_info` stores the legacy flag-based placement record used by
+    the stability checker and the terminal/GUI output
+
+`can_place` and `find_path` consult `segment_map` (per-cell Segment behaviour)
+instead of inspecting block-level flags directly.
+"""
 
 import json
 import math
 import os
 
-from .blocks import make_flat_block, make_stair_block
-from .pathfinding import build_graph, find_path
-from .stability import is_stack_stable
+from .blocks import build_block_segments
+from .pathfinding import find_path as _find_path, is_cell_walkable
+from .stability import is_entire_stack_stable
+
 
 _PKG_DIR = os.path.dirname(os.path.abspath(__file__))
 _DEFAULT_TESTS = os.path.join(_PKG_DIR, "tests.json")
 
 
 class CamelotSolverComplete:
-    """Segment-based Camelot solver."""
-
-    _ALL_ROTATIONS = (0, 90, 180, 270)
-    _ALL_FLIPS = (False, True)
+    """Cell- and segment-based Camelot solver."""
 
     def __init__(self, test_file=_DEFAULT_TESTS, use_shapestacks=True,
                  grid_w=6, grid_h=6, enable_gui=True):
@@ -26,20 +34,19 @@ class CamelotSolverComplete:
         self.enable_gui = enable_gui
 
         self.grid = [[0 for _ in range(self.GRID_W)] for _ in range(self.GRID_H)]
-        # (x, y) -> (block_id, SegmentDef, rotation, flipped)
-        self.tile_segment_map = {}
+        self.segment_map = {}  # (x, y) -> Segment
 
         self.used_ids = set()
         self.found_solutions = set()
-        self.placed_info = {}
+        self.placed_info = {}  # block_id -> legacy flag record
         self.final_path = []
         self.inventory = []
-        self.miner_pos = (0, 0)
-        self.goal_pos = (0, 0)
+        self.knight_pos = (0, 0)
+        self.princess_pos = (0, 0)
         self.towers_list = []
 
         try:
-            with open(test_file, 'r') as f:
+            with open(test_file, 'r', encoding='utf-8') as f:
                 self.all_tests = json.load(f)
         except FileNotFoundError:
             print(f"Error: {test_file} not found.")
@@ -51,90 +58,79 @@ class CamelotSolverComplete:
         self.stable_configs_count = 0
 
     # -----------------------------------------------------------------
-    # Inventory conversion
+    # Symmetry breaking
     # -----------------------------------------------------------------
     @staticmethod
-    def _build_block_def(piece):
-        w, h = piece['w'], piece['h']
-        if piece.get('is_stair'):
-            return make_stair_block(w, h)
-        return make_flat_block(w, h)
-
-    @staticmethod
-    def _shape_key(piece):
-        w, h = piece['w'], piece['h']
+    def _piece_key(p):
+        w, h = p['w'], p['h']
         nw, nh = (w, h) if w <= h else (h, w)
-        return (nw, nh, bool(piece.get('is_stair')))
+        return (nw, nh, bool(p.get('is_stair')))
 
     # -----------------------------------------------------------------
-    # Placement primitives
+    # Placement check (uses Segment.provides_top_surface)
     # -----------------------------------------------------------------
-    def _resolved_tiles(self, block_def, pivot, rotation, flipped):
-        px, py = pivot
-        for (dx, dy), seg, _, _ in block_def.resolve(rotation, flipped):
-            yield (px + dx, py + dy), seg
+    def can_place(self, x, y, w, h):
+        if x + w > self.GRID_W or y + h > self.GRID_H:
+            return False
 
-    def can_place(self, block_def, pivot, rotation, flipped):
-        tiles = list(self._resolved_tiles(block_def, pivot, rotation, flipped))
+        for i in range(h):
+            for j in range(w):
+                if self.grid[y + i][x + j] != 0:
+                    return False
+                if (x + j, y + i) in (self.knight_pos, self.princess_pos):
+                    return False
 
-        for (x, y), _ in tiles:
-            if not (0 <= x < self.GRID_W and 0 <= y < self.GRID_H):
-                return False
-            if self.grid[y][x] != 0:
-                return False
-            if (x, y) == self.miner_pos or (x, y) == self.goal_pos:
-                return False
-
-        bottoms = {}
-        for (x, y), _ in tiles:
-            if x not in bottoms or y < bottoms[x]:
-                bottoms[x] = y
-
-        if any(y == 0 for y in bottoms.values()):
+        if y == 0:
             return True
 
-        for x, y in bottoms.items():
-            # Tower below acts as a rigid pillar support (matches the original code).
-            if 0 <= y - 1 < self.GRID_H and self.grid[y - 1][x] == 1:
-                return True
-            below = self.tile_segment_map.get((x, y - 1))
-            if below is None:
+        # Need at least one column whose below-cell provides a top surface.
+        for j in range(w):
+            below_val = self.grid[y - 1][x + j]
+            if below_val == 0:
                 continue
-            _, seg, rot, fl = below
-            if seg.provides_top_surface(rot, fl):
+            if below_val == 1:  # tower top is supportive
+                return True
+            below_seg = self.segment_map.get((x + j, y - 1))
+            if below_seg is not None and below_seg.provides_top_surface:
                 return True
         return False
 
-    def _place_block(self, block_id, block_def, pivot, rotation, flipped):
-        tile_map = {}
-        for (x, y), seg in self._resolved_tiles(block_def, pivot, rotation, flipped):
-            self.grid[y][x] = block_id
-            self.tile_segment_map[(x, y)] = (block_id, seg, rotation, flipped)
-            tile_map[(x, y)] = seg
-        self.placed_info[block_id] = {
-            'block_def': block_def,
-            'pivot':     pivot,
-            'rotation':  rotation,
-            'flipped':   flipped,
-            'tile_map':  tile_map,
+    # -----------------------------------------------------------------
+    # Place / remove
+    # -----------------------------------------------------------------
+    def _place(self, pid, x, y, w, h, is_stair, is_mirror, is_inverted):
+        for r in range(h):
+            for c in range(w):
+                self.grid[y + r][x + c] = pid
+        seg_list = build_block_segments(x, y, w, h, is_stair, is_mirror, is_inverted)
+        for cell, seg in seg_list:
+            self.segment_map[cell] = seg
+        self.placed_info[pid] = {
+            'x': x, 'y': y, 'w': w, 'h': h,
+            'is_stair': is_stair,
+            'is_mirror': is_mirror,
+            'is_inverted': is_inverted,
+            'segments': seg_list,
         }
 
-    def _remove_block(self, block_id):
-        info = self.placed_info.pop(block_id, None)
-        if not info:
+    def _remove(self, pid):
+        info = self.placed_info.pop(pid, None)
+        if info is None:
             return
-        for (x, y) in info['tile_map']:
-            self.grid[y][x] = 0
-            self.tile_segment_map.pop((x, y), None)
+        x, y, w, h = info['x'], info['y'], info['w'], info['h']
+        for r in range(h):
+            for c in range(w):
+                self.grid[y + r][x + c] = 0
+        for cell, _ in info['segments']:
+            self.segment_map.pop(cell, None)
 
     # -----------------------------------------------------------------
-    # Pathfinding hook (uses pathfinding module)
+    # Pathfinding
     # -----------------------------------------------------------------
-    def grid_to_graph(self):
-        return build_graph(self.tile_segment_map, self.grid, self.GRID_H)
-
     def find_path(self):
-        return find_path(self.grid_to_graph(), self.miner_pos, self.goal_pos)
+        return _find_path(self.grid, self.segment_map,
+                          self.knight_pos, self.princess_pos,
+                          self.GRID_W, self.GRID_H)
 
     # -----------------------------------------------------------------
     # Solution fingerprint
@@ -144,7 +140,8 @@ class CamelotSolverComplete:
         for pid in sorted(self.placed_info.keys()):
             info = self.placed_info[pid]
             items.append(
-                f"{pid}:{info['pivot']},{info['rotation']},{info['flipped']}"
+                f"{pid}:{info['x']},{info['y']},{info['w']},{info['h']},"
+                f"{info.get('is_mirror', False)},{info.get('is_inverted', False)}"
             )
         return "|".join(items)
 
@@ -158,17 +155,17 @@ class CamelotSolverComplete:
 
         print(f"\n{'='*90}")
         print(f">>> LOADING TEST {index+1}: {test['name']}")
-        print(f">>> Grid: {self.GRID_W}x{self.GRID_H} | Solver: Segment-based")
+        print(f">>> Grid: {self.GRID_W}×{self.GRID_H} | Solver: Complete")
         print(f"{'='*90}\n")
 
         self.grid = [[0 for _ in range(self.GRID_W)] for _ in range(self.GRID_H)]
-        self.tile_segment_map = {}
+        self.segment_map = {}
         self.placed_info = {}
         self.final_path = []
         self.found_solutions = set()
-        # Accept both new (miner/goal) and legacy (knight/princess) JSON keys.
-        self.miner_pos = tuple(test.get('miner', test.get('knight')))
-        self.goal_pos  = tuple(test.get('goal',  test.get('princess')))
+        # Accept both the new (miner/goal) and legacy (knight/princess) keys.
+        self.knight_pos = tuple(test.get('knight', test.get('miner')))
+        self.princess_pos = tuple(test.get('princess', test.get('goal')))
         self.solution_count = 0
         self.towers_list = test.get('towers', [])
 
@@ -176,28 +173,23 @@ class CamelotSolverComplete:
             if 0 <= tx < self.GRID_W and 0 <= ty < self.GRID_H:
                 self.grid[ty][tx] = 1
 
-        mx, my = self.miner_pos
-        if self.grid[my][mx] != 0:
-            print(f"WARNING: Miner cell ({mx},{my}) not empty. Skipping.")
+        kx, ky = self.knight_pos
+        if self.grid[ky][kx] != 0:
+            print(f"WARNING: Knight starting cell ({kx},{ky}) is not empty. Skipping.")
+            return False
+        if not is_cell_walkable(self.grid, kx, ky, self.GRID_W, self.GRID_H):
+            print(f"WARNING: Knight starting cell ({kx},{ky}) is not walkable. Skipping.")
             return False
 
-        self.inventory = []
-        for piece in test['inventory']:
-            self.inventory.append({
-                'id':        piece['id'],
-                'block_def': self._build_block_def(piece),
-                'shape_key': self._shape_key(piece),
-                'raw':       piece,
-            })
+        self.inventory = test['inventory']
         self.used_ids = set()
         self.current_test_idx = index
         return True
 
     # -----------------------------------------------------------------
-    # Backtracking solver
+    # Backtracking solver with symmetry breaking
     # -----------------------------------------------------------------
     def solve(self):
-        # Lazy import so visualization (tkinter) is only loaded when needed.
         from .visualization import print_solution_terminal, show_solution_gui
 
         if len(self.used_ids) == len(self.inventory):
@@ -206,7 +198,9 @@ class CamelotSolverComplete:
                 return
 
             if self.use_shapestacks:
-                if not is_stack_stable(self.placed_info, self.grid, self.GRID_W):
+                if not is_entire_stack_stable(self.placed_info, self.grid,
+                                              self.GRID_W, self.GRID_H,
+                                              self.inventory):
                     return
                 self.stable_configs_count += 1
 
@@ -221,41 +215,41 @@ class CamelotSolverComplete:
             return
 
         unused = [p for p in self.inventory if p['id'] not in self.used_ids]
-        unused.sort(key=lambda p: (p['shape_key'], p['id']))
+        unused.sort(key=lambda p: (self._piece_key(p), p['id']))
 
-        for i, piece in enumerate(unused):
-            key = piece['shape_key']
-            skip = any(q['shape_key'] == key and q['id'] not in self.used_ids
-                       for q in unused[:i])
-            if skip:
+        for i, p in enumerate(unused):
+            key = self._piece_key(p)
+            if any(self._piece_key(q) == key and q['id'] not in self.used_ids
+                   for q in unused[:i]):
                 continue
 
-            self.used_ids.add(piece['id'])
-            block_def = piece['block_def']
+            self.used_ids.add(p['id'])
+            is_stair = bool(p.get('is_stair'))
 
-            seen_configs = set()
-            for rotation in self._ALL_ROTATIONS:
-                for flipped in self._ALL_FLIPS:
-                    resolved_key = tuple(
-                        (off, id(seg)) for off, seg, _, _ in block_def.resolve(rotation, flipped)
-                    )
-                    if resolved_key in seen_configs:
-                        continue
-                    seen_configs.add(resolved_key)
+            for w, h in {(p['w'], p['h']), (p['h'], p['w'])}:
+                if is_stair:
+                    if h > w:
+                        stair_configs = [(False, False), (True, False)]
+                    else:
+                        stair_configs = [(False, False), (True, False),
+                                         (False, True), (True, True)]
+                else:
+                    stair_configs = [(False, False)]
 
-                    for y in range(self.GRID_H):
-                        for x in range(self.GRID_W):
-                            pivot = (x, y)
-                            if not self.can_place(block_def, pivot, rotation, flipped):
-                                continue
-                            self._place_block(piece['id'], block_def, pivot, rotation, flipped)
+                for y in range(self.GRID_H):
+                    for x in range(self.GRID_W):
+                        if not self.can_place(x, y, w, h):
+                            continue
+                        for is_mirror, is_inverted in stair_configs:
+                            self._place(p['id'], x, y, w, h,
+                                        is_stair, is_mirror, is_inverted)
                             self.solve()
-                            self._remove_block(piece['id'])
+                            self._remove(p['id'])
 
-            self.used_ids.remove(piece['id'])
+            self.used_ids.remove(p['id'])
 
     # -----------------------------------------------------------------
-    # Diagnostics
+    # Driver
     # -----------------------------------------------------------------
     def run_tests(self, test_indices=None):
         if test_indices is None:
@@ -269,29 +263,27 @@ class CamelotSolverComplete:
                     dual_print(f"Solving Test {idx+1}...\n")
                     self.solve()
                     dual_print(
-                        f"Test {idx+1} done. Solutions: {self.solution_count}. "
-                        f"Stable configs: {self.stable_configs_count}. "
-                        f"Frustration: {self.stable_configs_count/max(1,self.solution_count):.3f}. "
-                        f"Static Entanglement: {self.get_static_entanglement():.2f} bits.\n"
+                        f"✗ No more solution for Test {idx+1}.\n"
+                        f"                         Total solutions: {self.solution_count}\n"
+                        f"                         Total Stable Configs: {self.stable_configs_count}\n"
+                        f"                         FrustrationScore: {self.stable_configs_count/max(1,self.solution_count)}.\n"
+                        f"                        Static Entanglement: {self.get_static_entanglement():.2f} bits.\n"
                     )
 
     def get_static_entanglement(self):
+        """Estimate placement freedom per piece on the (currently-empty) board."""
         total_bits = 0
-        for piece in self.inventory:
+        for p in self.inventory:
             bi = 0
-            block_def = piece['block_def']
-            seen_configs = set()
-            for rotation in self._ALL_ROTATIONS:
-                for flipped in self._ALL_FLIPS:
-                    resolved_key = tuple(
-                        (off, id(seg)) for off, seg, _, _ in block_def.resolve(rotation, flipped)
-                    )
-                    if resolved_key in seen_configs:
-                        continue
-                    seen_configs.add(resolved_key)
+            is_stair = bool(p.get('is_stair'))
+            for w, h in {(p['w'], p['h']), (p['h'], p['w'])}:
+                configs = ([(False, False), (True, False),
+                            (False, True), (True, True)]
+                           if is_stair else [(False, False)])
+                for _m, _inv in configs:
                     for y in range(self.GRID_H):
                         for x in range(self.GRID_W):
-                            if self.can_place(block_def, (x, y), rotation, flipped):
+                            if self.can_place(x, y, w, h):
                                 bi += 1
             total_bits += math.log2(bi + 1)
         return total_bits

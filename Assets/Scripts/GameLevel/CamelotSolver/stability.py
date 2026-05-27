@@ -1,104 +1,86 @@
-"""ShapeStacks-style stability: per-block stats, supports, force distribution."""
+"""ShapeStacks-style stability: per-block stats, supports, force distribution.
 
-from .segments import SLOPE_SEG
-
-
-def block_bbox(block_id, placed_info):
-    tiles = placed_info[block_id]['tile_map']
-    xs = [x for x, _ in tiles]
-    ys = [y for _, y in tiles]
-    return min(xs), min(ys), max(xs) + 1, max(ys) + 1
+Port from the reference abhishek_symmetry.py. Uses the flag-based placed_info
+format: each piece stored as {'x','y','w','h','is_stair','is_mirror','is_inverted'}.
+"""
 
 
-def get_block_stats(block_id, placed_info):
-    """Mass + horizontal centre of mass.
+def get_block_stats(p_id, placed_info, inventory):
+    """Mass + horizontal centre of mass for a placed piece.
 
-    BASIC tile  → mass 1.0, COM at tile centre.
-    SLOPE tile  → mass 0.5, COM nudged toward the slope's transition midpoint.
-    Other types → mass 1.0, COM at tile centre.
+    Stair pieces are modelled as a rectangle (w-1)x h plus a triangle of mass
+    0.5 * h; flat pieces are uniform w x h.
     """
-    info = placed_info.get(block_id)
-    if not info:
+    info = placed_info.get(p_id)
+    p_def = next((p for p in inventory if p['id'] == p_id), None)
+    if not info or not p_def:
         return 0, 0
 
-    total_mass = 0.0
-    total_moment = 0.0
-    rot = info['rotation']
-    fl  = info['flipped']
+    w, h = info['w'], info['h']
+    x_start = info['x']
 
-    for (tx, ty), seg in info['tile_map'].items():
-        if seg is SLOPE_SEG:
-            ts = seg.get_transitions(rot, fl)
-            if ts:
-                fp, tp = ts[0].from_pt, ts[0].to_pt
-                cx_off = (fp[0] + tp[0]) / 2.0
-            else:
-                cx_off = 0.0
-            mass = 0.5
-            cx = tx + 0.5 + cx_off / 2.0
+    if p_def.get('is_stair'):
+        m_rect = (w - 1) * h
+        m_tri = 0.5 * h
+        total_mass = m_rect + m_tri
+        is_mirror = info.get('is_mirror', False)
+        if is_mirror:
+            cx_tri = x_start + (2.0 / 3.0)
+            cx_rect = x_start + 1 + (w - 1) / 2.0
         else:
-            mass = 1.0
-            cx = tx + 0.5
+            cx_rect = x_start + (w - 1) / 2.0
+            cx_tri = (x_start + w) - (2.0 / 3.0)
+        cx = (m_rect * cx_rect + m_tri * cx_tri) / total_mass
+        return total_mass, cx
 
-        total_mass += mass
-        total_moment += mass * cx
-
-    if total_mass <= 0:
-        return 0, 0
-    return total_mass, total_moment / total_mass
+    mass = w * h
+    cx = x_start + (w / 2.0)
+    return mass, cx
 
 
-def get_discrete_supports(block_id, placed_info, grid, grid_w):
-    """Return list of (x_left, x_right, support_id) tuples beneath this block."""
-    x0, _, x1, _ = block_bbox(block_id, placed_info)
-    tiles = placed_info[block_id]['tile_map']
+def get_discrete_supports(pid, placed_info, grid, grid_w, grid_h):
+    """List of (x_left, x_right, support_id) entities directly under a block."""
+    info = placed_info[pid]
     supports = []
     seen = set()
 
-    for tx in range(x0, x1):
-        cols = [y for (x, y) in tiles if x == tx]
-        if not cols:
-            continue
-        ty = min(cols) - 1
+    for dx in range(info['w']):
+        tx, ty = info['x'] + dx, info['y'] - 1
 
         if ty < 0:
             if 'ground' not in seen:
-                supports.append((x0, x1, 'ground'))
+                supports.append((info['x'], info['x'] + info['w'], 'ground'))
                 seen.add('ground')
             continue
-        if not (0 <= tx < grid_w):
-            continue
 
-        val = grid[ty][tx]
-        if val == 0:
-            continue
-        if val == 1:
-            key = f"tower_{tx}_{ty}"
-            if key not in seen:
-                supports.append((tx, tx + 1, 'tower'))
-                seen.add(key)
-        elif val >= 10 and val != block_id and val not in seen:
-            bx0, _, bx1, _ = block_bbox(val, placed_info)
-            supports.append((bx0, bx1, val))
-            seen.add(val)
+        if 0 <= ty < grid_h and 0 <= tx < grid_w:
+            val = grid[ty][tx]
+            if val == 0:
+                continue
+            if val == 1:
+                key = f"tower_{tx}_{ty}"
+                if key not in seen:
+                    supports.append((tx, tx + 1, 'tower'))
+                    seen.add(key)
+            elif val >= 10 and val != pid:
+                if val not in seen:
+                    s_info = placed_info[val]
+                    supports.append((s_info['x'], s_info['x'] + s_info['w'], val))
+                    seen.add(val)
     return supports
 
 
-def is_stack_stable(placed_info, grid, grid_w):
-    """Top-down force distribution: each block must keep its resultant
-    centre of mass inside the convex hull of its discrete supports."""
-    pieces = sorted(
-        placed_info.keys(),
-        key=lambda p: min(y for _, y in placed_info[p]['tile_map']),
-        reverse=True,
-    )
+def is_entire_stack_stable(placed_info, grid, grid_w, grid_h, inventory):
+    """Force-distribution check across the whole tower of placed pieces."""
+    pieces = sorted(placed_info.keys(),
+                    key=lambda p: placed_info[p]['y'], reverse=True)
     if not pieces:
         return True
 
     external_loads = {pid: [] for pid in pieces}
 
     for pid in pieces:
-        m_self, cx_self = get_block_stats(pid, placed_info)
+        m_self, cx_self = get_block_stats(pid, placed_info, inventory)
 
         total_weight = m_self
         total_moment = m_self * cx_self
@@ -108,7 +90,7 @@ def is_stack_stable(placed_info, grid, grid_w):
 
         res_com_x = total_moment / total_weight if total_weight > 0 else cx_self
 
-        supports = get_discrete_supports(pid, placed_info, grid, grid_w)
+        supports = get_discrete_supports(pid, placed_info, grid, grid_w, grid_h)
         if not supports:
             return False
 

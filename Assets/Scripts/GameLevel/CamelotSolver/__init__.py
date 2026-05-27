@@ -1,17 +1,15 @@
-"""Segment-based Camelot solver, organised after the Unity project's architecture."""
+"""Segment-and-block Camelot solver — exports the public API."""
 
-from .geometry import (
-    APOTHEM, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT,
-    LocalTransition,
+from .segments import (
+    Segment, BASIC, SLOPE_DOWN_R, SLOPE_UP_L, SLOPE_UP_T, SLOPE_DOWN_T,
+    VERT_INTERIOR,
 )
-from .segments import SegmentDef, BASIC_SEG, SLOPE_SEG
-from .blocks import BlockDef, make_flat_block, make_stair_block
+from .blocks import build_block_segments
 from .solver import CamelotSolverComplete
 
 __all__ = [
-    "APOTHEM", "TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT",
-    "LocalTransition",
-    "SegmentDef", "BASIC_SEG", "SLOPE_SEG",
-    "BlockDef", "make_flat_block", "make_stair_block",
+    "Segment", "BASIC", "SLOPE_DOWN_R", "SLOPE_UP_L", "SLOPE_UP_T",
+    "SLOPE_DOWN_T", "VERT_INTERIOR",
+    "build_block_segments",
     "CamelotSolverComplete",
 ]

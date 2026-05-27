@@ -15,7 +15,14 @@ from .solver import CamelotSolverComplete
 
 def main():
     print("\n" + "="*90)
-    print("CAMELOT SOLVER - SEGMENT-BASED ARCHITECTURE")
+    print("CAMELOT SOLVER - COMPLETE SOLUTION (Terminal + GUI)")
+    print("="*90)
+    print("\nFEATURES:")
+    print("  ✓ Cell-based stair detection (sloped vs flat)")
+    print("  ✓ Diagonal moves only onto sloped stair cells")
+    print("  ✓ Terminal grid visualization for each solution")
+    print("  ✓ Interactive Tkinter GUI with path visualization")
+    print("  ✓ Detailed piece and path information")
     print("="*90 + "\n")
 
     solver = CamelotSolverComplete(

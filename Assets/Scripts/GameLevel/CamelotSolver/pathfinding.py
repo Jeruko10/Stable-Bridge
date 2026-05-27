@@ -1,53 +1,74 @@
-"""Graph construction + path search.
+"""Cell-based BFS over the segment graph.
 
-Direct port of `PathSolver.GridToGraph` / `PathSolver.GetPath`.
+The graph is implicit: each cell is either empty, a tower (grid value 1) or
+contains a Segment from a placed block. Movement rules are delegated to:
+  - the Segment at the knight's current cell (if any), OR
+  - the Segment in the cell directly below (when the knight stands on an
+    empty cell on top of a piece), OR
+  - hardcoded ground / tower-top movement otherwise.
+
+This replaces the old monolithic if/elif tree with per-segment behaviour.
 """
 
-from .geometry import BOTTOM_RIGHT
+from collections import deque
 
 
-def build_graph(tile_segment_map, grid, grid_h):
-    """Walk every tile with a segment, skip those covered above, and emit
-    waypoint-to-waypoint edges based on each segment's transitions."""
-    adjacency = {}
-    for (x, y), (_block_id, seg, rotation, flipped) in tile_segment_map.items():
-        if y + 1 < grid_h and grid[y + 1][x] != 0:
-            continue
-        for t in seg.get_transitions(rotation, flipped):
-            wp_from = (x + t.from_pt[0], y + t.from_pt[1])
-            wp_to   = (x + t.to_pt[0],   y + t.to_pt[1])
-            adjacency.setdefault(wp_from, set()).add(wp_to)
-            adjacency.setdefault(wp_to,   set()).add(wp_from)
-    return adjacency
+def find_path(grid, segment_map, knight_pos, princess_pos, grid_w, grid_h):
+    """BFS from knight to princess across the segment graph.
 
-
-def find_path(graph, miner_pos, goal_pos):
-    """Greedy best-first search by Manhattan distance to the goal.
-
-    Mirrors PathSolver.GetPath: start at miner + BottomRight, terminate at
-    goal + BottomRight, return the full path on success or None otherwise.
+    Returns the list of (x, y) cells visited, or None if no path exists.
     """
-    mx, my = miner_pos
-    gx, gy = goal_pos
-    start = (mx + BOTTOM_RIGHT[0], my + BOTTOM_RIGHT[1])
-    end   = (gx + BOTTOM_RIGHT[0], gy + BOTTOM_RIGHT[1])
+    queue = deque([(knight_pos, [knight_pos])])
+    visited = {knight_pos}
 
-    if start not in graph:
-        return None
+    while queue:
+        (cx, cy), path = queue.popleft()
+        if (cx, cy) == princess_pos:
+            return path
 
-    visited = {start}
-    current = start
-    path = [current]
+        for (nx, ny) in _moves_from(cx, cy, grid, segment_map, grid_w, grid_h):
+            if not (0 <= nx < grid_w and 0 <= ny < grid_h):
+                continue
+            if (nx, ny) in visited:
+                continue
+            visited.add((nx, ny))
+            queue.append(((nx, ny), path + [(nx, ny)]))
 
-    while True:
-        options = [n for n in graph.get(current, ()) if n not in visited]
-        if not options:
-            break
-        best = min(options, key=lambda v: abs(v[0] - gx) + abs(v[1] - gy))
-        current = best
-        visited.add(current)
-        path.append(current)
-        if current == end:
-            break
+    return None
 
-    return path if path and path[-1] == end else None
+
+def _moves_from(cx, cy, grid, segment_map, grid_w, grid_h):
+    """Outgoing edges from (cx, cy) according to the segment graph."""
+    here = segment_map.get((cx, cy))
+    if here is not None:
+        # The knight is *inside* a segment — only slope cells produce moves.
+        return here.moves_when_inside(cx, cy)
+
+    # Any non-empty cell without a Segment (a tower) is a dead end — the
+    # knight may be queued there by an earlier move but cannot proceed.
+    if grid[cy][cx] != 0:
+        return []
+
+    # Empty cell: behaviour depends on what's directly below.
+    if cy == 0:
+        return [(cx + 1, cy)]  # walking along the ground
+
+    below = segment_map.get((cx, cy - 1))
+    if below is not None:
+        return below.moves_when_above(cx, cy)
+
+    if grid[cy - 1][cx] == 1:  # towers are walkable on top
+        return [(cx + 1, cy)]
+
+    return []  # nothing under our feet, no move
+
+
+def is_cell_walkable(grid, x, y, grid_w, grid_h):
+    """Knight may stand at (x, y) only if supported (ground, tower, block)."""
+    if y == 0:
+        return True
+    if y < 0 or y >= grid_h or x < 0 or x >= grid_w:
+        return False
+    if grid[y][x] == 1:  # tower itself isn't walkable
+        return False
+    return grid[y - 1][x] != 0

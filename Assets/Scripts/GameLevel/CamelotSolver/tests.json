@@ -1,62 +1,37 @@
 [
-  {
-    "name": "warmup_walk",
-    "_comment": "Straight horizontal walk. Single flat piece fills the floor between miner and goal.",
-    "miner": [0, 1],
-    "goal":  [4, 1],
-    "towers": [],
-    "inventory": [
-      { "id": 10, "w": 4, "h": 1, "is_stair": false }
-    ]
-  },
-  {
-    "name": "short_climb",
-    "_comment": "One step up. Solver must orient a stair piece so the miner can ascend.",
-    "miner": [0, 1],
-    "goal":  [3, 2],
-    "towers": [],
-    "inventory": [
-      { "id": 10, "w": 2, "h": 1, "is_stair": false },
-      { "id": 11, "w": 2, "h": 1, "is_stair": true  },
-      { "id": 12, "w": 1, "h": 1, "is_stair": false }
-    ]
-  },
-  {
-    "name": "bridged_gap",
-    "_comment": "Central tower obstructs the ground path. Bridge across at y=1 with the tower acting as the middle support.",
-    "miner": [0, 2],
-    "goal":  [4, 2],
-    "towers": [[2, 0]],
-    "inventory": [
-      { "id": 10, "w": 5, "h": 1, "is_stair": false },
-      { "id": 11, "w": 2, "h": 1, "is_stair": false },
-      { "id": 12, "w": 1, "h": 1, "is_stair": false }
-    ]
-  },
-  {
-    "name": "double_stair_ascent",
-    "_comment": "Climb two levels using two stair pieces chained vertically. Requires a flat platform between the stairs.",
-    "miner": [0, 1],
-    "goal":  [2, 3],
-    "towers": [],
-    "inventory": [
-      { "id": 10, "w": 1, "h": 1, "is_stair": false },
-      { "id": 11, "w": 2, "h": 1, "is_stair": true  },
-      { "id": 12, "w": 1, "h": 1, "is_stair": false },
-      { "id": 13, "w": 2, "h": 1, "is_stair": true  }
-    ]
-  },
-  {
-    "name": "tall_summit",
-    "_comment": "Tall climb with a mid-level pillar tower acting as a free support. Inventory kept small to keep search tractable.",
-    "miner": [0, 1],
-    "goal":  [3, 3],
-    "towers": [[2, 0]],
-    "inventory": [
-      { "id": 10, "w": 1, "h": 1, "is_stair": false },
-      { "id": 11, "w": 2, "h": 1, "is_stair": true  },
-      { "id": 12, "w": 2, "h": 1, "is_stair": true  },
-      { "id": 13, "w": 2, "h": 1, "is_stair": false }
-    ]
-  }
+  { "name": "Challenge 1", "type": "closed", "knight": [0, 0], "princess": [5, 1], "towers": [[5, 0]], "inventory": [{"id": 10, "w": 3, "h": 1, "is_stair": true}, {"id": 12, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 2", "type": "closed", "knight": [0, 0], "princess": [5, 1], "towers": [[5, 0], [3, 0]], "inventory": [{"id": 10, "w": 2, "h": 1, "is_stair": true}, {"id": 12, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 3", "type": "closed", "knight": [0, 0], "princess": [5, 0], "towers": [], "inventory": [{"id": 10, "w": 2, "h": 1, "is_stair": true}, {"id": 12, "w": 2, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 4", "type": "closed", "knight": [0, 0], "princess": [5, 2], "towers": [[5, 0], [5, 1], [3, 0]], "inventory": [{"id": 10, "w": 2, "h": 1, "is_stair": true}, {"id": 12, "w": 2, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 5", "type": "closed", "knight": [0, 1], "princess": [5, 1], "towers": [[0, 0], [2, 1], [2, 0], [3, 1], [3, 0], [5, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 6", "type": "closed", "knight": [0, 0], "princess": [5, 2], "towers": [[5, 0], [5, 1], [3, 0], [4, 0]], "inventory": [{"id": 10, "w": 2, "h": 1, "is_stair": true}, {"id": 12, "w": 2, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 7", "type": "closed", "knight": [0, 1], "princess": [5, 2], "towers": [[5, 0], [5, 1], [2, 0], [4, 1], [4, 0], [0, 0]], "inventory": [{"id": 10, "w": 2, "h": 1, "is_stair": true}, {"id": 12, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 8", "type": "closed", "knight": [0, 1], "princess": [4, 2], "towers": [[2, 0], [2, 1], [3, 0], [4, 1], [4, 0], [0, 0]], "inventory": [{"id": 10, "w": 2, "h": 1, "is_stair": true}, {"id": 12, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 9", "type": "closed", "knight": [0, 1], "princess": [4, 3], "towers": [[4, 2], [2, 1], [2, 0], [4, 1], [4, 0], [0, 0]], "inventory": [{"id": 10, "w": 2, "h": 1, "is_stair": true}, {"id": 12, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 10", "type": "closed", "knight": [0, 0], "princess": [5, 2], "towers": [[5, 1], [5, 0], [4, 1], [4, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 11", "type": "closed", "knight": [0, 2], "princess": [4, 2], "towers": [[4, 1], [4, 0], [0, 1], [0, 0], [2, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 12", "type": "closed", "knight": [0, 0], "princess": [5, 2], "towers": [[4, 1], [4, 0], [5, 1], [5, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 13", "type": "closed", "knight": [0, 1], "princess": [4, 3], "towers": [[4, 1], [4, 0], [4, 2], [2, 1], [2, 0], [0, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 14", "type": "open", "knight": [0, 0], "princess": [5, 2], "towers": [[3, 0], [5, 1], [5, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 15", "type": "closed", "knight": [0, 0], "princess": [5, 2], "towers": [[3, 0], [5, 1], [5, 0], [4, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 16", "type": "open", "knight": [0, 1], "princess": [5, 2], "towers": [[0, 0], [5, 1], [5, 0], [3, 0]], "inventory": [{"id": 12, "w": 3, "h": 1, "is_stair": true}, {"id": 14, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 17", "type": "open", "knight": [0, 2], "princess": [5, 2], "towers": [[0, 0], [5, 1], [5, 0], [2, 0], [4, 0], [0, 1]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 18", "type": "open", "knight": [0, 1], "princess": [4, 2], "towers": [[0, 0], [4, 1], [4, 0]], "inventory": [{"id": 12, "w": 3, "h": 1, "is_stair": true}, {"id": 14, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 19", "type": "closed", "knight": [0, 1], "princess": [4, 2], "towers": [[0, 0], [4, 1], [4, 0], [2, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 20", "type": "open", "knight": [0, 2], "princess": [5, 2], "towers": [[0, 0], [5, 1], [5, 0], [2, 0], [0, 1]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 21", "type": "open", "knight": [0, 1], "princess": [5, 2], "towers": [[0, 0], [5, 1], [5, 0], [2, 0], [2, 1], [3, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 22", "type": "closed", "knight": [0, 1], "princess": [5, 2], "towers": [[0, 0], [5, 1], [5, 0], [2, 0], [2, 1], [4, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 23", "type": "open", "knight": [0, 1], "princess": [4, 2], "towers": [[0, 0], [4, 1], [4, 0], [3, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 24", "type": "open", "knight": [0, 2], "princess": [4, 3], "towers": [[0, 0], [4, 1], [4, 0], [1, 0], [0, 1], [4, 2]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 25", "type": "open", "knight": [1, 2], "princess": [4, 3], "towers": [[1, 0], [4, 1], [4, 0], [4, 2], [3, 0], [1, 1]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 26", "type": "closed", "knight": [0, 1], "princess": [5, 2], "towers": [[5, 0], [5, 1], [0, 0], [2, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 27", "type": "open", "knight": [0, 1], "princess": [5, 2], "towers": [[5, 0], [5, 1], [0, 0], [2, 0], [2, 1]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 28", "type": "closed", "knight": [0, 0], "princess": [5, 2], "towers": [[5, 0], [5, 1]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 29", "type": "open", "knight": [0, 1], "princess": [5, 2], "towers": [[5, 0], [5, 1], [0, 0], [4, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 30", "type": "closed", "knight": [0, 0], "princess": [5, 1], "towers": [[5, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 31", "type": "closed", "knight": [0, 1], "princess": [5, 2], "towers": [[5, 0], [5, 1], [0, 0], [2, 0], [2, 1], [3, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 3, "h": 1, "is_stair": true}, {"id": 15, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 32", "type": "open", "knight": [0, 2], "princess": [4, 3], "towers": [[4, 0], [4, 1], [4, 2], [0, 0], [2, 0], [0, 1]], "inventory": [{"id": 14, "w": 3, "h": 1, "is_stair": true}, {"id": 15, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 33", "type": "closed", "knight": [0, 1], "princess": [5, 2], "towers": [[0, 0], [5, 1], [5, 0], [3, 0], [3, 1], [1, 0]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 3, "h": 1, "is_stair": true}, {"id": 15, "w": 1, "h": 1, "is_stair": false}] },
+  { "name": "Challenge 34", "type": "open", "knight": [0, 1], "princess": [5, 3], "towers": [[0, 0], [5, 1], [5, 0], [3, 0], [3, 1], [5, 2]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 3, "h": 1, "is_stair": true}] },
+  { "name": "Challenge 35", "type": "closed", "knight": [0, 2], "princess": [5, 2], "towers": [[0, 0], [5, 1], [5, 0], [3, 0], [0, 1]], "inventory": [{"id": 12, "w": 2, "h": 1, "is_stair": true}, {"id": 13, "w": 2, "h": 1, "is_stair": true}, {"id": 14, "w": 3, "h": 1, "is_stair": true}] }
 ]

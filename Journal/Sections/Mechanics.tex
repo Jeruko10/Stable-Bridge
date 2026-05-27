@@ -1,0 +1,92 @@
+\section{Core Mechanics}
+
+% Each subsection below is a slot for one major system. Duplicate
+% the pattern --- "what / why / how" --- for every system that
+% matters. Keep each system to roughly half a page; if it grows
+% larger, split it into its own subsection tree.
+
+\subsection{Player Character}
+
+\paragraph{What it is.}
+% One sentence describing the player avatar and its in-engine type.
+\textit{[The player is a \ldots implemented as \ldots]}
+
+\paragraph{Why it exists this way.}
+% The design intent. What feeling is this character meant to
+% produce? What constraints shaped it?
+\textit{[\ldots]}
+
+\paragraph{How it is built.}
+% The implementation sketch: components, modules, state machine,
+% notable interactions with the world.
+\textit{[\ldots]}
+
+\subsection{Verbs and Abilities}
+
+% The list of things the player can \emph{do}. For each verb,
+% give the input, the in-world effect, and the cost or constraint
+% (cooldown, resource, prerequisite). Verbs without a cost tend
+% to flatten design space --- be explicit about why if one is free.
+
+\begin{itemize}
+    \item \textbf{\textit{[Verb]}} --- \textit{[input / effect / cost].}
+    \item \textbf{\textit{[Verb]}} --- \textit{[\ldots].}
+\end{itemize}
+
+\subsection{World and Interactables}
+
+% What populates the world the player moves through? Hazards,
+% pickups, NPCs, environmental triggers. For each category,
+% describe the contract: how it is detected, what it does, what
+% it expects from the player.
+
+\textit{[Describe the major categories of interactable here.]}
+
+\subsection{Antagonist / Pressure}
+
+% Whatever pushes the player forward: an enemy, a timer, a
+% deteriorating resource, an AI director. Even a puzzle game
+% has \emph{some} source of pressure --- name it.
+
+\paragraph{Source of pressure.}
+\textit{[\ldots]}
+
+\paragraph{Escalation.}
+% How does pressure ramp? Stages, thresholds, triggers?
+\textit{[\ldots]}
+
+\paragraph{Resolution.}
+% What ends the pressure --- victory, defeat, or a transition?
+\textit{[\ldots]}
+
+\subsection{Game States and Flow}
+
+% The high-level state graph: splash, menu, world, pause,
+% game-over, credits. Note what owns each state and how
+% transitions happen.
+
+\textit{[Describe the top-level state machine.]}
+
+\subsection{Cross-cutting Systems}
+
+% Services that everything depends on: save, audio, input,
+% cinematics, post-processing, particles, localization.
+% One line each is enough at this stage --- expand later.
+
+\begin{itemize}
+    \item \textbf{\textit{[System]}} --- \textit{[one-line role].}
+    \item \textbf{\textit{[System]}} --- \textit{[\ldots].}
+\end{itemize}
+
+\subsection{Open Design Questions}
+
+% Things that are deliberately unresolved. Naming them here
+% prevents them from being forgotten and helps future-you
+% recognize when a decision has implicitly been made.
+
+\begin{itemize}
+    \item \textit{[Question 1.]}
+    \item \textit{[Question 2.]}
+\end{itemize}
+
+\newpage

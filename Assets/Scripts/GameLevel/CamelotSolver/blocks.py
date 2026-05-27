@@ -1,71 +1,50 @@
-"""BlockDef + factories.
+"""Block composition: build the list of segments for a placed piece.
 
-A block is a collection of (local_tile_offset, SegmentDef) pairs — mirroring
-how Unity's Block prefabs hold BlockSegment children at relative positions.
+The mapping from `(w, h, is_stair, is_mirror, is_inverted)` to segments
+follows the six stair types defined for the game:
+
+    | Type                    | w vs h | mirror | Slope          | Movement |
+    |-------------------------|--------|--------|----------------|----------|
+    | HORIZ NORMAL            | w > h  | NO     | right edge     | DOWN     |
+    | HORIZ MIRROR            | w > h  | YES    | left edge      | UP       |
+    | VERT  NORMAL            | h > w  | NO     | top cell       | UP       |
+    | VERT  MIRROR            | h > w  | YES    | top cell       | DOWN     |
+    | HORIZ NORMAL INVERTED   | w > h  | NO     | none (flat)    | -        |
+    | HORIZ MIRROR INVERTED   | w > h  | YES    | none (flat)    | -        |
+
+For `w == h` the piece is treated as horizontal (mirrors the reference).
 """
 
-from .segments import BASIC_SEG, SLOPE_SEG
+from .segments import (
+    BASIC, SLOPE_DOWN_R, SLOPE_UP_L, SLOPE_UP_T, SLOPE_DOWN_T, VERT_INTERIOR,
+)
 
 
-def _rotate_offset(dx, dy, rotation):
-    if rotation == 0:   return (dx, dy)
-    if rotation == 90:  return (-dy, dx)
-    if rotation == 180: return (-dx, -dy)
-    if rotation == 270: return (dy, -dx)
-    raise ValueError(rotation)
+def build_block_segments(x, y, w, h, is_stair, is_mirror, is_inverted):
+    """Return [((abs_x, abs_y), Segment), ...] for this placement."""
+    segments = []
 
+    # Flat block or inverted stair: every cell is BASIC.
+    if not is_stair or is_inverted:
+        for i in range(h):
+            for j in range(w):
+                segments.append(((x + j, y + i), BASIC))
+        return segments
 
-class BlockDef:
-    """A block as a collection of (local_offset, SegmentDef) pairs."""
+    if h > w:
+        # Vertical stair: top cell is the slope, everything below is interior.
+        slope_seg = SLOPE_DOWN_T if is_mirror else SLOPE_UP_T
+        for i in range(h):
+            for j in range(w):
+                seg = slope_seg if i == h - 1 else VERT_INTERIOR
+                segments.append(((x + j, y + i), seg))
+        return segments
 
-    def __init__(self, segments):
-        self.segments = tuple((tuple(off), seg) for off, seg in segments)
-        self._signature = tuple(sorted(
-            ((off, id(seg)) for off, seg in self.segments)
-        ))
-
-    def resolve(self, rotation=0, flipped=False):
-        """
-        Return [(tile_offset, SegmentDef, rotation, flipped), ...] with offsets
-        normalised so min(x)==0 and min(y)==0.
-        """
-        entries = []
-        for (dx, dy), seg in self.segments:
-            rx, ry = _rotate_offset(dx, dy, rotation)
-            if flipped:
-                rx = -rx
-            entries.append([rx, ry, seg])
-
-        if not entries:
-            return []
-
-        min_x = min(e[0] for e in entries)
-        min_y = min(e[1] for e in entries)
-        return [
-            ((e[0] - min_x, e[1] - min_y), e[2], rotation, flipped)
-            for e in entries
-        ]
-
-    def bounding_box(self, rotation=0, flipped=False):
-        resolved = self.resolve(rotation, flipped)
-        if not resolved:
-            return (0, 0)
-        max_x = max(off[0] for off, *_ in resolved)
-        max_y = max(off[1] for off, *_ in resolved)
-        return (max_x + 1, max_y + 1)
-
-    def signature(self):
-        return self._signature
-
-
-def make_flat_block(w, h):
-    return BlockDef([((x, y), BASIC_SEG) for x in range(w) for y in range(h)])
-
-
-def make_stair_block(w, h):
-    """Rectangular block whose top-right corner is SLOPE; rest are BASIC."""
-    segs = []
-    for x in range(w):
-        for y in range(h):
-            segs.append(((x, y), SLOPE_SEG if (x == w - 1 and y == h - 1) else BASIC_SEG))
-    return BlockDef(segs)
+    # Horizontal stair (w > h, or w == h treated as horizontal).
+    slope_seg = SLOPE_UP_L if is_mirror else SLOPE_DOWN_R
+    slope_col = 0 if is_mirror else w - 1
+    for i in range(h):
+        for j in range(w):
+            seg = slope_seg if j == slope_col else BASIC
+            segments.append(((x + j, y + i), seg))
+    return segments
