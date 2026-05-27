@@ -1,9 +1,9 @@
 # Fdb version 4
-["pdflatex"] 1779890816.77171 "c:/Users/jerui/Documents/_JERUDEV/Unity/SpatialReasoningInvestigation/Journal/main.tex" "main.pdf" "main" 1779890817.86381 0
+["pdflatex"] 1779891135.21327 "c:/Users/jerui/Documents/_JERUDEV/Unity/SpatialReasoningInvestigation/Journal/main.tex" "main.pdf" "main" 1779891136.36864 0
   "Sections/Devlog.tex" 1779890349 1231 ba7b03a2a029f96ceb5397d6df71c952 ""
   "Sections/Intro.tex" 1779890325 2636 322c98e7cb24819c0766ce5bf712e3a5 ""
-  "Sections/Mechanics.tex" 1779890342 2900 606f077e54d8a04eec4a4182f6352460 ""
-  "c:/Users/jerui/Documents/_JERUDEV/Unity/SpatialReasoningInvestigation/Journal/main.tex" 1779890816 2371 d40e4e0cec39ad26cead8deae52081c0 ""
+  "Sections/Mechanics.tex" 1779891134 2937 d87058dc1f7d101a296b7a28ae84606c ""
+  "c:/Users/jerui/Documents/_JERUDEV/Unity/SpatialReasoningInvestigation/Journal/main.tex" 1779890965 2388 d24dd05755b72b14a224c0c36ac8b406 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1779804752 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1779804752 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "c:/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1779819883 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -115,10 +115,10 @@
   "c:/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1779824794 5619402 ad1310ccf7f36101ef3e8f014a173c46 ""
   "c:/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1779824887 3650911 3f4735afb644e91841f3e25f23dd5519 ""
   "c:/texlive/2026/texmf.cnf" 1779824763 713 e69b156964470283e0530f5060668171 ""
-  "main.aux" 1779890817 3395 c1b5a205b1400773dc262e85a8c22de4 "pdflatex"
-  "main.out" 1779890817 2614 029b7af751f35db4858dcf98bb2d5b64 "pdflatex"
-  "main.tex" 1779890816 2371 d40e4e0cec39ad26cead8deae52081c0 ""
-  "main.toc" 1779890817 2038 5138bb3c3ad5b2c3d271ae8b6975432f "pdflatex"
+  "main.aux" 1779891136 3395 c1b5a205b1400773dc262e85a8c22de4 "pdflatex"
+  "main.out" 1779891136 2614 029b7af751f35db4858dcf98bb2d5b64 "pdflatex"
+  "main.tex" 1779890965 2388 d24dd05755b72b14a224c0c36ac8b406 ""
+  "main.toc" 1779891136 2038 5138bb3c3ad5b2c3d271ae8b6975432f "pdflatex"
   (generated)
   "main.aux"
   "main.log"
