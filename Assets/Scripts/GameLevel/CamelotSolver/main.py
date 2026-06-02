@@ -2,19 +2,18 @@
 
 HOW TO COMPARE PRUNING TECHNIQUES
 ===================================
-Run the solver multiple times with different prune_* combinations and read the
-"Recursion calls" line in each test report.  Lower = less work = better pruning.
+P1 symmetry breaking is always active.  Toggle P2-P5 to compare performance.
+Run the solver with different prune_* combinations and read the "Recursion calls"
+line in each test report.  Lower = less work = better pruning.
 
 Quick comparison matrix (set the flags below):
 
-  All off  : prune_symmetry=False, prune_spatial=False, prune_reach=False,
-             prune_forward=False,  prune_stability=False
-  P1 only  : prune_symmetry=True,  rest False
-  P1+P2    : prune_symmetry=True,  prune_spatial=True,   rest False
-  P1+P3    : prune_symmetry=True,  prune_reach=True,     rest False
-  P1+P4    : prune_symmetry=True,  prune_forward=True,   rest False
-  P1+P5    : prune_symmetry=True,  prune_stability=True, rest False
-  All on   : all True  (default)
+  P1 only  : all False  (default behaviour without optional pruning)
+  P1+P2    : prune_spatial=True,   rest False
+  P1+P3    : prune_reach=True,     rest False
+  P1+P4    : prune_forward=True,   rest False
+  P1+P5    : prune_stability=True, rest False
+  All on   : all True   (default)
 """
 
 import sys
@@ -33,9 +32,9 @@ def main():
     print("=" * 90)
     print("""
 PRUNING LEGEND
-  P1  Symmetry breaking      – skip duplicate piece orderings
+  P1  Symmetry breaking      – always active; skip duplicate piece orderings
   P2  Spatial x-range        – skip positions outside [knight_x, princess_x]
-  P3  Optimistic reachability– cut subtree when BFS (with empty cells walkable) fails
+  P3  Optimistic reachability – cut subtree when BFS (empty cells walkable) fails
   P4  Forward checking       – cut subtree when any remaining piece has no valid cell
   P5  Incremental stability  – cut subtree when partial COM check already fails
 """)
@@ -46,14 +45,14 @@ PRUNING LEGEND
         grid_w=9,
         grid_h=9,
         enable_gui=False,
-        # ---- toggle individual techniques here ----
-        prune_symmetry=True,
+        # ---- toggle individual techniques here (symmetry is always on) ----
         prune_spatial=True,
         prune_reach=True,
         prune_forward=True,
-        prune_stability=True,
+        prune_stability=False,  # unsound heuristic — disabled by default
     )
 
+    solver.validate_pruning_soundness()
     solver.run_tests()
 
     print("\n" + "=" * 90)

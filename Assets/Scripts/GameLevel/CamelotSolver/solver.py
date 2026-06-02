@@ -52,19 +52,19 @@ class CamelotSolverComplete:
 
     def __init__(self, test_file=_DEFAULT_TESTS, use_shapestacks=True,
                  grid_w=9, grid_h=9, enable_gui=False,
-                 prune_symmetry=True,
                  prune_spatial=True,
                  prune_reach=True,
                  prune_forward=True,
-                 prune_stability=True):
+                 prune_stability=False,
+                 silent=False):
 
         self.use_shapestacks = use_shapestacks
         self.GRID_W = grid_w
         self.GRID_H = grid_h
         self.enable_gui = enable_gui
+        self.silent = silent
 
-        # Pruning flags
-        self.prune_symmetry  = prune_symmetry
+        # Pruning flags (symmetry breaking is always active — not a toggle)
         self.prune_spatial   = prune_spatial
         self.prune_reach     = prune_reach
         self.prune_forward   = prune_forward
@@ -169,13 +169,20 @@ class CamelotSolverComplete:
                           self.GRID_W, self.GRID_H)
 
     def get_solution_hash(self):
+        # Group placements by canonical piece key so that swapping two
+        # physically identical pieces (same key) hashes identically.
+        groups = {}
+        id_to_piece = {q['id']: q for q in self.inventory}
+        for pid, info in self.placed_info.items():
+            p = id_to_piece.get(pid)
+            key = self._piece_key(p) if p is not None else pid
+            tup = (info['x'], info['y'], info['w'], info['h'],
+                   info['is_mirror'], info['is_inverted'])
+            groups.setdefault(key, []).append(tup)
         parts = []
-        for pid in sorted(self.placed_info):
-            info = self.placed_info[pid]
-            parts.append(
-                f"{pid}:{info['x']},{info['y']},{info['w']},{info['h']},"
-                f"{info['is_mirror']},{info['is_inverted']}"
-            )
+        for key in sorted(groups):
+            for tup in sorted(groups[key]):
+                parts.append(f"{key}:{tup}")
         return "|".join(parts)
 
     # P4 helper ----------------------------------------------------------
@@ -211,17 +218,17 @@ class CamelotSolverComplete:
 
         active = [
             name for name, flag in [
-                ('P1-sym',  self.prune_symmetry),
                 ('P2-spa',  self.prune_spatial),
                 ('P3-reach',self.prune_reach),
                 ('P4-fwd',  self.prune_forward),
                 ('P5-stab', self.prune_stability),
             ] if flag
         ]
-        print(f"\n{'='*90}")
-        print(f">>> TEST {index+1}: {test['name']}  |  Grid {self.GRID_W}x{self.GRID_H}  "
-              f"|  Prunings: {', '.join(active) if active else 'none'}")
-        print(f"{'='*90}\n")
+        if not self.silent:
+            print(f"\n{'='*90}")
+            print(f">>> TEST {index+1}: {test['name']}  |  Grid {self.GRID_W}x{self.GRID_H}  "
+                  f"|  Active prunes: P1-sym(always), {', '.join(active) if active else 'none'}")
+            print(f"{'='*90}\n")
 
         self.grid        = [[0] * self.GRID_W for _ in range(self.GRID_H)]
         self.segment_map = {}
@@ -245,10 +252,12 @@ class CamelotSolverComplete:
 
         kx, ky = self.knight_pos
         if self.grid[ky][kx] != 0:
-            print(f"WARNING: Knight at ({kx},{ky}) is not empty. Skipping.")
+            if not self.silent:
+                print(f"WARNING: Knight at ({kx},{ky}) is not empty. Skipping.")
             return False
         if not is_cell_walkable(self.grid, kx, ky, self.GRID_W, self.GRID_H):
-            print(f"WARNING: Knight at ({kx},{ky}) is not walkable. Skipping.")
+            if not self.silent:
+                print(f"WARNING: Knight at ({kx},{ky}) is not walkable. Skipping.")
             return False
 
         self.inventory = test['inventory']
@@ -261,11 +270,12 @@ class CamelotSolverComplete:
     # ------------------------------------------------------------------
 
     def _print_pruning_report(self):
+        if self.silent:
+            return
         s = self.pruning_stats
         w = 12  # field width
         print(f"\n  {'Recursion calls':<28} {self.recursion_calls:>{w},}")
-        if self.prune_symmetry:
-            print(f"  {'P1 symmetry  – pieces skipped':<28} {s['p1_symmetry']:>{w},}")
+        print(f"  {'P1 symmetry  – skipped':<28} {s['p1_symmetry']:>{w},}")
         if self.prune_spatial:
             print(f"  {'P2 spatial   – positions skipped':<28} {s['p2_spatial']:>{w},}")
         if self.prune_reach:
@@ -319,7 +329,8 @@ class CamelotSolverComplete:
                 self.final_path = res
                 self.found_solutions.add(sol_hash)
                 self.solution_count += 1
-                print_solution_terminal(self)
+                if not self.silent:
+                    print_solution_terminal(self)
                 if self.enable_gui:
                     show_solution_gui(self)
             return
@@ -332,21 +343,19 @@ class CamelotSolverComplete:
         # Enumerate remaining pieces  ----------------------------------
         unused = [p for p in self.inventory if p['id'] not in self.used_ids]
 
-        if self.prune_symmetry:
-            unused.sort(key=lambda p: (self._piece_key(p), p['id']))
+        unused.sort(key=lambda p: (self._piece_key(p), p['id']))
 
         kx     = self.knight_pos[0]
         px_col = self.princess_pos[0]
 
         for i, p in enumerate(unused):
 
-            # P1: symmetry breaking  -----------------------------------
-            if self.prune_symmetry:
-                key = self._piece_key(p)
-                if any(self._piece_key(q) == key and q['id'] not in self.used_ids
-                       for q in unused[:i]):
-                    self.pruning_stats['p1_symmetry'] += 1
-                    continue
+            # P1: symmetry breaking (always active) --------------------
+            key = self._piece_key(p)
+            if any(self._piece_key(q) == key and q['id'] not in self.used_ids
+                   for q in unused[:i]):
+                self.pruning_stats['p1_symmetry'] += 1
+                continue
 
             self.used_ids.add(p['id'])
             is_stair = bool(p.get('is_stair'))
@@ -370,9 +379,11 @@ class CamelotSolverComplete:
                 for y in range(self.GRID_H):
                     for x in range(self.GRID_W):
 
-                        # P2: spatial x-range  -------------------------
+                        # P2: skip positions entirely left of the knight.
+                        # Note: x > px_col is intentionally NOT checked here —
+                        # pieces can validly land beyond the princess column.
                         if self.prune_spatial:
-                            if x + w <= kx or x > px_col:
+                            if x + w <= kx:
                                 self.pruning_stats['p2_spatial'] += 1
                                 continue
 
@@ -406,8 +417,9 @@ class CamelotSolverComplete:
                 dual_print(f"Solving Test {idx + 1}...\n")
                 self.solve()
 
-                frustration = self.stable_configs_count / max(1, self.solution_count)
+                frustration  = self.stable_configs_count / max(1, self.solution_count)
                 entanglement = self.get_static_entanglement()
+                metrics      = self.get_difficulty_metrics()
                 dual_print(
                     f"\n--- Test {idx+1} complete ---\n"
                     f"  Solutions found:    {self.solution_count}\n"
@@ -416,7 +428,158 @@ class CamelotSolverComplete:
                     f"  Static entanglement:{entanglement:.2f} bits"
                 )
                 self._print_pruning_report()
+                dual_print(
+                    f"\n  Difficulty Metrics\n"
+                    f"  {'Inventory Size':<22} {metrics['inventory_size']}\n"
+                    f"  {'Total Volume':<22} {metrics['total_volume']}\n"
+                    f"  {'Height Sum':<22} {metrics['height_sum']}\n"
+                    f"  {'Stable Configs':<22} {metrics['stable_configs']}\n"
+                    f"  {'Max Choice':<22} {metrics['max_choice']}\n"
+                    f"  {'Total Solutions':<22} {metrics['total_solutions']}\n"
+                    f"  {'Large Pieces':<22} {metrics['large_pieces']}\n"
+                    f"  {'Unique Shapes':<22} {metrics['unique_shapes']}"
+                )
                 dual_print("")
+
+    # ------------------------------------------------------------------
+    # Pruning soundness validation
+    # ------------------------------------------------------------------
+
+    def validate_pruning_soundness(self, test_indices=None):
+        """Run all challenges under each P2-P5 configuration and verify that
+        disabling any one pruning does not change the solution count compared
+        to the all-on baseline.  Uses silent mode so no per-solution output
+        is produced during the run.
+        """
+        if test_indices is None:
+            test_indices = list(range(len(self.all_tests)))
+
+        saved_silent = self.silent
+        self.silent = True
+
+        W = 70
+        print(f"\n{'='*W}")
+        print(f"PRUNING SOUNDNESS VALIDATION  –  {len(test_indices)} challenges")
+        print(f"{'='*W}")
+
+        # --- baseline: all prune flags on --------------------------------
+        print("\nBaseline  (all prune flags ON) …")
+        self.prune_spatial = self.prune_reach = self.prune_forward = self.prune_stability = True
+        baseline: dict[int, int] = {}
+        for idx in test_indices:
+            if self.load_test_case(idx):
+                self.solve()
+                baseline[idx] = self.solution_count
+        print(f"  Done – {len(baseline)} challenges solved.")
+
+        # --- test P2 / P3 / P4 individually (verified sound) ------------
+        # P5 (incremental stability) is excluded: it is an aggressive heuristic
+        # that can cut valid solutions when a later piece would have made an
+        # intermediate partial stack stable. Disabled by default.
+        sound_configs = [
+            ('P2 Spatial ', 'prune_spatial'),
+            ('P3 Reach   ', 'prune_reach'),
+            ('P4 Forward ', 'prune_forward'),
+        ]
+
+        all_pass = True
+        for label, attr in sound_configs:
+            self.prune_spatial = self.prune_reach = self.prune_forward = self.prune_stability = True
+            setattr(self, attr, False)
+            print(f"\n{label} OFF (others on) …")
+            failures: list[tuple[int, int, int]] = []
+            for idx in test_indices:
+                if idx not in baseline:
+                    continue
+                if not self.load_test_case(idx):
+                    continue
+                self.solve()
+                if self.solution_count != baseline[idx]:
+                    failures.append((idx + 1, baseline[idx], self.solution_count))
+            if failures:
+                all_pass = False
+                print(f"  FAIL – {len(failures)} mismatch(es):")
+                for ch, exp, got in failures:
+                    print(f"    Challenge {ch:>2}: expected {exp}, got {got}")
+            else:
+                print(f"  PASS – all {len(baseline)} challenges match baseline")
+
+        # --- P5 audit (informational only, not part of pass/fail) --------
+        print(f"\nP5 Stability OFF vs ON (informational – P5 is disabled by default) …")
+        self.prune_spatial = self.prune_reach = self.prune_forward = True
+        self.prune_stability = False
+        p5_off: dict[int, int] = {}
+        for idx in test_indices:
+            if idx not in baseline:
+                continue
+            if not self.load_test_case(idx):
+                continue
+            self.solve()
+            p5_off[idx] = self.solution_count
+        diffs = [(idx + 1, baseline[idx], p5_off[idx])
+                 for idx in p5_off if p5_off[idx] != baseline[idx]]
+        if diffs:
+            print(f"  {len(diffs)} challenge(s) differ when P5 is on vs off:")
+            for ch, with_p5, without_p5 in diffs:
+                print(f"    Challenge {ch:>2}: P5-on={with_p5}  P5-off={without_p5}")
+        else:
+            print(f"  No differences – P5 appears sound for this dataset.")
+
+        # --- restore state -----------------------------------------------
+        self.prune_spatial = self.prune_reach = self.prune_forward = True
+        self.prune_stability = False
+        self.silent = saved_silent
+
+        print(f"\n{'='*W}")
+        print(f"RESULT: {'ALL PASS' if all_pass else 'FAILURES DETECTED – see above'}")
+        print(f"{'='*W}\n")
+        return all_pass
+
+    def get_difficulty_metrics(self):
+        """Return the eight features from the difficulty correlation table."""
+        inv = self.inventory
+
+        inventory_size = len(inv)
+        total_volume   = sum(p['w'] * p['h'] for p in inv)
+        height_sum     = sum(p['h'] for p in inv)
+        large_pieces   = sum(1 for p in inv if max(p['w'], p['h']) >= 3)
+        unique_shapes  = len({
+            (min(p['w'], p['h']), max(p['w'], p['h']), bool(p.get('is_stair')))
+            for p in inv
+        })
+
+        # Maximum valid-placement count across all pieces and orientations
+        # on the current grid (towers only, no puzzle pieces placed).
+        max_choice = 0
+        for p in inv:
+            bi = 0
+            is_stair = bool(p.get('is_stair'))
+            for w, h in {(p['w'], p['h']), (p['h'], p['w'])}:
+                if is_stair:
+                    configs = ([(False, False), (True, False)]
+                               if h > w else
+                               [(False, False), (True, False),
+                                (False, True),  (True, True)])
+                else:
+                    configs = [(False, False)]
+                for _m, _iv in configs:
+                    for y in range(self.GRID_H):
+                        for x in range(self.GRID_W):
+                            if self.can_place(x, y, w, h):
+                                bi += 1
+            if bi > max_choice:
+                max_choice = bi
+
+        return {
+            'inventory_size': inventory_size,
+            'total_volume':   total_volume,
+            'height_sum':     height_sum,
+            'stable_configs': self.stable_configs_count,
+            'max_choice':     max_choice,
+            'total_solutions':self.solution_count,
+            'large_pieces':   large_pieces,
+            'unique_shapes':  unique_shapes,
+        }
 
     def get_static_entanglement(self):
         total = 0.0

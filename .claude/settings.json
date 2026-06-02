@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '{print NR\": \"$3}')",
+      "Bash(python -c \"import json; d=json.load\\(open\\('c:/Users/jerui/Documents/_JERUDEV/Unity/SpatialReasoningInvestigation/Assets/Scripts/GameLevel/CamelotSolver/tests.json'\\)\\); print\\('Total tests:', len\\(d\\)\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(awk '{print NR\\\\\": \\\\\"\\\\$3}')",
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)"
+    ]
+  }
+}
