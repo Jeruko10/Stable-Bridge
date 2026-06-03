@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MenuUI : MonoBehaviour
 {
@@ -12,7 +11,7 @@ public class MenuUI : MonoBehaviour
     public void OnPlayButtonPressed()
     {
         AudioManager.Play(AudioManager.Instance.UIButtonClick);
-        SceneManager.LoadScene("LevelSelector");
+        SceneTransitionManager.LoadScene("LevelSelector");
     }
 
     public void OnMasterButtonPressed()

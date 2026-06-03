@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LevelSelectorUI : MonoBehaviour
@@ -39,6 +38,6 @@ public class LevelSelectorUI : MonoBehaviour
     {
         AudioManager.Play(AudioManager.Instance.UIButtonClick);
         PendingLevelIndex = index;
-        SceneManager.LoadScene("Gameplay");
+        SceneTransitionManager.LoadScene("Gameplay");
     }
 }

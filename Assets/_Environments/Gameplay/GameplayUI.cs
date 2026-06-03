@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameplayUI : MonoBehaviour
 {
@@ -16,8 +15,8 @@ public class GameplayUI : MonoBehaviour
 
     void OnVictory()
     {
-        LevelManager.ExitLevel();
-        SceneManager.LoadScene("LevelSelector");
+        Time.timeScale = 1f;
+        SceneTransitionManager.LoadScene("LevelSelector", LevelManager.ExitLevel);
     }
 
     public void OnReadyButtonPressed()
@@ -30,6 +29,7 @@ public class GameplayUI : MonoBehaviour
     {
         AudioManager.Play(AudioManager.Instance.UIConfirmation);
         pauseMenu.SetActive(true);
+        Time.timeScale = 0f;
     }
 
     public void OnHintButtonPressed()
@@ -42,12 +42,13 @@ public class GameplayUI : MonoBehaviour
     {
         AudioManager.Play(AudioManager.Instance.UIButtonClick);
         pauseMenu.SetActive(false);
+        Time.timeScale = 1f;
     }
 
     public void OnMenuButtonPressed()
     {
         AudioManager.Play(AudioManager.Instance.UIButtonClick);
-        LevelManager.ExitLevel();
-        SceneManager.LoadScene("LevelSelector");
+        Time.timeScale = 1f;
+        SceneTransitionManager.LoadScene("LevelSelector", LevelManager.ExitLevel);
     }
 }
