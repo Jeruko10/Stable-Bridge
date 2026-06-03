@@ -1,0 +1,199 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63bc26ad738603a4baddf2214222f3dd, type: 3}
+  m_Name: Level4
+  m_EditorClassIdentifier: Assembly-CSharp::LevelLayout
+  levelSize: {x: 6, y: 6}
+  startPosition: {x: 0, y: 4}
+  endPosition: {x: 5, y: 6}
+  blocks:
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 2}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 3}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 1, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 1, y: 2}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 2, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 2, y: 2}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 2}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 3}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 4}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 5}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 30cdc89195fd8114e9bf8f4a93f8652b, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 30cdc89195fd8114e9bf8f4a93f8652b, type: 3}
+    <BlockId>k__BackingField: 1
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 2
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 74089fc4b62d7dc40aafcc1d72a9cb11, type: 3}
+    <BlockId>k__BackingField: 3
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 25db1e977f752e348b745f0d6653f89a, type: 3}
+    <BlockId>k__BackingField: 4
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  solutions:
+  - {fileID: 11400000, guid: 54ca44d207f81d945a6697a5e08725e7, type: 2}
+  - {fileID: 11400000, guid: 88a8c774a9e050a4ca9fe172a8c37ac6, type: 2}
+  - {fileID: 11400000, guid: d6705b5d3339b0140b59c2dc60509a80, type: 2}
+  - {fileID: 11400000, guid: 505d50735b25e7646a9c050cd0683181, type: 2}
+  - {fileID: 11400000, guid: 97a1c08a0a78fe146a1cee2d705cd7fb, type: 2}
+  - {fileID: 11400000, guid: a847e2f2d97539d4791717f718f5b005, type: 2}
+  - {fileID: 11400000, guid: c13227bb1f2821148b2d4512a6eef4ab, type: 2}
+  - {fileID: 11400000, guid: 5b15b05022d55cf44bb833c255c70172, type: 2}
+  - {fileID: 11400000, guid: 1a7509bd18d781f4faec92a45d919d26, type: 2}
+  - {fileID: 11400000, guid: d416b5b7ac830184cba54b37e18c8110, type: 2}
+  - {fileID: 11400000, guid: 04287bf06d9dc5e4ea3ff13b8ac15208, type: 2}
+  - {fileID: 11400000, guid: 014f3ec09a4610c44985f4123d2e6d56, type: 2}
+  - {fileID: 11400000, guid: d736588c9e3d2a44f8854da647cef624, type: 2}
+  - {fileID: 11400000, guid: d42f7b81278b3264e8dc4f9549030844, type: 2}
+  - {fileID: 11400000, guid: e173336f65feab44b9a873e6aefb4eb9, type: 2}
+  - {fileID: 11400000, guid: e07580e14a21787439e83e55bb70f481, type: 2}
+  - {fileID: 11400000, guid: 6c41d45b24f97a44f8d0bb3b9d881a25, type: 2}
+  - {fileID: 11400000, guid: 7573705ffd461634fb55ce95bb393815, type: 2}
+  - {fileID: 11400000, guid: 21d2e0b4526f40541b7281abf8c786be, type: 2}
+  - {fileID: 11400000, guid: 5b323884ebd74a54289598f1b068b43a, type: 2}
+  - {fileID: 11400000, guid: 6a0fdb39fb20f60478ce16e84f477a31, type: 2}
+  - {fileID: 11400000, guid: 3c64d85c83a31f8419b211d7de9c4a49, type: 2}
+  - {fileID: 11400000, guid: 79fdca7afff4d014f95b76245f77e8c4, type: 2}
+  - {fileID: 11400000, guid: 7ea81f380039f4240a3670dd5a51524a, type: 2}
+  - {fileID: 11400000, guid: 40ea5557165c0594c9bc50972090281a, type: 2}
+  - {fileID: 11400000, guid: 5e07f748bf0cc594884dee46a1de7db4, type: 2}
+  - {fileID: 11400000, guid: 63e665657c6cfed4490428d1070f63ce, type: 2}
+  - {fileID: 11400000, guid: 520bde007b06212458a42e5412e93800, type: 2}
+  - {fileID: 11400000, guid: 30826bafe6f6ba449aa3f22ac0c4ce35, type: 2}
+  - {fileID: 11400000, guid: 50366a978097add41bdddf1b2b4a3976, type: 2}
+  - {fileID: 11400000, guid: 7dfce1a443c14bd4b8efe15ad82304a4, type: 2}
+  - {fileID: 11400000, guid: bb307a297e32a3945841029a142c6480, type: 2}
+  - {fileID: 11400000, guid: ec969152ad7702441ad2e377cd09c26f, type: 2}
+  - {fileID: 11400000, guid: a89d7f16ab47fe34a911ceca4fc0a429, type: 2}
+  - {fileID: 11400000, guid: 59ec7cdf71871e44e9d7014d1ab6abd1, type: 2}
+  - {fileID: 11400000, guid: 83cabcf4ec72d9d49a09ca325c6f3eb3, type: 2}
+  - {fileID: 11400000, guid: 0cec084c5c80e18459812a120946f70d, type: 2}
+  - {fileID: 11400000, guid: bca9a9f18f55cce4699a86cac16d552a, type: 2}
+  - {fileID: 11400000, guid: d7e3d5f642b632b41b762fa9341f3f5b, type: 2}
+  - {fileID: 11400000, guid: 75cfdea0d8015d84ca1a0e45482d2325, type: 2}
+  - {fileID: 11400000, guid: 103a47493706cd344830fcdb74bb8d89, type: 2}
+  - {fileID: 11400000, guid: fb4c6c8351f596a4d920f382788843aa, type: 2}
+  - {fileID: 11400000, guid: 97d4e401f1a16304a8dd0de1b7bf94ab, type: 2}
+  - {fileID: 11400000, guid: e7627e67250274244beed2d41098e4aa, type: 2}

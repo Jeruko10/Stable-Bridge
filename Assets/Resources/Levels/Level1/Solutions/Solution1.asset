@@ -13,19 +13,23 @@ MonoBehaviour:
   m_Name: Solution1
   m_EditorClassIdentifier: Assembly-CSharp::LevelSolution
   placements:
-  - blockId: 10
-    tile: {x: 6, y: 2}
-    rotation: 90
-    flipped: 0
-  - blockId: 11
-    tile: {x: 4, y: 2}
+  - blockId: 0
+    tile: {x: 1, y: 2}
     rotation: 0
     flipped: 1
-  - blockId: 12
+  - blockId: 1
+    tile: {x: 3, y: 4}
+    rotation: 0
+    flipped: 1
+  - blockId: 2
     tile: {x: 2, y: 1}
     rotation: 0
     flipped: 0
-  - blockId: 13
-    tile: {x: 5, y: 1}
-    rotation: 0
+  - blockId: 3
+    tile: {x: 3, y: 1}
+    rotation: 90
     flipped: 0
+  - blockId: 4
+    tile: {x: 2, y: 3}
+    rotation: 0
+    flipped: 1

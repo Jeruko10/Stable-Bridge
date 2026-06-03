@@ -1,9 +1,10 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameInitializer : MonoBehaviour
 {
     void Awake()
     {
-        SceneTransitionManager.LoadScene("Menu");
+        SceneManager.LoadScene("Menu");
     }
 }

@@ -34,3 +34,8 @@ MonoBehaviour:
     isStair: 1
     prefab: {fileID: 6057541212412927182, guid: a6fa536024b6c494e90d5c6835ef9f4a, type: 3}
     pivotIndex: 0
+  - width: 3
+    height: 1
+    isStair: 0
+    prefab: {fileID: 6057541212412927182, guid: 25db1e977f752e348b745f0d6653f89a, type: 3}
+    pivotIndex: 0

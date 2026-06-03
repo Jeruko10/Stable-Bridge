@@ -1,0 +1,141 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63bc26ad738603a4baddf2214222f3dd, type: 3}
+  m_Name: Level7
+  m_EditorClassIdentifier: Assembly-CSharp::LevelLayout
+  levelSize: {x: 6, y: 6}
+  startPosition: {x: 0, y: 5}
+  endPosition: {x: 5, y: 4}
+  blocks:
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 2}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 3}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 4}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 1, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 1, y: 2}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 2}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 3}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: a6fa536024b6c494e90d5c6835ef9f4a, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 74089fc4b62d7dc40aafcc1d72a9cb11, type: 3}
+    <BlockId>k__BackingField: 1
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 2
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 30cdc89195fd8114e9bf8f4a93f8652b, type: 3}
+    <BlockId>k__BackingField: 3
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  solutions:
+  - {fileID: 11400000, guid: e8017c40919f248488eb0e5556defa28, type: 2}
+  - {fileID: 11400000, guid: 1834a374f0fe3e44cbf1e26adb029c05, type: 2}
+  - {fileID: 11400000, guid: 81733c9c56e988a4794717ff75f34dc4, type: 2}
+  - {fileID: 11400000, guid: 67c4a7f921878044aa0abccdcc4f1c74, type: 2}
+  - {fileID: 11400000, guid: 5245156877b9b6a4780564d3c98fc712, type: 2}
+  - {fileID: 11400000, guid: 4528dd476e4e4e34da94d9625504f5fc, type: 2}
+  - {fileID: 11400000, guid: fc436abd95d537d4fa46c7a6a3d163f6, type: 2}
+  - {fileID: 11400000, guid: ef9fd0a57db1e584f978d4766fa4d903, type: 2}
+  - {fileID: 11400000, guid: fd5d5a63b64c73849a0e822d0c7b1b71, type: 2}
+  - {fileID: 11400000, guid: 84c81bc1cc54a9342b442affe317a1e6, type: 2}
+  - {fileID: 11400000, guid: 29c2770228ebdcc4e98804562c75a766, type: 2}
+  - {fileID: 11400000, guid: ff27c431a0219e943bf3d3dcc83638e2, type: 2}
+  - {fileID: 11400000, guid: f3dda23f181bce44ca5b70e479ae1a10, type: 2}
+  - {fileID: 11400000, guid: baff48e7624605f478ef7853c3b5052d, type: 2}
+  - {fileID: 11400000, guid: 7e068fc6eb67c2a40843b9291fbe05dd, type: 2}
+  - {fileID: 11400000, guid: 029b95d208f48e64da34d9983ddf264c, type: 2}
+  - {fileID: 11400000, guid: 6400353257407e04e8c5b36485b1495a, type: 2}
+  - {fileID: 11400000, guid: d88057a21370ed94c9fedcc541e75d10, type: 2}

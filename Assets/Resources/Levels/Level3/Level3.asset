@@ -1,0 +1,203 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63bc26ad738603a4baddf2214222f3dd, type: 3}
+  m_Name: Level3
+  m_EditorClassIdentifier: Assembly-CSharp::LevelLayout
+  levelSize: {x: 6, y: 6}
+  startPosition: {x: 0, y: 6}
+  endPosition: {x: 5, y: 6}
+  blocks:
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 2}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 3}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 4}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 5}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 3, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 2}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 3}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 4}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 5}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 30cdc89195fd8114e9bf8f4a93f8652b, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 30cdc89195fd8114e9bf8f4a93f8652b, type: 3}
+    <BlockId>k__BackingField: 1
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 2
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 74089fc4b62d7dc40aafcc1d72a9cb11, type: 3}
+    <BlockId>k__BackingField: 3
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 25db1e977f752e348b745f0d6653f89a, type: 3}
+    <BlockId>k__BackingField: 4
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
+    <SlideTiles>k__BackingField: []
+  solutions:
+  - {fileID: 11400000, guid: cce7697736c18c04dbcfe560f5cffc75, type: 2}
+  - {fileID: 11400000, guid: 884f6bca3af1c864faf726b74f0ba23b, type: 2}
+  - {fileID: 11400000, guid: d4dc09050fdb2ab40b0e8e4d8f4b76cb, type: 2}
+  - {fileID: 11400000, guid: 9a48163f447bd2a49a8481184b25efce, type: 2}
+  - {fileID: 11400000, guid: 544218a42ac06714b85ef5975f83b9a2, type: 2}
+  - {fileID: 11400000, guid: b76ba39c542c6a946896cf66158d2adf, type: 2}
+  - {fileID: 11400000, guid: 19423bf209286b644bbed4053e4a76b9, type: 2}
+  - {fileID: 11400000, guid: 1ba7e4fcb74b0ca40931b2e213d9c61d, type: 2}
+  - {fileID: 11400000, guid: c516e7001f4605743b79fe8da20e3833, type: 2}
+  - {fileID: 11400000, guid: d3d91d73a26cca549a977484ff0df3b7, type: 2}
+  - {fileID: 11400000, guid: 201312e2e8bced846becd910a3e3f907, type: 2}
+  - {fileID: 11400000, guid: 2c5b56008e05d37439cd50f344690500, type: 2}
+  - {fileID: 11400000, guid: ee176a9733fdd9a43a71f315ccdaf5f1, type: 2}
+  - {fileID: 11400000, guid: 300e3d458f98b3c4d89c05904e58f0dd, type: 2}
+  - {fileID: 11400000, guid: b4c226f20a9d094498abe0c0fa717646, type: 2}
+  - {fileID: 11400000, guid: b59d0125035f4fa45b4d2622dd79ab4f, type: 2}
+  - {fileID: 11400000, guid: 7f3003ac78dbe044381b8e7f2755ec96, type: 2}
+  - {fileID: 11400000, guid: 099918ed1614c784ca72d6e024098b52, type: 2}
+  - {fileID: 11400000, guid: f4da4da50ae28b74f83db30d7a195194, type: 2}
+  - {fileID: 11400000, guid: a0157b011d507e845a063a0e77a7c8cd, type: 2}
+  - {fileID: 11400000, guid: 2fb9a5098019ad348bb03d6fd67e23cb, type: 2}
+  - {fileID: 11400000, guid: 94e5a1743d7b77146be3c5c8cbd7f6b8, type: 2}
+  - {fileID: 11400000, guid: 2d7fb98591d95b6488038b57425fdc93, type: 2}
+  - {fileID: 11400000, guid: 12512834099b3d64399c297748a175c5, type: 2}
+  - {fileID: 11400000, guid: c5c1c39452b07cc4ba37560181d9ac15, type: 2}
+  - {fileID: 11400000, guid: b97de4cbdd9334845a1bdf46c77d42ad, type: 2}
+  - {fileID: 11400000, guid: 56a43d60e4f68e649b865ba833a4efbc, type: 2}
+  - {fileID: 11400000, guid: 5dbc36da11c33a24dbabb44fd6f32121, type: 2}
+  - {fileID: 11400000, guid: 3b4357d7fad030d459b533095549adeb, type: 2}
+  - {fileID: 11400000, guid: cdaf6cf2215a6bc4ab4dc9c72ec2b8c7, type: 2}
+  - {fileID: 11400000, guid: 7f70aa4af8106874ea4b1c2e12f09c05, type: 2}
+  - {fileID: 11400000, guid: ee9465fd673c12944a758609eb29681c, type: 2}
+  - {fileID: 11400000, guid: fc7bcc74eff602b4d8ffbfd5580855bc, type: 2}
+  - {fileID: 11400000, guid: d793834fa05b9614abffcc82ef9b2428, type: 2}
+  - {fileID: 11400000, guid: 1a546a3cc9f3cc5448f810f5a9d01cf9, type: 2}
+  - {fileID: 11400000, guid: 0d40a37dfae0ca54aaebca0da3bff82d, type: 2}
+  - {fileID: 11400000, guid: a7a53d2dfa48ce645b51b9f7702e4627, type: 2}
+  - {fileID: 11400000, guid: 6d53621ddcd6e83438a9d50e1e10ffd1, type: 2}
+  - {fileID: 11400000, guid: 39299da5dd0679b438b6ef02fb0b0e2b, type: 2}
+  - {fileID: 11400000, guid: cdb777d4f0dd923448ddb31aa437589f, type: 2}
+  - {fileID: 11400000, guid: 684517d3edac43349ad9a8d59079ca98, type: 2}
+  - {fileID: 11400000, guid: 3be598533408a01479d4ecb1a231858d, type: 2}
+  - {fileID: 11400000, guid: 27e174ccd54e0c34282442da17b9baa4, type: 2}
+  - {fileID: 11400000, guid: ce14ceda83ebf784e93b00a8e0e83705, type: 2}
+  - {fileID: 11400000, guid: f679196264911344684b6fb1f3291df9, type: 2}
+  - {fileID: 11400000, guid: b049ac08645164a449da6ce77b8c7e37, type: 2}
+  - {fileID: 11400000, guid: 8c9e6b90443d92447b5d46cf0bddb26d, type: 2}
+  - {fileID: 11400000, guid: b80b53bb873941444a0ed7e0bc6e17a6, type: 2}
+  - {fileID: 11400000, guid: 7b73ce03f3803b24a94ab322679a4fc5, type: 2}
+  - {fileID: 11400000, guid: c45dff6a67ac62648a9526362e9132fa, type: 2}
+  - {fileID: 11400000, guid: d2ace75442190e94e9b67342e5c4f754, type: 2}
+  - {fileID: 11400000, guid: 3e509e9ddb7668748818245adf250c68, type: 2}
+  - {fileID: 11400000, guid: 9e4e3ed4f8f33814186739f6c7d2c75b, type: 2}
+  - {fileID: 11400000, guid: dcf5ebf23b599f846a4646db64731e1b, type: 2}
+  - {fileID: 11400000, guid: f2311ce6bd2624f40a83994334744b2e, type: 2}
+  - {fileID: 11400000, guid: 2f9b55c51581fe64792db9bf0a18e0f4, type: 2}
