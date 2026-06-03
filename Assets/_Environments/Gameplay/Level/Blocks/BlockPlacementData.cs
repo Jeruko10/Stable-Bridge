@@ -5,6 +5,7 @@ using UnityEngine;
 public class BlockPlacementData
 {
     [field: SerializeField] public Block BlockPrefab { get; private set; }
+    [field: SerializeField] public int BlockId { get; private set; }
     [field: SerializeField] public Block.Mobility MobilityType { get; private set; }
     [field: SerializeField] public int PivotIndex { get; private set; }
     [field: SerializeField] public bool Flipped { get; private set; }
@@ -13,15 +14,17 @@ public class BlockPlacementData
     [field: SerializeField] public List<Vector2Int> SlideTiles { get; private set; }
 
     public BlockPlacementData(
-        Block blockPrefab, 
-        Block.Mobility mobilityType, 
-        int pivotIndex, 
-        bool flipped, 
-        BoardGrid.Rotation rotation, 
-        Vector2Int startingTile, 
-        List<Vector2Int> slideTiles)
+        Block blockPrefab,
+        Block.Mobility mobilityType,
+        int pivotIndex,
+        bool flipped,
+        BoardGrid.Rotation rotation,
+        Vector2Int startingTile,
+        List<Vector2Int> slideTiles,
+        int blockId = 0)
     {
         BlockPrefab = blockPrefab;
+        BlockId = blockId;
         MobilityType = mobilityType;
         PivotIndex = pivotIndex;
         Flipped = flipped;

@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
-
 
 public class LevelManager : MonoBehaviour
 {
@@ -14,8 +14,9 @@ public class LevelManager : MonoBehaviour
     [SerializeField] BlockInventory blockInventory;
 
     public static Level Current { get; private set; }
+    public static LevelLayout CurrentLayout { get; private set; }
     public static int LastLevelIndex { get; private set; }
-    public static int LevelAmount => levels.Count();
+    public static int LevelAmount => levels.Length;
     public static bool LevelCreationEnabled => instance.levelCreationEnabled;
     public static event Action<Level> LevelLoaded;
     public static event Action Victory;
@@ -26,13 +27,19 @@ public class LevelManager : MonoBehaviour
     void Awake()
     {
         if (instance != null && instance != this)
-        { 
+        {
             Destroy(gameObject);
-            return; 
+            return;
         }
 
         instance = this;
-        levels = Resources.LoadAll<LevelLayout>("Levels");
+        levels = Resources.LoadAll<LevelLayout>("Levels")
+            .OrderBy(l =>
+            {
+                var match = Regex.Match(l.name, @"\d+");
+                return match.Success ? int.Parse(match.Value) : 0;
+            })
+            .ToArray();
     }
 
     public static Level PassLevel()
@@ -58,9 +65,8 @@ public class LevelManager : MonoBehaviour
         Current = Instantiate(instance.levelPrefab, instance.transform);
         Current.name = $"Level {levelIndex}";
 
-        LevelLayout lvlData = levels[levelIndex];
-
-        Current.Initialize(lvlData, instance.fastGameplay, instance.blockInventory);
+        CurrentLayout = levels[levelIndex];
+        Current.Initialize(CurrentLayout, instance.fastGameplay, instance.blockInventory);
         AudioManager.StopAll();
         AudioManager.Play(AudioManager.Instance.LevelTheme);
         LevelLoaded?.Invoke(Current);
@@ -72,6 +78,7 @@ public class LevelManager : MonoBehaviour
     {
         if (Current == null) return;
 
+        CurrentLayout = null;
         instance.blockInventory.Clear();
         Destroy(Current.gameObject);
         Current = null;

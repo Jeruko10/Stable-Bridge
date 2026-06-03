@@ -6,18 +6,20 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewLevel", menuName = "Level")]
+[CreateAssetMenu(fileName = "NewLevel", menuName = "Game/Level")]
 public class LevelLayout : ScriptableObject
 {
     [SerializeField] Vector2Int levelSize = new(6, 5);
     [SerializeField] Vector2Int startPosition = Vector2Int.zero;
     [SerializeField] Vector2Int endPosition = Vector2Int.one;
     [SerializeField] List<BlockPlacementData> blocks = new();
+    [SerializeField] List<LevelSolution> solutions = new();
 
     public Vector2Int LevelSize => levelSize;
     public Vector2Int StartPosition => startPosition;
     public Vector2Int EndPosition => endPosition;
     public IReadOnlyList<BlockPlacementData> Blocks => blocks;
+    public IReadOnlyList<LevelSolution> Solutions => solutions;
 
     public static LevelLayout FromLevel(Level level, Vector2Int startPosition, Vector2Int endPosition)
     {
@@ -48,6 +50,18 @@ public class LevelLayout : ScriptableObject
         instance.blocks = blocksData;
 
         return instance;
+    }
+
+    public void SetFromBaker(Vector2Int size, Vector2Int start, Vector2Int end,
+        List<BlockPlacementData> blockData, List<LevelSolution> solutionData)
+    {
+#if UNITY_EDITOR
+        levelSize = size;
+        startPosition = start;
+        endPosition = end;
+        blocks = blockData;
+        solutions = solutionData;
+#endif
     }
 
     public void SaveAsAsset()

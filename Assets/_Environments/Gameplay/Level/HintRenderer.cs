@@ -1,44 +1,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
 [RequireComponent(typeof(BoardGrid))]
-
 [RequireComponent(typeof(Level))]
-
 public class HintRenderer : MonoBehaviour
 {
     [SerializeField] float depthOffset = -0.5f;
     [SerializeField] Color color = Color.cyan;
-    [SerializeField] int maxSolverIterations = 100000;
 
-    BoardGrid grid;
     Level level;
-    List<LevelSolver.HintStep> steps;
+    List<HintStep> steps;
     readonly List<Block> ghosts = new();
     int revealedCount;
 
-    void Awake()
+    struct HintStep
     {
-        grid = GetComponent<BoardGrid>();
-        level = GetComponent<Level>();
+        public Block block;
+        public Vector2 position;
+        public BoardGrid.Rotation rotation;
+        public bool flipped;
     }
+
+    void Awake() => level = GetComponent<Level>();
 
     public void DisplayHint()
     {
-        Debug.Log(level.Inventory.Count);
-
         if (steps == null)
         {
-            List<LevelSolver.HintStep> solution =
-                new LevelSolver(grid, level.StartPosition, level.EndPosition).Solve(level.Inventory, maxSolverIterations);
-
-            if (solution == null)
-            {
-                Debug.Log("HintRenderer: no solution found for current board state.");
-                return;
-            }
-
-            steps = solution.OrderBy(s => s.tile.y).ThenBy(s => s.tile.x).ToList();
+            steps = BuildSteps();
+            if (steps == null) return;
         }
 
         if (revealedCount >= steps.Count) return;
@@ -49,22 +40,10 @@ public class HintRenderer : MonoBehaviour
         Debug.Log($"HintRenderer: revealed hint {revealedCount}/{steps.Count}.");
     }
 
-    public void SpawnHardCodedHint()
-    {
-        LevelSolver.HintStep step = new()
-        {
-            block = level.Inventory[0],
-            position = new Vector2(2f, 1f),
-            rotation = BoardGrid.Rotation.Deg0,
-            flipped = false
-        };
-
-        ghosts.Add(SpawnGhost(step));
-    }
+    public void SpawnHardCodedHint() => DisplayHint();
 
     public void ResetHints()
     {
-        Debug.Log("HintRenderer: resetting hints.");
         foreach (Block ghost in ghosts)
             if (ghost != null) Destroy(ghost.gameObject);
         ghosts.Clear();
@@ -72,7 +51,38 @@ public class HintRenderer : MonoBehaviour
         steps = null;
     }
 
-    Block SpawnGhost(LevelSolver.HintStep step)
+    List<HintStep> BuildSteps()
+    {
+        LevelLayout layout = LevelManager.CurrentLayout;
+        if (layout == null || layout.Solutions.Count == 0)
+        {
+            Debug.Log("HintRenderer: no baked solutions available for this level.");
+            return null;
+        }
+
+        // Map blockId → Block instance using inventory order (matches free-block order in layout)
+        var freeBlocks = layout.Blocks
+            .Where(b => b.MobilityType == Block.Mobility.Free)
+            .ToList();
+
+        var idToBlock = new Dictionary<int, Block>();
+        for (int i = 0; i < freeBlocks.Count && i < level.Inventory.Count; i++)
+            idToBlock[freeBlocks[i].BlockId] = level.Inventory[i];
+
+        return layout.Solutions[0].Placements
+            .Where(p => idToBlock.ContainsKey(p.blockId))
+            .OrderBy(p => p.tile.y).ThenBy(p => p.tile.x)
+            .Select(p => new HintStep
+            {
+                block = idToBlock[p.blockId],
+                position = new Vector2(p.tile.x, p.tile.y),
+                rotation = p.rotation,
+                flipped = p.flipped
+            })
+            .ToList();
+    }
+
+    Block SpawnGhost(HintStep step)
     {
         Block source = step.block;
         Block prefab = source.Prefab != null ? source.Prefab : source;
