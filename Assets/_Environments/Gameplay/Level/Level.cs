@@ -163,7 +163,7 @@ public class Level : MonoBehaviour
             if (Grid.TryPlaceBlock(block, startingTile, block.Pivot)) return block;
             Debug.LogWarning($"Failed to place block {block.name} at {data.StartingTile}. Check if the tile is valid and unoccupied.");
         }
-
+        
         blockInventory.AddBlock(block);
         Inventory.Add(block);
         return block;
