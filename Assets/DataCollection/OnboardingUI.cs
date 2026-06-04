@@ -1,21 +1,18 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class OnboardingUI : MonoBehaviour
 {
     [SerializeField] TMP_InputField ageInput;
     [SerializeField] TMP_Dropdown genderDropdown;
-    [SerializeField] Button submitButton;
     [SerializeField] TMP_Text errorText;
 
     void Start()
     {
-        submitButton.onClick.AddListener(OnSubmit);
         errorText.gameObject.SetActive(false);
     }
 
-    void OnSubmit()
+    public void SubmitData()
     {
         if (!int.TryParse(ageInput.text, out int age) || age < 1 || age > 120)
         {
@@ -31,7 +28,6 @@ public class OnboardingUI : MonoBehaviour
 
         string gender = genderDropdown.options[genderDropdown.value].text;
         DataCollectionManager.Instance.SetParticipant(age, gender);
-        gameObject.SetActive(false);
     }
 
     void ShowError(string message)

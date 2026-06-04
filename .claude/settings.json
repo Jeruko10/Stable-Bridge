@@ -5,7 +5,8 @@
       "Bash(python -c \"import json; d=json.load\\(open\\('c:/Users/jerui/Documents/_JERUDEV/Unity/SpatialReasoningInvestigation/Assets/Scripts/GameLevel/CamelotSolver/tests.json'\\)\\); print\\('Total tests:', len\\(d\\)\\)\")",
       "Bash(python -c ' *)",
       "Bash(awk '{print NR\\\\\": \\\\\"\\\\$3}')",
-      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)"
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)",
+      "Bash(Get-Content \"c:\\\\Users\\\\jerui\\\\Documents\\\\_JERUDEV\\\\Unity\\\\SpatialReasoningInvestigation\\\\Assets\\\\_Environments\\\\Main\\\\PopUpWindow.cs\")"
     ]
   }
 }

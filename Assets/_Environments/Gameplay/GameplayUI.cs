@@ -1,32 +1,13 @@
-using DG.Tweening;
 using UnityEngine;
 
 public class GameplayUI : MonoBehaviour
 {
-    [SerializeField] GameObject pauseMenu;
-    [SerializeField] float slideDuration = 0.35f;
-    [SerializeField] float pauseMenuAnimHeight = 200f;
-    [SerializeField] CanvasGroup blackPanel;
-
-    RectTransform pauseMenuRect;
-    Vector2 shownPos;
-    Vector2 hiddenPos;
+    [SerializeField] PopUpWindow pauseMenu;
 
     void Start()
     {
         LevelManager.Victory += OnVictory;
         LevelManager.LoadLevel(LevelSelectorUI.PendingLevelIndex);
-
-        pauseMenuRect = pauseMenu.GetComponent<RectTransform>();
-        shownPos = pauseMenuRect.anchoredPosition;
-        hiddenPos = shownPos + Vector2.up * pauseMenuAnimHeight;
-
-        pauseMenuRect.anchoredPosition = hiddenPos;
-        pauseMenu.SetActive(false);
-
-        blackPanel.gameObject.SetActive(true);
-        blackPanel.alpha = 0f;
-        blackPanel.blocksRaycasts = false;
     }
 
     void OnDestroy() => LevelManager.Victory -= OnVictory;
@@ -45,14 +26,7 @@ public class GameplayUI : MonoBehaviour
     public void OnPauseButtonPressed()
     {
         Time.timeScale = 0f;
-
-        pauseMenu.SetActive(true);
-        pauseMenuRect.DOKill();
-        pauseMenuRect.DOAnchorPos(shownPos, slideDuration).SetEase(Ease.OutCubic).SetUpdate(true);
-
-        blackPanel.DOKill();
-        blackPanel.blocksRaycasts = true;
-        blackPanel.DOFade(0.7f, slideDuration).SetUpdate(true);
+        pauseMenu.Show();
     }
 
     public void OnHintButtonPressed()
@@ -62,17 +36,8 @@ public class GameplayUI : MonoBehaviour
 
     public void OnResumeButtonPressed()
     {
-        pauseMenuRect.DOKill();
-        pauseMenuRect.DOAnchorPos(hiddenPos, slideDuration).SetEase(Ease.InCubic).SetUpdate(true)
-            .OnComplete(() => pauseMenu.SetActive(false));
-
-        blackPanel.DOKill();
-        blackPanel.DOFade(0f, slideDuration).SetUpdate(true)
-            .OnComplete(() =>
-            {
-                blackPanel.blocksRaycasts = false;
-                Time.timeScale = 1f;
-            });
+        Time.timeScale = 1f;
+        pauseMenu.Hide();
     }
 
     public void OnMenuButtonPressed()
