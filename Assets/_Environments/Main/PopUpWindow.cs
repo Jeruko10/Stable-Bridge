@@ -10,6 +10,7 @@ public class PopUpWindow : MonoBehaviour
     [SerializeField] float duration = 0.35f;
     [SerializeField] float backgroundAlpha = 0.7f;
 
+    public UnityEvent onShown;
     public UnityEvent onHidden;
 
     RectTransform rectTransform;
@@ -56,7 +57,8 @@ public class PopUpWindow : MonoBehaviour
         gameObject.SetActive(true);
 
         rectTransform.DOKill();
-        rectTransform.DOAnchorPos(shownPos, duration).SetEase(Ease.OutCubic).SetUpdate(true);
+        rectTransform.DOAnchorPos(shownPos, duration).SetEase(Ease.OutCubic).SetUpdate(true)
+            .OnComplete(() => onShown.Invoke());
 
         background.DOKill();
         background.blocksRaycasts = true;

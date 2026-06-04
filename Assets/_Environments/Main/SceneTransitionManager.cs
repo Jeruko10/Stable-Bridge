@@ -45,12 +45,13 @@ public class SceneTransitionManager : MonoBehaviour
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 999;
         gameObject.AddComponent<CanvasScaler>();
+        gameObject.AddComponent<GraphicRaycaster>();
 
         GameObject overlayGO = new("Overlay");
         overlayGO.transform.SetParent(canvas.transform, false);
 
         Image img = overlayGO.AddComponent<Image>();
-        img.raycastTarget = false;
+        img.raycastTarget = true;
 
         material = new Material(transitionShader);
         if (silouetteSprite != null)

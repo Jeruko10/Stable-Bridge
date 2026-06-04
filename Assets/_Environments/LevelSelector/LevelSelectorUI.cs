@@ -17,6 +17,11 @@ public class LevelSelectorUI : MonoBehaviour
         scroll.horizontalNormalizedPosition = 0f;
     }
 
+    public void OnExitButtonPressed()
+    {
+        SceneTransitionManager.LoadScene("Menu");
+    }
+
     void PopulateLevelButtons()
     {
         foreach (Transform child in topLayout) Destroy(child.gameObject);

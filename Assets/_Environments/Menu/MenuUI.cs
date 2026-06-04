@@ -5,10 +5,11 @@ using UnityEngine;
 public class MenuUI : MonoBehaviour
 {
     [SerializeField] PopUpWindow dataCollectionWindow;
-    [SerializeField] CanvasGroup menuButtons;
     [SerializeField] RectTransform gameTitle;
     [SerializeField] float swingAngle = 6f;
     [SerializeField] float swingDuration = 1.4f;
+
+    static bool hasShownPopUp;
 
     void OnDestroy() => gameTitle.DOKill();
 
@@ -21,8 +22,8 @@ public class MenuUI : MonoBehaviour
             .SetEase(Ease.InOutSine)
             .SetLoops(-1, LoopType.Yoyo);
 
-        menuButtons.interactable = false;
-        dataCollectionWindow.onHidden.AddListener(() => menuButtons.interactable = true);
+        if (hasShownPopUp) return;
+        hasShownPopUp = true;
         StartCoroutine(WaitAndShowPopUp());
     }
 
@@ -38,7 +39,7 @@ public class MenuUI : MonoBehaviour
 
     IEnumerator WaitAndShowPopUp()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(4f);
         dataCollectionWindow.Show();
     }
 }
