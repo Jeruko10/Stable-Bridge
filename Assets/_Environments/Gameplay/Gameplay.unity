@@ -408,7 +408,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameplayUI
   pauseMenu: {fileID: 9161786566341027206}
   slideDuration: 0.35
-  pauseMenuAnimHeight: 200
+  pauseMenuAnimHeight: 1000
   blackPanel: {fileID: 8182868706839272984}
 --- !u!1 &147937166
 GameObject:
