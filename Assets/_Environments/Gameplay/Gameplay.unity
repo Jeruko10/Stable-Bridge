@@ -406,7 +406,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 690367c91b45ff94381d449200cd9685, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameplayUI
-  pauseMenu: {fileID: 859815473}
+  pauseMenu: {fileID: 9161786566341027206}
+  slideDuration: 0.35
+  pauseMenuAnimHeight: 200
+  blackPanel: {fileID: 8182868706839272984}
 --- !u!1 &147937166
 GameObject:
   m_ObjectHideFlags: 0
@@ -1720,6 +1723,7 @@ GameObject:
   - component: {fileID: 8182868706839272983}
   - component: {fileID: 1964263163087314459}
   - component: {fileID: 6910501412373675717}
+  - component: {fileID: 8182868706839272984}
   m_Layer: 5
   m_Name: SemiTransparentPanel
   m_TagString: Untagged
@@ -2085,6 +2089,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &8182868706839272984
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5407924868697963146}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!224 &8266824446684773423
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2232,6 +2248,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Panel
       objectReference: {fileID: 0}
+    - target: {fileID: 8614341434330072201, guid: 98b2c66528d65384e9c3dccc372d52db, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -2246,6 +2266,11 @@ PrefabInstance:
 --- !u!224 &9161786566341027205 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1840360206452866906, guid: 98b2c66528d65384e9c3dccc372d52db, type: 3}
+  m_PrefabInstance: {fileID: 9161786566341027204}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9161786566341027206 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8614341434330072201, guid: 98b2c66528d65384e9c3dccc372d52db, type: 3}
   m_PrefabInstance: {fileID: 9161786566341027204}
   m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
