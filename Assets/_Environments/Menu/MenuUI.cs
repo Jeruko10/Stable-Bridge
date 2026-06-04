@@ -10,6 +10,8 @@ public class MenuUI : MonoBehaviour
     [SerializeField] float swingAngle = 6f;
     [SerializeField] float swingDuration = 1.4f;
 
+    void OnDestroy() => gameTitle.DOKill();
+
     void Start()
     {
         AudioManager.Play(AudioManager.Instance.MenuTheme);
