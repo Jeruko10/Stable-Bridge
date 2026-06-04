@@ -500,6 +500,12 @@ MonoBehaviour:
   maxScale: 14
   transitionShader: {fileID: 4800000, guid: 58a381127ccf93e42b7f6daee1b6d6b8, type: 3}
   silouetteSprite: {fileID: 21300000, guid: e175a17a67336524ebaaaa8537c45e26, type: 3}
+  transitionInSound:
+    Clip: {fileID: 8300000, guid: 736798573d33cfc4192ae1243224494c, type: 3}
+    Volume: 1
+  transitionOutSound:
+    Clip: {fileID: 8300000, guid: 0ea989b2bb8958f4faff432db5925a77, type: 3}
+    Volume: 1
 --- !u!4 &2020687564
 Transform:
   m_ObjectHideFlags: 0

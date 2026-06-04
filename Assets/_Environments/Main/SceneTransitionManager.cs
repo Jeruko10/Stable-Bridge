@@ -10,6 +10,8 @@ public class SceneTransitionManager : MonoBehaviour
     [SerializeField] float maxScale = 1.5f;
     [SerializeField] Shader transitionShader;
     [SerializeField] Sprite silouetteSprite;
+    [SerializeField] AudioEntry transitionInSound;
+    [SerializeField] AudioEntry transitionOutSound;
 
     Canvas canvas;
     Material material;
@@ -29,6 +31,12 @@ public class SceneTransitionManager : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(gameObject);
         BuildUI();
+    }
+
+    public static void LoadScene(string sceneName, System.Action beforeLoad = null)
+    {
+        if (!instance.transitioning)
+            instance.StartCoroutine(instance.Transition(sceneName, beforeLoad));
     }
 
     void BuildUI()
@@ -60,18 +68,13 @@ public class SceneTransitionManager : MonoBehaviour
         canvas.enabled = false;
     }
 
-    public static void LoadScene(string sceneName, System.Action beforeLoad = null)
-    {
-        if (!instance.transitioning)
-            instance.StartCoroutine(instance.Transition(sceneName, beforeLoad));
-    }
-
     IEnumerator Transition(string sceneName, System.Action beforeLoad)
     {
         transitioning = true;
         canvas.enabled = true;
 
         // Close: shrink the hole to zero (screen goes black)
+        AudioManager.Play(transitionInSound);
         yield return Animate(maxScale, 0f);
 
         beforeLoad?.Invoke();
@@ -85,6 +88,7 @@ public class SceneTransitionManager : MonoBehaviour
         }
 
         // Open: grow the hole to max (new scene revealed)
+        AudioManager.Play(transitionOutSound);
         yield return Animate(0f, maxScale);
 
         canvas.enabled = false;

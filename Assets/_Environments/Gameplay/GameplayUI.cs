@@ -39,13 +39,11 @@ public class GameplayUI : MonoBehaviour
 
     public void OnReadyButtonPressed()
     {
-        AudioManager.Play(AudioManager.Instance.UIStartPath);
         LevelManager.Current.ExitEditMode();
     }
 
     public void OnPauseButtonPressed()
     {
-        AudioManager.Play(AudioManager.Instance.UIConfirmation);
         Time.timeScale = 0f;
 
         pauseMenu.SetActive(true);
@@ -59,14 +57,11 @@ public class GameplayUI : MonoBehaviour
 
     public void OnHintButtonPressed()
     {
-        AudioManager.Play(AudioManager.Instance.UIButtonClick);
         LevelManager.Current.HintRenderer.SpawnHardCodedHint();
     }
 
     public void OnResumeButtonPressed()
     {
-        AudioManager.Play(AudioManager.Instance.UIButtonClick);
-
         pauseMenuRect.DOKill();
         pauseMenuRect.DOAnchorPos(hiddenPos, slideDuration).SetEase(Ease.InCubic).SetUpdate(true)
             .OnComplete(() => pauseMenu.SetActive(false));
@@ -82,7 +77,6 @@ public class GameplayUI : MonoBehaviour
 
     public void OnMenuButtonPressed()
     {
-        AudioManager.Play(AudioManager.Instance.UIButtonClick);
         Time.timeScale = 1f;
         SceneTransitionManager.LoadScene("LevelSelector", LevelManager.ExitLevel);
     }

@@ -374,6 +374,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80daf265d13954f4ca5f978935e90266, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuUI
+  gameTitle: {fileID: 4608562571516023737}
+  swingAngle: 2
+  swingDuration: 2
 --- !u!1 &497212378
 GameObject:
   m_ObjectHideFlags: 0

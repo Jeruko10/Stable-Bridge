@@ -36,7 +36,6 @@ public class LevelSelectorUI : MonoBehaviour
 
     void OnLevelButtonPressed(int index)
     {
-        AudioManager.Play(AudioManager.Instance.UIButtonClick);
         PendingLevelIndex = index;
         SceneTransitionManager.LoadScene("Gameplay");
     }

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4651314547318691996}
   - component: {fileID: 2296877773025023524}
   - component: {fileID: 6804211206348133205}
+  - component: {fileID: 6226322494250814467}
   m_Layer: 5
   m_Name: LevelButton
   m_TagString: Untagged
@@ -91,6 +92,25 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6226322494250814467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985786324757061826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1b7bed6ae399194eb78a3871b770d08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PopButton
+  punchStrength: 0.22
+  duration: 0.45
+  vibrato: 8
+  elasticity: 0.6
+  clickSound:
+    Clip: {fileID: 8300000, guid: 7e97674d25d77194688fdf1b78992ff8, type: 3}
+    Volume: 1
 --- !u!1 &5387514466136953243
 GameObject:
   m_ObjectHideFlags: 0
