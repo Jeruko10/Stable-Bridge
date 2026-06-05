@@ -407,6 +407,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameplayUI
   pauseMenu: {fileID: 9161786566341027206}
+  hintButton: {fileID: 7194852918926816918}
+  readyButton: {fileID: 2104478758725989929}
+  inventorySidebar: {fileID: 4161296082803181635}
   pauseMenuButtons: {fileID: 4636945806610539152}
 --- !u!1 &147937166
 GameObject:
@@ -1475,7 +1478,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_AnchorMin.x
@@ -1483,7 +1486,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_SizeDelta.x
@@ -1523,11 +1526,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 498.775
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -130.4975
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1589,6 +1592,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4636945806610539151}
   - component: {fileID: 4636945806610539152}
+  - component: {fileID: 4636945806610539153}
   m_Layer: 5
   m_Name: ButtonContainer
   m_TagString: Untagged
@@ -1637,6 +1641,32 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &4636945806610539153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4440048396262173485}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 4
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!114 &4868465233419034509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1719,7 +1749,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_AnchorMin.x
@@ -1727,7 +1757,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_SizeDelta.x
@@ -1767,11 +1797,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 498.775
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -391.4925
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4651314547318691996, guid: 341cbd21e8062ae4fa2ad1f05df29008, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

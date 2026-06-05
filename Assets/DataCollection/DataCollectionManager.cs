@@ -101,7 +101,7 @@ public class DataCollectionManager : MonoBehaviour
     ""gender"":                  {{""stringValue"":  ""{Gender}""}},
     ""level_index"":             {{""integerValue"": ""{currentLevelIndex}""}},
     ""session_start"":           {{""timestampValue"":""{timestamp}""}},
-    ""completion_time_seconds"": {{""doubleValue"":  {completionSeconds}}},
+    ""completion_time_seconds"": {{""doubleValue"":  {completionSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture)}}},
     ""moves_count"":             {{""integerValue"": ""{movesCount}""}},
     ""hints_used"":              {{""integerValue"": ""{hintsUsed}""}},
     ""success"":                 {{""booleanValue"": {(success ? "true" : "false")}}}
