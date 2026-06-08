@@ -85,7 +85,7 @@ public class DataCollectionManager : MonoBehaviour
             yield break;
         }
 
-        string collection = $"level_{currentLevelIndex}";
+        string collection = $"level_{currentLevelIndex + 1}";
         string json = BuildFirestoreDocument(success, completionSeconds);
         string url = $"https://firestore.googleapis.com/v1/projects/{firebaseProjectId}/databases/(default)/documents/{collection}?key={firebaseApiKey}";
         Debug.Log($"[DataCollection] Posting to: {url}");

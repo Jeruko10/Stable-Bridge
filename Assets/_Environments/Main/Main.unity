@@ -406,7 +406,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DataCollectionManager
   firebaseProjectId: spatialreasoninginvestigation
-  firebaseApiKey: AIzaSyBX_512bDLnFxxV34QqhpquTqWOll-Jh4Q
+  firebaseApiKey: 978193579829
 --- !u!4 &1157996108
 Transform:
   m_ObjectHideFlags: 0
