@@ -24,7 +24,7 @@ public class LevelEditor : MonoBehaviour
     {
 #if UNITY_EDITOR
 
-        if (grid == null || Mouse.current == null) return;
+        if (grid == null || Mouse.current == null || !LevelManager.LevelCreationEnabled) return;
 
         if (Mouse.current.rightButton.wasPressedThisFrame) TryClickBlock();
 

@@ -6,7 +6,9 @@
       "Bash(python -c ' *)",
       "Bash(awk '{print NR\\\\\": \\\\\"\\\\$3}')",
       "Bash(PYTHONIOENCODING=utf-8 python -c ' *)",
-      "Bash(Get-Content \"c:\\\\Users\\\\jerui\\\\Documents\\\\_JERUDEV\\\\Unity\\\\SpatialReasoningInvestigation\\\\Assets\\\\_Environments\\\\Main\\\\PopUpWindow.cs\")"
+      "Bash(Get-Content \"c:\\\\Users\\\\jerui\\\\Documents\\\\_JERUDEV\\\\Unity\\\\SpatialReasoningInvestigation\\\\Assets\\\\_Environments\\\\Main\\\\PopUpWindow.cs\")",
+      "Bash(dir \"c:\\\\Users\\\\jerui\\\\Documents\\\\_JERUDEV\\\\Unity\\\\SpatialReasoningInvestigation\" /s /b)",
+      "Bash(grep -E \"\\\\.\\(sln|csproj\\)$\")"
     ]
   }
 }

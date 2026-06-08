@@ -233,6 +233,7 @@ GameObject:
   - component: {fileID: 77203211}
   - component: {fileID: 77203210}
   - component: {fileID: 77203209}
+  - component: {fileID: 77203212}
   m_Layer: 0
   m_Name: LevelManager
   m_TagString: Untagged
@@ -268,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7120eeaef417bfc4ab5ae6c274dea00f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelManager
-  fastGameplay: 0
+  fastGameplay: 1
   levelCreationEnabled: 0
   levelPrefab: {fileID: 1451513084614940299, guid: 565349de2962d744fa77427b39fccdb6, type: 3}
   blockInventory: {fileID: 4868465233419034509}
@@ -287,6 +288,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &77203212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77203208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 830a380383eaa394c980a8a6e0571595, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutoPlayer
 --- !u!1 &106646822
 GameObject:
   m_ObjectHideFlags: 0

@@ -32,6 +32,8 @@ public class Level : MonoBehaviour
     public event Action<bool> LevelComplete;
     public event Action<bool> SuccessKnown;
 
+    public bool SkipProgression { get; set; }
+
     bool success, fastGameplay;
     IEnumerable<Vector2> minerPath;
     GameObject blocksFolder;
@@ -127,6 +129,8 @@ public class Level : MonoBehaviour
     IEnumerator EndLevel(bool success)
     {
         LevelComplete?.Invoke(success);
+
+        if (SkipProgression) yield break;
 
         if (success)
         {
