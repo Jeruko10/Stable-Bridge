@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelSolution
   placements:
   - blockId: 0
-    tile: {x: 2, y: 4}
+    tile: {x: 4, y: 4}
     rotation: 180
     flipped: 0
   - blockId: 1

@@ -26,6 +26,6 @@ MonoBehaviour:
     rotation: 0
     flipped: 0
   - blockId: 3
-    tile: {x: 2, y: 3}
+    tile: {x: 3, y: 3}
     rotation: 180
     flipped: 0

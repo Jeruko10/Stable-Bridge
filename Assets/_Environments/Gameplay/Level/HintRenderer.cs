@@ -69,15 +69,16 @@ public class HintRenderer : MonoBehaviour
         for (int i = 0; i < freeBlocks.Count && i < level.Inventory.Count; i++)
             idToBlock[freeBlocks[i].BlockId] = level.Inventory[i];
 
+        BoardGrid grid = GetComponent<BoardGrid>();
         return layout.Solutions[0].Placements
             .Where(p => idToBlock.ContainsKey(p.blockId))
             .OrderBy(p => p.tile.y).ThenBy(p => p.tile.x)
             .Select(p => new HintStep
             {
-                block = idToBlock[p.blockId],
-                position = new Vector2(p.tile.x, p.tile.y),
+                block    = idToBlock[p.blockId],
+                position = grid.TileToWorld(p.tile),
                 rotation = p.rotation,
-                flipped = p.flipped
+                flipped  = p.flipped
             })
             .ToList();
     }
@@ -90,11 +91,19 @@ public class HintRenderer : MonoBehaviour
 
         Block ghost = Instantiate(prefab, transform);
         ghost.Initialize(prefab, pivotIndex, Block.Mobility.Fixed);
+
+        // Reset to world origin so pivot position is clean before applying transforms
+        ghost.transform.position = Vector3.zero;
+        ghost.Position2D = Vector2.zero;
+
         ghost.SetRotation(ghost.Pivot, step.rotation);
         if (step.flipped) ghost.Flip(ghost.Pivot);
 
-        ghost.transform.position = new Vector3(step.position.x, step.position.y, depthOffset);
-        ghost.Position2D = step.position;
+        // Move root so pivot lands at the target tile world position
+        Vector2 pivotOffset = (Vector2)ghost.Pivot.transform.position - (Vector2)ghost.transform.position;
+        Vector2 rootTarget = step.position - pivotOffset;
+        ghost.transform.position = new Vector3(rootTarget.x, rootTarget.y, depthOffset);
+        ghost.Position2D = rootTarget;
         ghost.DepthOffset = depthOffset;
         ghost.Color = color;
 

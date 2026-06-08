@@ -44,16 +44,16 @@
       },
       "knight": [
         0,
-        2
+        1
       ],
       "princess": [
         5,
-        1
+        0
       ],
       "towers": [
         [
           0,
-          1
+          0
         ]
       ],
       "inventory": [

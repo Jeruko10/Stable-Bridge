@@ -18,7 +18,7 @@ MonoBehaviour:
     rotation: 90
     flipped: 0
   - blockId: 1
-    tile: {x: 2, y: 4}
+    tile: {x: 3, y: 4}
     rotation: 0
     flipped: 1
   - blockId: 2

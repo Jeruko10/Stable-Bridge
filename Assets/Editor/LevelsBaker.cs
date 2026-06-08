@@ -54,12 +54,18 @@ public static class LevelsBaker
                 for (int s = 0; s < solutionList.Count; s++)
                 {
                     var sol = ScriptableObject.CreateInstance<LevelSolution>();
-                    sol.Initialize(solutionList[s].placements.Select(p => new LevelSolution.Placement
+                    sol.Initialize(solutionList[s].placements.Select(p =>
                     {
-                        blockId = p.id - 10,
-                        tile = new Vector2Int(p.position[0], p.position[1] + YOffset),
-                        rotation = ToRotation(p.orientation, p.is_inverted),
-                        flipped = p.is_mirror
+                        bool needsCorrection = p.is_mirror ^ p.is_inverted;
+                        int dx = (p.orientation != "VERT" && needsCorrection) ? p.size[0] - 1 : 0;
+                        int dy = (p.orientation == "VERT"  && needsCorrection) ? p.size[0] - 1 : 0;
+                        return new LevelSolution.Placement
+                        {
+                            blockId  = p.id - 10,
+                            tile     = new Vector2Int(p.position[0] + dx, p.position[1] + dy + YOffset),
+                            rotation = ToRotation(p.orientation, p.is_inverted),
+                            flipped  = p.is_mirror
+                        };
                     }).ToList());
                     AssetDatabase.CreateAsset(sol, $"{solutionsFolder}/Solution{s + 1}.asset");
                     solutionAssets.Add(sol);
@@ -169,6 +175,7 @@ public static class LevelsBaker
     {
         public int id;
         public int[] position;
+        public int[] size;
         public string orientation;
         public bool is_mirror;
         public bool is_inverted;

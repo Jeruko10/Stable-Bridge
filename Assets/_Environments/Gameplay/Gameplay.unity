@@ -269,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7120eeaef417bfc4ab5ae6c274dea00f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelManager
-  fastGameplay: 1
+  fastGameplay: 0
   levelCreationEnabled: 0
   levelPrefab: {fileID: 1451513084614940299, guid: 565349de2962d744fa77427b39fccdb6, type: 3}
   blockInventory: {fileID: 4868465233419034509}
