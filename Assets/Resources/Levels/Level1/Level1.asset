@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level1
   m_EditorClassIdentifier: Assembly-CSharp::LevelLayout
   levelSize: {x: 6, y: 6}
-  startPosition: {x: 0, y: 3}
+  startPosition: {x: 0, y: 2}
   endPosition: {x: 5, y: 2}
   blocks:
   - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
@@ -22,7 +22,23 @@ MonoBehaviour:
     <PivotIndex>k__BackingField: 0
     <Flipped>k__BackingField: 0
     <StartingRotation>k__BackingField: 0
-    <StartingTile>k__BackingField: {x: 0, y: 2}
+    <StartingTile>k__BackingField: {x: 0, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 3fd02ceb4a600894b9cf2fa5c38e0799, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 3
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 5, y: 1}
+    <SlideTiles>k__BackingField: []
+  - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 30cdc89195fd8114e9bf8f4a93f8652b, type: 3}
+    <BlockId>k__BackingField: 0
+    <MobilityType>k__BackingField: 0
+    <PivotIndex>k__BackingField: 0
+    <Flipped>k__BackingField: 0
+    <StartingRotation>k__BackingField: 0
+    <StartingTile>k__BackingField: {x: 0, y: 0}
     <SlideTiles>k__BackingField: []
   - <BlockPrefab>k__BackingField: {fileID: 6057541212412927182, guid: 30cdc89195fd8114e9bf8f4a93f8652b, type: 3}
     <BlockId>k__BackingField: 0

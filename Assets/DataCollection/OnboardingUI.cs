@@ -20,18 +20,13 @@ public class OnboardingUI : MonoBehaviour
             return;
         }
 
-        if (genderDropdown.value == 0)
-        {
-            ShowError("Please select a gender option.");
-            return;
-        }
-
         string gender = genderDropdown.options[genderDropdown.value].text;
         DataCollectionManager.Instance.SetParticipant(age, gender);
     }
 
     void ShowError(string message)
     {
+        Debug.LogWarning(message);
         errorText.text = message;
         errorText.gameObject.SetActive(true);
     }

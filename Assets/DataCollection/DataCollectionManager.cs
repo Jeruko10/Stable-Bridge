@@ -24,7 +24,12 @@ public class DataCollectionManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
@@ -74,8 +79,16 @@ public class DataCollectionManager : MonoBehaviour
             yield break;
         }
 
+        if (string.IsNullOrEmpty(firebaseProjectId) || string.IsNullOrEmpty(firebaseApiKey))
+        {
+            Debug.LogError("[DataCollection] Firebase Project ID or API Key is not set in the Inspector.");
+            yield break;
+        }
+
+        string collection = $"level_{currentLevelIndex}";
         string json = BuildFirestoreDocument(success, completionSeconds);
-        string url = $"https://firestore.googleapis.com/v1/projects/{firebaseProjectId}/databases/(default)/documents/level_sessions?key={firebaseApiKey}";
+        string url = $"https://firestore.googleapis.com/v1/projects/{firebaseProjectId}/databases/(default)/documents/{collection}?key={firebaseApiKey}";
+        Debug.Log($"[DataCollection] Posting to: {url}");
 
         byte[] body = Encoding.UTF8.GetBytes(json);
         using UnityWebRequest request = new(url, "POST");
@@ -88,7 +101,7 @@ public class DataCollectionManager : MonoBehaviour
         if (request.result != UnityWebRequest.Result.Success)
             Debug.LogError($"[DataCollection] Failed to save session: {request.error}\n{request.downloadHandler.text}");
         else
-            Debug.Log($"[DataCollection] Level {currentLevelIndex} session saved.");
+            Debug.Log($"[DataCollection] Level {currentLevelIndex} session saved to collection '{collection}'.");
     }
 
     string BuildFirestoreDocument(bool success, float completionSeconds)
