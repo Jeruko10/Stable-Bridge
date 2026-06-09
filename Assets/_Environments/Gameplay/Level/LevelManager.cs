@@ -63,9 +63,10 @@ public class LevelManager : MonoBehaviour
     {
         ExitLevel();
         Current = Instantiate(instance.levelPrefab, instance.transform);
-        Current.name = $"Level {levelIndex}";
+        Current.name = $"Level {levelIndex + 1}";
 
         CurrentLayout = levels[levelIndex];
+        Debug.Log($"Playing level {levelIndex + 1}");        
         Current.Initialize(CurrentLayout, instance.fastGameplay, instance.blockInventory);
         AudioManager.StopAll();
         AudioManager.Play(AudioManager.Instance.LevelTheme);

@@ -99,11 +99,11 @@ public class HintRenderer : MonoBehaviour
         ghost.SetRotation(ghost.Pivot, step.rotation);
         if (step.flipped) ghost.Flip(ghost.Pivot);
 
-        // Move root so pivot lands at the target tile world position
-        Vector2 pivotOffset = (Vector2)ghost.Pivot.transform.position - (Vector2)ghost.transform.position;
-        Vector2 rootTarget = step.position - pivotOffset;
-        ghost.transform.position = new Vector3(rootTarget.x, rootTarget.y, depthOffset);
-        ghost.Position2D = rootTarget;
+        // Baker tile = world position of the block's local-origin cell.
+        // Set root directly; pivot offset must NOT be subtracted because the
+        // baker already computes tile relative to the root, not the pivot segment.
+        ghost.transform.position = new Vector3(step.position.x, step.position.y, depthOffset);
+        ghost.Position2D = step.position;
         ghost.DepthOffset = depthOffset;
         ghost.Color = color;
 

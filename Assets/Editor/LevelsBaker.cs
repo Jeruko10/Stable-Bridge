@@ -56,15 +56,19 @@ public static class LevelsBaker
                     var sol = ScriptableObject.CreateInstance<LevelSolution>();
                     sol.Initialize(solutionList[s].placements.Select(p =>
                     {
-                        bool needsCorrection = p.is_mirror ^ p.is_inverted;
-                        int dx = (p.orientation != "VERT" && needsCorrection) ? p.size[0] - 1 : 0;
-                        int dy = (p.orientation == "VERT"  && needsCorrection) ? p.size[0] - 1 : 0;
+                        // HORIZ: pivot is rightmost cell when mirrored (flip X moves root to right end).
+                        // Inverted (flip Y) = Deg180 + toggleFlip, which cancels mirror's shift.
+                        bool needsCorrectionH = p.orientation != "VERT" && p.is_mirror;
+                        // VERT: pivot is topmost cell only when inverted (Deg270).
+                        bool needsCorrectionV = p.orientation == "VERT" && p.is_inverted;
+                        int dx = needsCorrectionH ? p.size[0] - 1 : 0;
+                        int dy = needsCorrectionV ? p.size[1] - 1 : 0;
                         return new LevelSolution.Placement
                         {
                             blockId  = p.id - 10,
                             tile     = new Vector2Int(p.position[0] + dx, p.position[1] + dy + YOffset),
                             rotation = ToRotation(p.orientation, p.is_inverted),
-                            flipped  = p.is_mirror
+                            flipped  = p.is_mirror ^ p.is_inverted
                         };
                     }).ToList());
                     AssetDatabase.CreateAsset(sol, $"{solutionsFolder}/Solution{s + 1}.asset");
