@@ -54,6 +54,7 @@ public class LevelManager : MonoBehaviour
             return null;
         }
 
+        SaveManager.Instance.UnlockLevel(LastLevelIndex);
         return LoadLevel(LastLevelIndex);
     }
 
@@ -61,6 +62,7 @@ public class LevelManager : MonoBehaviour
 
     public static Level LoadLevel(int levelIndex)
     {
+        LastLevelIndex = levelIndex;
         ExitLevel();
         Current = Instantiate(instance.levelPrefab, instance.transform);
         Current.name = $"Level {levelIndex + 1}";

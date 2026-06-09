@@ -27,6 +27,7 @@ public class LevelSelectorUI : MonoBehaviour
         foreach (Transform child in topLayout) Destroy(child.gameObject);
         foreach (Transform child in bottomLayout) Destroy(child.gameObject);
 
+        int highest = SaveManager.Instance.HighestUnlockedLevel;
         int count = Resources.LoadAll<LevelLayout>("Levels").Length;
         for (int i = 0; i < count; i++)
         {
@@ -35,7 +36,11 @@ public class LevelSelectorUI : MonoBehaviour
             GameObject btn = Instantiate(levelButtonPrefab, parent);
             btn.name = $"LevelButton.{index}";
             btn.GetComponentInChildren<TMP_Text>().text = index.ToString();
-            btn.GetComponent<Button>().onClick.AddListener(() => OnLevelButtonPressed(index - 1));
+
+            Button button = btn.GetComponent<Button>();
+            bool unlocked = i <= highest;
+            button.interactable = unlocked;
+            if (unlocked) button.onClick.AddListener(() => OnLevelButtonPressed(index - 1));
         }
     }
 
