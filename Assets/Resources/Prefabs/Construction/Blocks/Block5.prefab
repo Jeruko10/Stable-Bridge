@@ -163,7 +163,7 @@ PrefabInstance:
     - target: {fileID: 2853534257233814302, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
       propertyPath: <InterfaceImage>k__BackingField
       value: 
-      objectReference: {fileID: 21300000, guid: 9eca32ad49c1df146b05f73128b1df28, type: 3}
+      objectReference: {fileID: 21300000, guid: 5314510b4450ceb4fb6a103553639db5, type: 3}
     - target: {fileID: 5211579415055609634, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
       propertyPath: m_Name
       value: Block5

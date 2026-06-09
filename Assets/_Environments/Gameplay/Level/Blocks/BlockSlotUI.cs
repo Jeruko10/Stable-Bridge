@@ -4,8 +4,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(RectTransform))]
 public class BlockSlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler
 {
+    [Header("Settings")]
+    [SerializeField] float scale;
+
     [Header("References")]
     [SerializeField] Image image;
     
@@ -18,6 +22,10 @@ public class BlockSlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler
         playerInput = input;
 
         image.sprite = block.Prefab.InterfaceImage;
+        image.SetNativeSize();
+
+        RectTransform imgRectTransform = image.GetComponent<RectTransform>();
+        imgRectTransform.sizeDelta *= scale;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
