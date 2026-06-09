@@ -69,7 +69,7 @@ public class GameplayUI : MonoBehaviour
         readyButton.DOKill();
         inventorySidebar.DOKill();
         hintButton.DOAnchorPos(hintButtonShownPos + Vector2.up * SlideButtonsOffset, SlideDuration).SetEase(Ease.InCubic);
-        readyButton.DOAnchorPos(readyButtonShownPos + Vector2.up * SlideButtonsOffset, SlideDuration).SetEase(Ease.InCubic);
+        readyButton.DOAnchorPos(readyButtonShownPos + Vector2.down * SlideButtonsOffset, SlideDuration).SetEase(Ease.InCubic);
         inventorySidebar.DOAnchorPos(inventoryShownPos + Vector2.left * SlideInventoryOffset, SlideDuration).SetEase(Ease.InCubic);
     }
 

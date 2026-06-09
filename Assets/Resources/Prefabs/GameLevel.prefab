@@ -82,7 +82,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SimulationObserver
   stabilityRequiredFrames: 60
   unstabilityFrameLimit: 1000
-  positionThreshold: 0.1
+  positionThreshold: 0.15
   rotationThreshold: 5
   linearVelocityThreshold: 0.01
   angularVelocityThreshold: 1
