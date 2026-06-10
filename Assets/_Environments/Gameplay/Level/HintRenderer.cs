@@ -119,9 +119,7 @@ public class HintRenderer : MonoBehaviour
     bool IsCorrectlyPlaced(Block block, LevelSolution.Placement p)
     {
         if (!grid.ContainsBlock(block)) return false;
-        return grid.WorldToTile(block.Position2D) == p.tile
-            && block.Rotation == p.rotation
-            && block.IsFlipped == p.flipped;
+        return block.ShapeMatchesPlacement(grid.TileToWorld(p.tile), p.rotation, p.flipped);
     }
 
     HintStep? FindNextStep(LevelSolution solution, Dictionary<int, Block> idToBlock)

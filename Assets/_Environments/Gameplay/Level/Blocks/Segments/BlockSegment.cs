@@ -7,6 +7,7 @@ public abstract class BlockSegment : MonoBehaviour
     public abstract void Initialize(Block parent);
     public abstract Block GetParent();
     public abstract void Flip();
+    public abstract IEnumerable<Vector2> GetShape();
     public abstract IEnumerable<LocalTransition> GetTransitions();
 
     public const float SideLength = 1f;

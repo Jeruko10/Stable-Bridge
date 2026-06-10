@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -114,6 +115,46 @@ public class Block : MonoBehaviour
         foreach (BlockSegment segment in segments)
             segment.Flip();
     }
+
+    public bool ShapeMatchesPlacement(Vector2 rootWorld, BoardGrid.Rotation rotation, bool flipped)
+    {
+        // if I were to place this block at rootWorld with rotation/flipped, would it cover the exact same floor tiles it covers right now?
+        var actual   = new HashSet<(int, int)>(GetShape().Select(ShapeKey));
+        var expected = new HashSet<(int, int)>(GetShapeAtPlacement(rootWorld, rotation, flipped).Select(ShapeKey));
+        return actual.SetEquals(expected);
+    }
+
+    IEnumerable<Vector2> GetShape()
+    {
+        var keys = new HashSet<(int, int)>();
+        var result = new List<Vector2>();
+        foreach (BlockSegment segment in segments)
+            foreach (Vector2 corner in segment.GetShape())
+            {
+                Vector2 world = segment.transform.TransformPoint(corner);
+                if (keys.Add(ShapeKey(world))) result.Add(world);
+            }
+        return result;
+    }
+
+    IEnumerable<Vector2> GetShapeAtPlacement(Vector2 rootWorld, BoardGrid.Rotation rotation, bool flipped)
+    {
+        Quaternion rot = Quaternion.Euler(0f, flipped ? 180f : 0f, (float)rotation);
+        var keys = new HashSet<(int, int)>();
+        var result = new List<Vector2>();
+        foreach (BlockSegment segment in segments)
+        {
+            Vector2 segWorld = rootWorld + (Vector2)(rot * segment.transform.localPosition);
+            foreach (Vector2 corner in segment.GetShape())
+            {
+                Vector2 world = segWorld + (Vector2)(rot * (Vector3)corner);
+                if (keys.Add(ShapeKey(world))) result.Add(world);
+            }
+        }
+        return result;
+    }
+
+    static (int, int) ShapeKey(Vector2 p) => (Mathf.RoundToInt(p.x * 2), Mathf.RoundToInt(p.y * 2));
 
     void FetchSegmentChildren()
     {

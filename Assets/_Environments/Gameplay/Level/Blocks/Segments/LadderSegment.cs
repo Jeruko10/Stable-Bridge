@@ -5,12 +5,21 @@ using UnityEngine;
 public class LadderSegment : BlockSegment
 {
     LocalTransition[] transitions0Deg, transitions90Deg, transitions180Deg, transitions270Deg;
+    Vector2[] shape;
     Block parent;
     bool flipped = false;
     
     public override void Initialize(Block parent)
     {
         this.parent = parent;
+
+        shape = new Vector2[]
+        {
+            TopLeft,
+            TopRight,
+            BottomLeft,
+            BottomRight
+        };
 
         transitions0Deg = new LocalTransition[]
         {
@@ -37,6 +46,8 @@ public class LadderSegment : BlockSegment
 
     public override void Flip() => flipped = !flipped;
 
+    public override IEnumerable<Vector2> GetShape() => shape;
+    
     public override IEnumerable<LocalTransition> GetTransitions()
     {
         IEnumerable<LocalTransition> rotatedTransitions = parent.Rotation switch
