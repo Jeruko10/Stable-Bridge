@@ -10,34 +10,46 @@ public class HintRenderer : MonoBehaviour
     [SerializeField] Color color = Color.cyan;
 
     Level level;
-    List<HintStep> steps;
+    BoardGrid grid;
     readonly List<Block> ghosts = new();
-    int revealedCount;
+    readonly HashSet<int> ghostedBlockIds = new();
+    int? chosenSolutionIndex;
 
     struct HintStep
     {
         public Block block;
+        public int blockId;
         public Vector2 position;
         public BoardGrid.Rotation rotation;
         public bool flipped;
     }
 
-    void Awake() => level = GetComponent<Level>();
+    void Awake()
+    {
+        level = GetComponent<Level>();
+        grid = GetComponent<BoardGrid>();
+    }
 
     public void DisplayHint()
     {
-        if (steps == null)
+        LevelLayout layout = LevelManager.CurrentLayout;
+        if (layout == null || layout.Solutions.Count == 0)
         {
-            steps = BuildSteps();
-            if (steps == null) return;
+            Debug.Log("HintRenderer: no baked solutions available for this level.");
+            return;
         }
 
-        if (revealedCount >= steps.Count) return;
+        var idToBlock = BuildIdToBlock(layout);
 
-        ghosts.Add(SpawnGhost(steps[revealedCount]));
-        revealedCount++;
+        chosenSolutionIndex ??= SelectSolution(layout, idToBlock);
+
+        HintStep? step = FindNextStep(layout.Solutions[chosenSolutionIndex.Value], idToBlock);
+        if (step == null) return;
+
+        ghostedBlockIds.Add(step.Value.blockId);
+        ghosts.Add(SpawnGhost(step.Value));
         DataCollectionManager.Instance?.RecordHint();
-        Debug.Log($"HintRenderer: revealed hint {revealedCount}/{steps.Count}.");
+        Debug.Log($"HintRenderer: revealed hint for block {step.Value.block.name} (solution {chosenSolutionIndex}).");
     }
 
     public void SpawnHardCodedHint() => DisplayHint();
@@ -47,20 +59,12 @@ public class HintRenderer : MonoBehaviour
         foreach (Block ghost in ghosts)
             if (ghost != null) Destroy(ghost.gameObject);
         ghosts.Clear();
-        revealedCount = 0;
-        steps = null;
+        ghostedBlockIds.Clear();
+        chosenSolutionIndex = null;
     }
 
-    List<HintStep> BuildSteps()
+    Dictionary<int, Block> BuildIdToBlock(LevelLayout layout)
     {
-        LevelLayout layout = LevelManager.CurrentLayout;
-        if (layout == null || layout.Solutions.Count == 0)
-        {
-            Debug.Log("HintRenderer: no baked solutions available for this level.");
-            return null;
-        }
-
-        // Map blockId → Block instance using inventory order (matches free-block order in layout)
         var freeBlocks = layout.Blocks
             .Where(b => b.MobilityType == Block.Mobility.Free)
             .ToList();
@@ -68,19 +72,85 @@ public class HintRenderer : MonoBehaviour
         var idToBlock = new Dictionary<int, Block>();
         for (int i = 0; i < freeBlocks.Count && i < level.Inventory.Count; i++)
             idToBlock[freeBlocks[i].BlockId] = level.Inventory[i];
+        return idToBlock;
+    }
 
-        BoardGrid grid = GetComponent<BoardGrid>();
-        return layout.Solutions[0].Placements
-            .Where(p => idToBlock.ContainsKey(p.blockId))
-            .OrderBy(p => p.tile.y).ThenBy(p => p.tile.x)
-            .Select(p => new HintStep
+    int SelectSolution(LevelLayout layout, Dictionary<int, Block> idToBlock)
+    {
+        bool anyPlaced = grid.GetAllBlocks().Any(b => b.MobilityType == Block.Mobility.Free);
+        if (!anyPlaced)
+            return Random.Range(0, layout.Solutions.Count);
+
+        int maxPossible = idToBlock.Values.Sum(b => b.Segments.Length);
+        int bestScore = -1;
+        var bestIndices = new List<int>();
+
+        for (int i = 0; i < layout.Solutions.Count; i++)
+        {
+            int score = ScoreSolution(layout.Solutions[i], idToBlock);
+
+            if (score > bestScore)
             {
-                block    = idToBlock[p.blockId],
-                position = grid.TileToWorld(p.tile),
-                rotation = p.rotation,
-                flipped  = p.flipped
-            })
-            .ToList();
+                bestScore = score;
+                bestIndices.Clear();
+                bestIndices.Add(i);
+                if (score == maxPossible) break; // all blocks match — level is solved
+            }
+            else if (score == bestScore)
+            {
+                bestIndices.Add(i);
+            }
+        }
+
+        return bestIndices[Random.Range(0, bestIndices.Count)];
+    }
+
+    int ScoreSolution(LevelSolution solution, Dictionary<int, Block> idToBlock)
+    {
+        int score = 0;
+        foreach (var p in solution.Placements)
+        {
+            if (idToBlock.TryGetValue(p.blockId, out Block block) && IsCorrectlyPlaced(block, p))
+                score += block.Segments.Length;
+        }
+        return score;
+    }
+
+    bool IsCorrectlyPlaced(Block block, LevelSolution.Placement p)
+    {
+        if (!grid.ContainsBlock(block)) return false;
+        return grid.WorldToTile(block.Position2D) == p.tile
+            && block.Rotation == p.rotation
+            && block.IsFlipped == p.flipped;
+    }
+
+    HintStep? FindNextStep(LevelSolution solution, Dictionary<int, Block> idToBlock)
+    {
+        LevelSolution.Placement? best = null;
+
+        foreach (var p in solution.Placements)
+        {
+            if (!idToBlock.ContainsKey(p.blockId)) continue;
+            if (ghostedBlockIds.Contains(p.blockId)) continue;
+            if (IsCorrectlyPlaced(idToBlock[p.blockId], p)) continue;
+
+            if (best == null
+                || p.tile.y < best.Value.tile.y
+                || (p.tile.y == best.Value.tile.y && p.tile.x < best.Value.tile.x))
+                best = p;
+        }
+
+        if (best == null) return null;
+
+        var placement = best.Value;
+        return new HintStep
+        {
+            block    = idToBlock[placement.blockId],
+            blockId  = placement.blockId,
+            position = grid.TileToWorld(placement.tile),
+            rotation = placement.rotation,
+            flipped  = placement.flipped
+        };
     }
 
     Block SpawnGhost(HintStep step)
