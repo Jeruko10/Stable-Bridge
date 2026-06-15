@@ -47,38 +47,94 @@ public class BoardGrid : MonoBehaviour
         }
     }
 
-    public void AddRow(bool isVisual)
+    public void AddRow(bool atTop = true, int count = 1)
     {
-        int newY = Size.y;
-        Size += Vector2Int.up;
+        if (!atTop) ShiftTilesY(count);
 
-        for (int x = 0; x < Size.x; x++)
+        Size += Vector2Int.up * count;
+        int startY = atTop ? Size.y - count : 0;
+
+        for (int i = 0; i < count; i++)
         {
-            Vector2Int tileCoord = new(x, newY);
-            tileBlocks[tileCoord] = null;
+            for (int x = 0; x < Size.x; x++)
+            {
+                Vector2Int tileCoord = new(x, startY + i);
+                tileBlocks[tileCoord] = null;
 
-            if (!isVisual) continue;
-
-            GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, visualsFolder.transform);
-            tileVisuals.Add(tileCoord, instance);
+                GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, visualsFolder.transform);
+                tileVisuals.Add(tileCoord, instance);
+            }
         }
     }
 
-    public void AddColumn(bool isVisual)
+    public void AddColumn(bool atRight = true, int count = 1)
     {
-        int newX = Size.x;
-        Size += Vector2Int.right;
+        if (!atRight) ShiftTilesX(count);
 
-        for (int y = 0; y < Size.y; y++)
+        Size += Vector2Int.right * count;
+        int startX = atRight ? Size.x - count : 0;
+
+        for (int i = 0; i < count; i++)
         {
-            Vector2Int tileCoord = new(newX, y);
-            tileBlocks[tileCoord] = null;
+            for (int y = 0; y < Size.y; y++)
+            {
+                Vector2Int tileCoord = new(startX + i, y);
+                tileBlocks[tileCoord] = null;
 
-            if (!isVisual) continue;
-
-            GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, visualsFolder.transform);
-            tileVisuals.Add(tileCoord, instance);
+                GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, visualsFolder.transform);
+                tileVisuals.Add(tileCoord, instance);
+            }
         }
+    }
+
+    void ShiftTilesY(int dy)
+    {
+        var shifted = new Dictionary<Vector2Int, BlockSegment>();
+        foreach (var kvp in tileBlocks)
+            shifted[new Vector2Int(kvp.Key.x, kvp.Key.y + dy)] = kvp.Value;
+        tileBlocks.Clear();
+        foreach (var kvp in shifted) tileBlocks[kvp.Key] = kvp.Value;
+
+        var shiftedBlockTiles = new Dictionary<BlockSegment, Vector2Int>();
+        foreach (var kvp in blockTiles)
+            shiftedBlockTiles[kvp.Key] = new Vector2Int(kvp.Value.x, kvp.Value.y + dy);
+        blockTiles.Clear();
+        foreach (var kvp in shiftedBlockTiles) blockTiles[kvp.Key] = kvp.Value;
+
+        var shiftedVisuals = new Dictionary<Vector2Int, GameObject>();
+        foreach (var kvp in tileVisuals)
+        {
+            Vector2Int newCoord = new(kvp.Key.x, kvp.Key.y + dy);
+            kvp.Value.transform.position = TileToWorld(newCoord);
+            shiftedVisuals[newCoord] = kvp.Value;
+        }
+        tileVisuals.Clear();
+        foreach (var kvp in shiftedVisuals) tileVisuals[kvp.Key] = kvp.Value;
+    }
+
+    void ShiftTilesX(int dx)
+    {
+        var shifted = new Dictionary<Vector2Int, BlockSegment>();
+        foreach (var kvp in tileBlocks)
+            shifted[new Vector2Int(kvp.Key.x + dx, kvp.Key.y)] = kvp.Value;
+        tileBlocks.Clear();
+        foreach (var kvp in shifted) tileBlocks[kvp.Key] = kvp.Value;
+
+        var shiftedBlockTiles = new Dictionary<BlockSegment, Vector2Int>();
+        foreach (var kvp in blockTiles)
+            shiftedBlockTiles[kvp.Key] = new Vector2Int(kvp.Value.x + dx, kvp.Value.y);
+        blockTiles.Clear();
+        foreach (var kvp in shiftedBlockTiles) blockTiles[kvp.Key] = kvp.Value;
+
+        var shiftedVisuals = new Dictionary<Vector2Int, GameObject>();
+        foreach (var kvp in tileVisuals)
+        {
+            Vector2Int newCoord = new(kvp.Key.x + dx, kvp.Key.y);
+            kvp.Value.transform.position = TileToWorld(newCoord);
+            shiftedVisuals[newCoord] = kvp.Value;
+        }
+        tileVisuals.Clear();
+        foreach (var kvp in shiftedVisuals) tileVisuals[kvp.Key] = kvp.Value;
     }
 
     public void RemoveRow()

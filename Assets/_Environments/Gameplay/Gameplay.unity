@@ -638,7 +638,7 @@ MonoBehaviour:
   <BlockLayer>k__BackingField:
     serializedVersion: 2
     m_Bits: 64
-  <RayDistance>k__BackingField: 100
+  <RayDistance>k__BackingField: 300
   <DragThresholdPixels>k__BackingField: 10
   <FlipHoldTime>k__BackingField: 0.4
   blockInventory: {fileID: 4868465233419034509}

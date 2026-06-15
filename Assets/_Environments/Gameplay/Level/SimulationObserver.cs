@@ -9,6 +9,7 @@ public class SimulationObserver : MonoBehaviour
     [Header("Simulation Frames")]
     [SerializeField] int stabilityRequiredFrames = 60;
     [SerializeField] int unstabilityFrameLimit = 500;
+    [SerializeField] float unstableBreakDelay = 2f;
 
     [Header("Stability Detection")]
     [SerializeField] float positionThreshold = 0.001f;
@@ -29,6 +30,7 @@ public class SimulationObserver : MonoBehaviour
 
     readonly Dictionary<Block, StabilityState> blockStates = new();
     readonly Dictionary<Block, int> blockStabilityTimers = new();
+    readonly Dictionary<Block, float> blockUnstableTimers = new();
     readonly Dictionary<Block, Vector3> originPositions = new();
     readonly Dictionary<Block, Quaternion> originRotations = new();
     bool simulationFinished = true, stabilityChecked = false, instantSimulation = false;
@@ -52,6 +54,7 @@ public class SimulationObserver : MonoBehaviour
         simulationFramesTimer = 0;
         blockStates.Clear();
         blockStabilityTimers.Clear();
+        blockUnstableTimers.Clear();
         originPositions.Clear();
         originRotations.Clear();
 
@@ -68,6 +71,7 @@ public class SimulationObserver : MonoBehaviour
 
             blockStates.Add(block, initialState);
             blockStabilityTimers.Add(block, 0);
+            blockUnstableTimers.Add(block, 0f);
             originPositions.Add(block, block.transform.position);
             originRotations.Add(block, block.transform.rotation);
         }
@@ -124,12 +128,24 @@ public class SimulationObserver : MonoBehaviour
         bool rotationUnstable = Quaternion.Angle(block.transform.rotation, originRotations[block]) > rotationThreshold;
         bool isMoving = block.Rigidbody.linearVelocity.magnitude > linearVelocityThreshold || block.Rigidbody.angularVelocity.magnitude > angularVelocityThreshold;
 
-        if ((!isMoving || block.transform.position.y < minHeight) && blockStates[block] == StabilityState.Unstable)
+        if (blockStates[block] == StabilityState.Unstable)
         {
-            if (!isMoving) Debug.Log($"{block.name} broken: idle");
-            if (block.transform.position.y < minHeight) Debug.Log($"{block.name} broken: falling");
-            
-            RemoveBlock(block);
+            if (!isMoving || block.transform.position.y < minHeight)
+            {
+                if (!isMoving) Debug.Log($"{block.name} broken: idle");
+                if (block.transform.position.y < minHeight) Debug.Log($"{block.name} broken: falling");
+
+                RemoveBlock(block);
+                return;
+            }
+
+            blockUnstableTimers[block] += Time.fixedDeltaTime;
+            if (blockUnstableTimers[block] >= unstableBreakDelay)
+            {
+                Debug.Log($"{block.name} broken: timer expired while unstable");
+                RemoveBlock(block);
+            }
+
             return;
         }
 
@@ -155,6 +171,7 @@ public class SimulationObserver : MonoBehaviour
     {
         blockStates.Remove(block);
         blockStabilityTimers.Remove(block);
+        blockUnstableTimers.Remove(block);
         originPositions.Remove(block);
         originRotations.Remove(block);
         grid.RemoveBlock(block);

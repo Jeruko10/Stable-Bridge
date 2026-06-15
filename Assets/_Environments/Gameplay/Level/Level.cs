@@ -2,18 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.InputSystem;
+
 [RequireComponent(typeof(BoardGrid))]
 [RequireComponent(typeof(SimulationObserver))]
-
 [RequireComponent(typeof(HintRenderer))]
 public class Level : MonoBehaviour
 {
     [field: SerializeField] public float CameraDistance { get; set; } = 1f;
     [field: SerializeField] public float BackgroundDistance { get; set; } = 1f;
     [field: SerializeField] public float CharactersHeightOffset { get; set; } = 0f;
+    [field: SerializeField] public Vector2 CameraOffset { get; set; } = new(1f, 0f);
 
     [Header("References")]
     [field: SerializeField] Miner minerPrefab;
@@ -34,6 +33,7 @@ public class Level : MonoBehaviour
 
     public bool SkipProgression { get; set; }
 
+    readonly Vector2Int gridExtraBoundaries = new(3, 2);
     bool success, fastGameplay;
     IEnumerable<Vector2> minerPath;
     GameObject blocksFolder;
@@ -53,17 +53,22 @@ public class Level : MonoBehaviour
         HintRenderer = GetComponent<HintRenderer>();
 
         Grid.Initialize(layout.LevelSize);
-        
-        StartPosition = layout.StartPosition;
-        EndPosition = layout.EndPosition;
+
+        Grid.AddColumn(atRight: false, count: gridExtraBoundaries.x);
+        Grid.AddColumn(atRight: true, count: gridExtraBoundaries.x);
+        Grid.AddRow(atTop: true, count: gridExtraBoundaries.y);
+
+        Vector2Int layoutOffset = new(gridExtraBoundaries.x, 0);
+        StartPosition = layout.StartPosition + layoutOffset;
+        EndPosition = layout.EndPosition + layoutOffset;
 
         Inventory.Clear();
         SetCamera();
-        
+
         foreach (BlockPlacementData blockData in layout.Blocks)
             CreateBlock(blockData);
 
-        CreateGround();
+        CreateGround(layout.LevelSize.x);
         CreateCharacters();
 
         SimulationObserver.SimulationEnded += OnSimulationEnded;
@@ -103,8 +108,6 @@ public class Level : MonoBehaviour
         foreach (Block block in unstableBlocks)
             Grid.RemoveBlock(block);
 
-        // Start pathfinding with the remaining blocks
-        Grid.AddRow(false);
         Graph graph = PathSolver.GridToGraph(Grid);
 
         minerPath = PathSolver.GetPath(StartPosition, EndPosition, graph);
@@ -156,12 +159,12 @@ public class Level : MonoBehaviour
 
         if (data.MobilityType != Block.Mobility.Free)
         {
-            Vector2Int startingTile = data.StartingTile;
+            Vector2Int startingTile = data.StartingTile + new Vector2Int(gridExtraBoundaries.x, 0);
 
             if (data.MobilityType == Block.Mobility.SlideOnly)
             {
-                block.SlidePositions = data.SlideTiles.ToArray();
-                startingTile = data.SlideTiles.FirstOrDefault();
+                block.SlidePositions = data.SlideTiles.Select(t => t + new Vector2Int(gridExtraBoundaries.x, 0)).ToArray();
+                startingTile = block.SlidePositions.FirstOrDefault();
             }
 
             if (Grid.TryPlaceBlock(block, startingTile, block.Pivot)) return block;
@@ -178,8 +181,8 @@ public class Level : MonoBehaviour
         // Camera
         Vector3 center = Grid.GetGridCenter();
         float boardSize = Grid.Size.x * Grid.Size.y;
-        Camera.main.transform.position = center + new Vector3(0f, 0f, boardSize * -CameraDistance);
-        Camera.main.GetComponent<CameraController>().LookTarget = center;
+        Camera.main.transform.position = center + new Vector3(CameraOffset.x, CameraOffset.y, boardSize * -CameraDistance);
+        Camera.main.GetComponent<CameraController>().LookTarget = center + (Vector3)CameraOffset;
         Camera.main.orthographic = true;
     }
 
@@ -210,19 +213,20 @@ public class Level : MonoBehaviour
             Debug.LogWarning($"Goal's position {EndPosition} is not valid.");
     }
 
-    void CreateGround()
+    void CreateGround(int levelWidth)
     {
-        Vector3 startPos = Grid.TileToWorld(Vector2Int.zero);
+        Vector2Int groundTile = new(gridExtraBoundaries.x, 0);
+        Vector3 startPos = Grid.TileToWorld(groundTile);
         Block ground = Instantiate(baseBlockPrefab, startPos, Quaternion.identity, blocksFolder.transform);
         ground.name = "Ground";
 
-        for (int x = 0; x < Grid.Size.x; x++)
+        for (int x = 0; x < levelWidth; x++)
         {
             BlockSegment segmentObj = Instantiate(basicSegmentPrefab, ground.transform);
             segmentObj.transform.localPosition = new Vector3(x * Grid.TileSize, 0, 0);
         }
 
         ground.Initialize(null, 0, Block.Mobility.Ground);
-        Grid.TryPlaceBlock(ground, Vector2Int.zero, ground.Segments.FirstOrDefault());
+        Grid.TryPlaceBlock(ground, groundTile, ground.Segments.FirstOrDefault());
     }
 }
