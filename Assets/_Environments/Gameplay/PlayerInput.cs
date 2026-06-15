@@ -4,10 +4,17 @@ using UnityEngine.InputSystem;
 
 public class PlayerInput : MonoBehaviour
 {
+    [Header("Click Interaction")]
     [field: SerializeField] public LayerMask BlockLayer { get; private set; }
     [field: SerializeField] float RayDistance { get; set; } = 100f;
     [field: SerializeField] float DragThresholdPixels { get; set; } = 10f;
     [field: SerializeField] float FlipHoldTime { get; set; } = 0.4f;
+
+    [Header("Block Snapping")]
+    [field: SerializeField] int SnapLimitLeft { get; set; } = 2;
+    [field: SerializeField] int SnapLimitRight { get; set; } = 2;
+    [field: SerializeField] int SnapLimitDown { get; set; } = 2;
+    [field: SerializeField] int SnapLimitUp { get; set; } = 2;
     
     [Header("References")]
     [field: SerializeField] BlockInventory blockInventory;
@@ -122,7 +129,12 @@ public class PlayerInput : MonoBehaviour
     void DropDrag(Vector2 worldPosition, bool moveToSlotOnFailure = false)
     {
         Vector2Int tile = grid.WorldToTile(worldPosition);
-        bool placed = grid.TryPlaceBlock(ActiveBlock, tile, activeSegment, tryAllPivots: true);
+        bool outsideGrid = !grid.IsValidTile(tile);
+        bool withinSnapLimit = tile.x >= grid.MinTile.x - SnapLimitLeft && tile.x < grid.MinTile.x + grid.Size.x + SnapLimitRight &&
+                               tile.y >= grid.MinTile.y - SnapLimitDown && tile.y < grid.MinTile.y + grid.Size.y + SnapLimitUp;
+        bool placed = !outsideGrid
+            ? grid.TryPlaceBlock(ActiveBlock, tile, activeSegment, tryAllPivots: true)
+            : withinSnapLimit && grid.TryPlaceBlockClosest(ActiveBlock, tile, activeSegment);
 
         if (!placed)
         {

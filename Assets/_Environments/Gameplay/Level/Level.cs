@@ -58,9 +58,8 @@ public class Level : MonoBehaviour
         Grid.AddColumn(atRight: true, count: gridExtraBoundaries.x);
         Grid.AddRow(atTop: true, count: gridExtraBoundaries.y);
 
-        Vector2Int layoutOffset = new(gridExtraBoundaries.x, 0);
-        StartPosition = layout.StartPosition + layoutOffset;
-        EndPosition = layout.EndPosition + layoutOffset;
+        StartPosition = layout.StartPosition;
+        EndPosition = layout.EndPosition;
 
         Inventory.Clear();
         SetCamera();
@@ -159,11 +158,11 @@ public class Level : MonoBehaviour
 
         if (data.MobilityType != Block.Mobility.Free)
         {
-            Vector2Int startingTile = data.StartingTile + new Vector2Int(gridExtraBoundaries.x, 0);
+            Vector2Int startingTile = data.StartingTile;
 
             if (data.MobilityType == Block.Mobility.SlideOnly)
             {
-                block.SlidePositions = data.SlideTiles.Select(t => t + new Vector2Int(gridExtraBoundaries.x, 0)).ToArray();
+                block.SlidePositions = data.SlideTiles.ToArray();
                 startingTile = block.SlidePositions.FirstOrDefault();
             }
 
@@ -215,7 +214,7 @@ public class Level : MonoBehaviour
 
     void CreateGround(int levelWidth)
     {
-        Vector2Int groundTile = new(gridExtraBoundaries.x, 0);
+        Vector2Int groundTile = new(0, 0);
         Vector3 startPos = Grid.TileToWorld(groundTile);
         Block ground = Instantiate(baseBlockPrefab, startPos, Quaternion.identity, blocksFolder.transform);
         ground.name = "Ground";

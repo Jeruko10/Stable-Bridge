@@ -641,6 +641,10 @@ MonoBehaviour:
   <RayDistance>k__BackingField: 300
   <DragThresholdPixels>k__BackingField: 10
   <FlipHoldTime>k__BackingField: 0.4
+  <SnapLimitLeft>k__BackingField: 1
+  <SnapLimitRight>k__BackingField: 2
+  <SnapLimitDown>k__BackingField: 2
+  <SnapLimitUp>k__BackingField: 2
   blockInventory: {fileID: 4868465233419034509}
 --- !u!4 &865723568
 Transform:

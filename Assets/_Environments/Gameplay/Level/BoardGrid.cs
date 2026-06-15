@@ -11,6 +11,7 @@ public class BoardGrid : MonoBehaviour
     [field: SerializeField] public GameObject TileVisualPrefab { get; private set; }
 
     public Vector2Int Size { get; private set; }
+    public Vector2Int MinTile { get; private set; }
     public enum Rotation { Deg0 = 0, Deg90 = 90, Deg180 = 180, Deg270 = 270 }
 
     GameObject visualsFolder;
@@ -28,6 +29,7 @@ public class BoardGrid : MonoBehaviour
     public void Initialize(Vector2Int size)
     {
         Size = size;
+        MinTile = Vector2Int.zero;
         tileBlocks.Clear();
         blockTiles.Clear();
         tileVisuals.Clear();
@@ -49,14 +51,22 @@ public class BoardGrid : MonoBehaviour
 
     public void AddRow(bool atTop = true, int count = 1)
     {
-        if (!atTop) ShiftTilesY(count);
-
-        Size += Vector2Int.up * count;
-        int startY = atTop ? Size.y - count : 0;
+        int startY;
+        if (atTop)
+        {
+            startY = MinTile.y + Size.y;
+            Size += Vector2Int.up * count;
+        }
+        else
+        {
+            MinTile += Vector2Int.down * count;
+            startY = MinTile.y;
+            Size += Vector2Int.up * count;
+        }
 
         for (int i = 0; i < count; i++)
         {
-            for (int x = 0; x < Size.x; x++)
+            for (int x = MinTile.x; x < MinTile.x + Size.x; x++)
             {
                 Vector2Int tileCoord = new(x, startY + i);
                 tileBlocks[tileCoord] = null;
@@ -69,14 +79,22 @@ public class BoardGrid : MonoBehaviour
 
     public void AddColumn(bool atRight = true, int count = 1)
     {
-        if (!atRight) ShiftTilesX(count);
-
-        Size += Vector2Int.right * count;
-        int startX = atRight ? Size.x - count : 0;
+        int startX;
+        if (atRight)
+        {
+            startX = MinTile.x + Size.x;
+            Size += Vector2Int.right * count;
+        }
+        else
+        {
+            MinTile += Vector2Int.left * count;
+            startX = MinTile.x;
+            Size += Vector2Int.right * count;
+        }
 
         for (int i = 0; i < count; i++)
         {
-            for (int y = 0; y < Size.y; y++)
+            for (int y = MinTile.y; y < MinTile.y + Size.y; y++)
             {
                 Vector2Int tileCoord = new(startX + i, y);
                 tileBlocks[tileCoord] = null;
@@ -87,63 +105,13 @@ public class BoardGrid : MonoBehaviour
         }
     }
 
-    void ShiftTilesY(int dy)
-    {
-        var shifted = new Dictionary<Vector2Int, BlockSegment>();
-        foreach (var kvp in tileBlocks)
-            shifted[new Vector2Int(kvp.Key.x, kvp.Key.y + dy)] = kvp.Value;
-        tileBlocks.Clear();
-        foreach (var kvp in shifted) tileBlocks[kvp.Key] = kvp.Value;
-
-        var shiftedBlockTiles = new Dictionary<BlockSegment, Vector2Int>();
-        foreach (var kvp in blockTiles)
-            shiftedBlockTiles[kvp.Key] = new Vector2Int(kvp.Value.x, kvp.Value.y + dy);
-        blockTiles.Clear();
-        foreach (var kvp in shiftedBlockTiles) blockTiles[kvp.Key] = kvp.Value;
-
-        var shiftedVisuals = new Dictionary<Vector2Int, GameObject>();
-        foreach (var kvp in tileVisuals)
-        {
-            Vector2Int newCoord = new(kvp.Key.x, kvp.Key.y + dy);
-            kvp.Value.transform.position = TileToWorld(newCoord);
-            shiftedVisuals[newCoord] = kvp.Value;
-        }
-        tileVisuals.Clear();
-        foreach (var kvp in shiftedVisuals) tileVisuals[kvp.Key] = kvp.Value;
-    }
-
-    void ShiftTilesX(int dx)
-    {
-        var shifted = new Dictionary<Vector2Int, BlockSegment>();
-        foreach (var kvp in tileBlocks)
-            shifted[new Vector2Int(kvp.Key.x + dx, kvp.Key.y)] = kvp.Value;
-        tileBlocks.Clear();
-        foreach (var kvp in shifted) tileBlocks[kvp.Key] = kvp.Value;
-
-        var shiftedBlockTiles = new Dictionary<BlockSegment, Vector2Int>();
-        foreach (var kvp in blockTiles)
-            shiftedBlockTiles[kvp.Key] = new Vector2Int(kvp.Value.x + dx, kvp.Value.y);
-        blockTiles.Clear();
-        foreach (var kvp in shiftedBlockTiles) blockTiles[kvp.Key] = kvp.Value;
-
-        var shiftedVisuals = new Dictionary<Vector2Int, GameObject>();
-        foreach (var kvp in tileVisuals)
-        {
-            Vector2Int newCoord = new(kvp.Key.x + dx, kvp.Key.y);
-            kvp.Value.transform.position = TileToWorld(newCoord);
-            shiftedVisuals[newCoord] = kvp.Value;
-        }
-        tileVisuals.Clear();
-        foreach (var kvp in shiftedVisuals) tileVisuals[kvp.Key] = kvp.Value;
-    }
-
     public void RemoveRow()
     {
         if (Size.y <= 1) return;
 
-        int removeY = Size.y - 1;
+        int removeY = MinTile.y + Size.y - 1;
 
-        for (int x = 0; x < Size.x; x++)
+        for (int x = MinTile.x; x < MinTile.x + Size.x; x++)
         {
             Vector2Int tileCoord = new(x, removeY);
             if (tileBlocks.TryGetValue(tileCoord, out BlockSegment segment) && segment != null)
@@ -164,9 +132,9 @@ public class BoardGrid : MonoBehaviour
     {
         if (Size.x <= 1) return;
 
-        int removeX = Size.x - 1;
+        int removeX = MinTile.x + Size.x - 1;
 
-        for (int y = 0; y < Size.y; y++)
+        for (int y = MinTile.y; y < MinTile.y + Size.y; y++)
         {
             Vector2Int tileCoord = new(removeX, y);
             if (tileBlocks.TryGetValue(tileCoord, out BlockSegment segment) && segment != null)
@@ -195,9 +163,18 @@ public class BoardGrid : MonoBehaviour
         return tile;
     }
 
-    public Vector3 GetGridCenter() => new(Size.x * TileSize / 2, Size.y * TileSize / 2);
+    public Vector3 GetGridCenter() => TileToWorld(new Vector2(MinTile.x + Size.x / 2f, MinTile.y + Size.y / 2f));
 
-    public bool IsValidTile(Vector2Int tile) => tile.x >= 0 && tile.x < Size.x && tile.y >= 0 && tile.y < Size.y;
+    public bool IsValidTile(Vector2Int tile) =>
+        tile.x >= MinTile.x && tile.x < MinTile.x + Size.x &&
+        tile.y >= MinTile.y && tile.y < MinTile.y + Size.y;
+
+    public bool TryPlaceBlockClosest(Block block, Vector2Int nearTile, BlockSegment pivot)
+    {
+        foreach (Vector2Int tile in tileBlocks.Keys.OrderBy(t => (t - nearTile).sqrMagnitude))
+            if (TryPlaceBlock(block, tile, pivot, tryAllPivots: true)) return true;
+        return false;
+    }
 
     public BlockSegment GetBlockAtTile(Vector2Int tile)
     {
