@@ -131,12 +131,32 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: a65c2a0021d07ba428feb5ca15f3d368, type: 3}
     - target: {fileID: 2853534257233814302, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
+      propertyPath: colliderShrinkAmount
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2853534257233814302, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
       propertyPath: <InterfaceImage>k__BackingField
       value: 
       objectReference: {fileID: 21300000, guid: a65c2a0021d07ba428feb5ca15f3d368, type: 3}
     - target: {fileID: 5211579415055609634, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
       propertyPath: m_Name
       value: Block3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818674925971748769, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
+      propertyPath: m_Mass
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818674925971748769, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
+      propertyPath: m_Constraints
+      value: 72
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818674925971748769, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818674925971748769, guid: 35e46c47626fd094292ce94e06c3118d, type: 3}
+      propertyPath: m_AngularDamping
+      value: 0.01
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

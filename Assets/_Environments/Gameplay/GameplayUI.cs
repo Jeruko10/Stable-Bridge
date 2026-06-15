@@ -76,6 +76,7 @@ public class GameplayUI : MonoBehaviour
     void OnVictory()
     {
         Time.timeScale = 1f;
+        LevelSelectorUI.CameFromGameplay = true;
         SceneTransitionManager.LoadScene("LevelSelector", LevelManager.ExitLevel);
     }
 
@@ -108,6 +109,7 @@ public class GameplayUI : MonoBehaviour
     {
         pauseMenuButtons.interactable = false;
         Time.timeScale = 1f;
+        LevelSelectorUI.CameFromGameplay = true;
         SceneTransitionManager.LoadScene("LevelSelector", LevelManager.ExitLevel);
     }
 }

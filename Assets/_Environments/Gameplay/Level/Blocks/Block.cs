@@ -11,6 +11,7 @@ public class Block : MonoBehaviour
     [field: SerializeField] GameObject slidePivotPrefab;
     [field: SerializeField] GameObject fixedPivotPrefab;
     [field: SerializeField] ParticleSystem destroyFXPrefab;
+    [field: SerializeField] float colliderShrinkAmount = 0.1f;
     [field: SerializeField] float unsnappedZOffset = -2f;
     [field: SerializeField] float snapAnimSpeed = 10f;
     [field: SerializeField] float moveLerpSpeed = 10f;
@@ -53,6 +54,28 @@ public class Block : MonoBehaviour
         if (MobilityType == Mobility.RotateOnly) CreateRotateVisual();
         else if (MobilityType == Mobility.SlideOnly) CreateSlideVisual();
         else if (MobilityType == Mobility.Ground) CreateGroundVisual();
+
+        ShrinkCollider(colliderShrinkAmount);
+    }
+
+    public void ShrinkCollider(float amount)
+    {
+        float scale = 1f - amount;
+
+        Vector3 centroid = segments.Aggregate(Vector3.zero, (sum, s) => sum + s.transform.position) / segments.Count;
+
+        foreach (BlockSegment segment in segments)
+        {
+            Collider col = null;
+            foreach (Transform child in segment.transform)
+                if (child.TryGetComponent(out col)) break;
+            if (col == null) continue;
+
+            Transform colTransform = col.transform;
+            Vector3 newWorldPos = centroid + (segment.transform.position - centroid) * scale;
+            colTransform.localPosition = segment.transform.InverseTransformPoint(newWorldPos);
+            colTransform.localScale *= scale;
+        }
     }
 
     void Update()
