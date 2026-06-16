@@ -59,10 +59,11 @@ public static class PathSolver
         foreach (var pair in grid.GetAllTiles())
         {
             Vector2Int tile = pair.Key;
-            BlockSegment segment = pair.Value;
+            HashSet<BlockSegment> occupants = pair.Value;
 
-            if (segment == null || grid.GetBlockAtTile(tile + Vector2Int.up) != null) continue;
+            if (occupants.Count == 0 || grid.GetBlockAtTile(tile + Vector2Int.up) != null) continue;
 
+            foreach (BlockSegment segment in occupants)
             foreach (LocalTransition transition in segment.GetTransitions())
             {
                 Vector2 fromCoord = tile + transition.From;

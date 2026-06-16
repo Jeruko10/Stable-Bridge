@@ -1,21 +1,26 @@
+using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 
 public class GameplayUI : MonoBehaviour
 {
+    [Header("Animations")]
+    [SerializeField] float slideButtonsOffset = 300f;
+    [SerializeField] float slideInventoryOffset = 400f;
+    [SerializeField] float slideDuration = 0.4f;
+    [SerializeField] float notReadyAlpha = 0.5f;
+
+    [Header("References")]
     [SerializeField] PopUpWindow pauseMenu;
     [SerializeField] RectTransform hintButton;
     [SerializeField] RectTransform readyButton;
     [SerializeField] RectTransform inventorySidebar;
     [SerializeField] CanvasGroup pauseMenuButtons;
 
-    const float SlideButtonsOffset = 300f;
-    const float SlideInventoryOffset = 400f;
-    const float SlideDuration = 0.4f;
-
     Vector2 hintButtonShownPos;
     Vector2 readyButtonShownPos;
     Vector2 inventoryShownPos;
+    CanvasGroup readyButtonGroup;
 
     Level currentLevel;
 
@@ -24,6 +29,7 @@ public class GameplayUI : MonoBehaviour
         hintButtonShownPos = hintButton.anchoredPosition;
         readyButtonShownPos = readyButton.anchoredPosition;
         inventoryShownPos = inventorySidebar.anchoredPosition;
+        readyButtonGroup = readyButton.GetComponent<CanvasGroup>();
 
         pauseMenuButtons.interactable = false;
         pauseMenu.onShown.AddListener(() => pauseMenuButtons.interactable = true);
@@ -32,6 +38,19 @@ public class GameplayUI : MonoBehaviour
         LevelManager.LevelLoaded += OnLevelLoaded;
         LevelManager.LoadLevel(LevelSelectorUI.PendingLevelIndex);
     }
+
+    void Update()
+    {
+        if (currentLevel == null || !currentLevel.IsEditing) return;
+
+        bool ready = IsLevelReady();
+        readyButtonGroup.interactable = ready;
+        readyButtonGroup.alpha = ready ? 1f : notReadyAlpha;
+    }
+
+    bool IsLevelReady() =>
+        currentLevel.Inventory.All(block => currentLevel.Grid.ContainsBlock(block)) &&
+        currentLevel.Grid.GetAllBlocks().All(block => !block.IsOverlapping);
 
     void OnDestroy()
     {
@@ -58,9 +77,9 @@ public class GameplayUI : MonoBehaviour
         hintButton.DOKill();
         readyButton.DOKill();
         inventorySidebar.DOKill();
-        hintButton.DOAnchorPos(hintButtonShownPos, SlideDuration).SetEase(Ease.OutCubic);
-        readyButton.DOAnchorPos(readyButtonShownPos, SlideDuration).SetEase(Ease.OutCubic);
-        inventorySidebar.DOAnchorPos(inventoryShownPos, SlideDuration).SetEase(Ease.OutCubic);
+        hintButton.DOAnchorPos(hintButtonShownPos, slideDuration).SetEase(Ease.OutCubic);
+        readyButton.DOAnchorPos(readyButtonShownPos, slideDuration).SetEase(Ease.OutCubic);
+        inventorySidebar.DOAnchorPos(inventoryShownPos, slideDuration).SetEase(Ease.OutCubic);
     }
 
     void AnimateOut()
@@ -68,9 +87,9 @@ public class GameplayUI : MonoBehaviour
         hintButton.DOKill();
         readyButton.DOKill();
         inventorySidebar.DOKill();
-        hintButton.DOAnchorPos(hintButtonShownPos + Vector2.up * SlideButtonsOffset, SlideDuration).SetEase(Ease.InCubic);
-        readyButton.DOAnchorPos(readyButtonShownPos + Vector2.down * SlideButtonsOffset, SlideDuration).SetEase(Ease.InCubic);
-        inventorySidebar.DOAnchorPos(inventoryShownPos + Vector2.left * SlideInventoryOffset, SlideDuration).SetEase(Ease.InCubic);
+        hintButton.DOAnchorPos(hintButtonShownPos + Vector2.up * slideButtonsOffset, slideDuration).SetEase(Ease.InCubic);
+        readyButton.DOAnchorPos(readyButtonShownPos + Vector2.down * slideButtonsOffset, slideDuration).SetEase(Ease.InCubic);
+        inventorySidebar.DOAnchorPos(inventoryShownPos + Vector2.left * slideInventoryOffset, slideDuration).SetEase(Ease.InCubic);
     }
 
     void OnVictory()
@@ -82,6 +101,8 @@ public class GameplayUI : MonoBehaviour
 
     public void OnReadyButtonPressed()
     {
+        if (currentLevel != null && currentLevel.IsEditing && !IsLevelReady()) return;
+
         LevelManager.Current.ExitEditMode();
         DOVirtual.DelayedCall(0f, AnimateOut);
     }

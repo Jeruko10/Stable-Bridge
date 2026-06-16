@@ -20,6 +20,8 @@ public class Block : MonoBehaviour
     public BlockSegment[] Segments => segments.ToArray();
     public Vector2Int[] SlidePositions { get; set; }
     public Color Color { get => materialColor; set => SetBlockColor(value); }
+    public Color OriginalColor { get; private set; }
+    public bool IsOverlapping => isOverlapping;
     public int SlidePositionIndex { get; set; } = 0;
     public BlockSegment Pivot { get; private set; }
     public Mobility MobilityType { get; private set; } = Mobility.Free;
@@ -33,6 +35,7 @@ public class Block : MonoBehaviour
 
     readonly List<BlockSegment> segments = new();
     bool physicsEnabled;
+    bool isOverlapping;
     Color materialColor;
 
     void Awake()
@@ -48,6 +51,7 @@ public class Block : MonoBehaviour
 
         Prefab = originalPrefab;
         materialColor = GetComponentInChildren<Renderer>().material.color;
+        OriginalColor = materialColor;
         Pivot = segments[pivotIndex];
         MobilityType = mobilityType;
 
@@ -187,6 +191,14 @@ public class Block : MonoBehaviour
             segments.Add(segment);
             segment.Initialize(parent: this);
         }
+    }
+
+    public void SetOverlapping(bool overlapping)
+    {
+        if (isOverlapping == overlapping) return;
+
+        isOverlapping = overlapping;
+        Color = overlapping ? Color.red : OriginalColor;
     }
 
     void SetBlockColor(Color value)

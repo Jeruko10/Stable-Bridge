@@ -843,6 +843,7 @@ GameObject:
   - component: {fileID: 5132748447837894822}
   - component: {fileID: 1756995357178633073}
   - component: {fileID: 7625152473322170417}
+  - component: {fileID: 7625152473322170418}
   m_Layer: 7
   m_Name: ReadyButton
   m_TagString: Untagged
@@ -2057,6 +2058,18 @@ MonoBehaviour:
   clickSound:
     Clip: {fileID: 8300000, guid: a7f8ca8b54e131344967ab9d5d07c2f1, type: 3}
     Volume: 1
+--- !u!225 &7625152473322170418
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 375601590507041914}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!224 &7859573713281395626
 RectTransform:
   m_ObjectHideFlags: 0

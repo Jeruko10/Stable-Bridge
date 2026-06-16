@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -16,9 +15,10 @@ public class BoardGrid : MonoBehaviour
 
     GameObject visualsFolder;
     readonly HashSet<Block> blocks = new();
-    readonly Dictionary<Vector2Int, BlockSegment> tileBlocks = new();
+    readonly Dictionary<Vector2Int, HashSet<BlockSegment>> tileBlocks = new();
     readonly Dictionary<BlockSegment, Vector2Int> blockTiles = new();
     readonly Dictionary<Vector2Int, GameObject> tileVisuals = new();
+    readonly HashSet<Vector2Int> reservedTiles = new();
 
     void Awake()
     {
@@ -34,13 +34,14 @@ public class BoardGrid : MonoBehaviour
         blockTiles.Clear();
         tileVisuals.Clear();
         blocks.Clear();
+        reservedTiles.Clear();
 
         for (int x = 0; x < size.x; x++)
         {
             for (int y = 0; y < size.y; y++)
             {
                 Vector2Int tileCoord = new(x, y);
-                tileBlocks[tileCoord] = null;
+                tileBlocks[tileCoord] = new HashSet<BlockSegment>();
                 Vector3 visualPos = TileToWorld(tileCoord);
                 visualPos.z = 1f;
                 GameObject instance = Instantiate(TileVisualPrefab, visualPos, Quaternion.identity, visualsFolder.transform);
@@ -69,7 +70,7 @@ public class BoardGrid : MonoBehaviour
             for (int x = MinTile.x; x < MinTile.x + Size.x; x++)
             {
                 Vector2Int tileCoord = new(x, startY + i);
-                tileBlocks[tileCoord] = null;
+                tileBlocks[tileCoord] = new HashSet<BlockSegment>();
 
                 GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, visualsFolder.transform);
                 tileVisuals.Add(tileCoord, instance);
@@ -97,7 +98,7 @@ public class BoardGrid : MonoBehaviour
             for (int y = MinTile.y; y < MinTile.y + Size.y; y++)
             {
                 Vector2Int tileCoord = new(startX + i, y);
-                tileBlocks[tileCoord] = null;
+                tileBlocks[tileCoord] = new HashSet<BlockSegment>();
 
                 GameObject instance = Instantiate(TileVisualPrefab, TileToWorld(tileCoord), Quaternion.identity, visualsFolder.transform);
                 tileVisuals.Add(tileCoord, instance);
@@ -114,8 +115,9 @@ public class BoardGrid : MonoBehaviour
         for (int x = MinTile.x; x < MinTile.x + Size.x; x++)
         {
             Vector2Int tileCoord = new(x, removeY);
-            if (tileBlocks.TryGetValue(tileCoord, out BlockSegment segment) && segment != null)
-                blockTiles.Remove(segment);
+            if (tileBlocks.TryGetValue(tileCoord, out HashSet<BlockSegment> occupants))
+                foreach (BlockSegment segment in occupants)
+                    blockTiles.Remove(segment);
             tileBlocks.Remove(tileCoord);
 
             if (tileVisuals.TryGetValue(tileCoord, out GameObject visual))
@@ -137,8 +139,9 @@ public class BoardGrid : MonoBehaviour
         for (int y = MinTile.y; y < MinTile.y + Size.y; y++)
         {
             Vector2Int tileCoord = new(removeX, y);
-            if (tileBlocks.TryGetValue(tileCoord, out BlockSegment segment) && segment != null)
-                blockTiles.Remove(segment);
+            if (tileBlocks.TryGetValue(tileCoord, out HashSet<BlockSegment> occupants))
+                foreach (BlockSegment segment in occupants)
+                    blockTiles.Remove(segment);
             tileBlocks.Remove(tileCoord);
 
             if (tileVisuals.TryGetValue(tileCoord, out GameObject visual))
@@ -151,7 +154,7 @@ public class BoardGrid : MonoBehaviour
         Size -= Vector2Int.right;
     }
 
-    public Dictionary<Vector2Int, BlockSegment> GetAllTiles() => tileBlocks;
+    public IReadOnlyDictionary<Vector2Int, HashSet<BlockSegment>> GetAllTiles() => tileBlocks;
 
     public IEnumerable<Block> GetAllBlocks() => blocks;
 
@@ -169,13 +172,6 @@ public class BoardGrid : MonoBehaviour
         tile.x >= MinTile.x && tile.x < MinTile.x + Size.x &&
         tile.y >= MinTile.y && tile.y < MinTile.y + Size.y;
 
-    public bool TryPlaceBlockClosest(Block block, Vector2Int nearTile, BlockSegment pivot)
-    {
-        foreach (Vector2Int tile in tileBlocks.Keys.OrderBy(t => (t - nearTile).sqrMagnitude))
-            if (TryPlaceBlock(block, tile, pivot, tryAllPivots: true)) return true;
-        return false;
-    }
-
     public BlockSegment GetBlockAtTile(Vector2Int tile)
     {
         if (!IsValidTile(tile))
@@ -184,8 +180,7 @@ public class BoardGrid : MonoBehaviour
             return null;
         }
 
-        tileBlocks.TryGetValue(tile, out BlockSegment block);
-        return block;
+        return tileBlocks.TryGetValue(tile, out HashSet<BlockSegment> occupants) ? occupants.FirstOrDefault() : null;
     }
 
     public Vector2Int? GetTileOfBlock(BlockSegment block)
@@ -218,56 +213,104 @@ public class BoardGrid : MonoBehaviour
 
     public bool ContainsBlock(Block block) => blocks.Contains(block);
 
-    public bool ContainsSegment(BlockSegment segment) => tileBlocks.Values.Contains(segment);
+    public bool ContainsSegment(BlockSegment segment) => blockTiles.ContainsKey(segment);
 
     public void RemoveBlock(Block block)
     {
-        blocks.Remove(block);
-        List<Vector2Int> tilesToClear = new();
+        if (!blocks.Remove(block)) return;
 
-        foreach (var kvp in tileBlocks)
-            if (kvp.Value != null && block.Segments.Contains(kvp.Value))
-                tilesToClear.Add(kvp.Key);
-        
-        foreach (var tile in tilesToClear)
-            tileBlocks[tile] = null;
+        foreach (BlockSegment segment in block.Segments)
+            if (blockTiles.Remove(segment, out Vector2Int tile) && tileBlocks.TryGetValue(tile, out HashSet<BlockSegment> occupants))
+                occupants.Remove(segment);
+
+        UpdateOverlapStates();
     }
 
-    public bool TryPlaceBlock(Block block, Vector2Int pivotTile, BlockSegment pivotSegment, bool tryAllPivots = false)
+    // Free blocks are allowed to overlap others (they just get flagged red, see
+    // UpdateOverlapStates) - every other mobility type has no way to show that state, so
+    // overlapping one of them fails placement by default. Pass ignoreOverlap explicitly to
+    // override that, which rotating and flipping in place do: those should only ever fail
+    // by leaving the grid boundary.
+    public bool TryPlaceBlock(Block block, Vector2Int pivotTile, BlockSegment pivotSegment, bool tryAllPivots = false, bool? ignoreOverlap = null)
     {
+        bool ignoringOverlap = ignoreOverlap ?? block.MobilityType == Block.Mobility.Free;
         Vector3 requiredMovement = TileToWorld(pivotTile) - pivotSegment.transform.position;
 
-        // Check availability for all segments
         foreach (BlockSegment segment in block.Segments)
         {
             Vector2Int tile = WorldToTile(segment.transform.position + requiredMovement);
-            bool obstructedTile = tileBlocks.TryGetValue(tile, out BlockSegment existing) && existing != null && !block.Segments.Contains(existing);
-            bool success = IsValidTile(tile) && !obstructedTile;
-
-            if (!success) return tryAllPivots && TryPlaceWithAnyPivot(block, pivotTile);
+            if (!IsValidTile(tile) || (!ignoringOverlap && IsObstructed(tile, block)))
+                return tryAllPivots && TryPlaceWithAnyPivot(block, pivotTile, ignoringOverlap);
         }
 
-        // Register all segment movements
         foreach (BlockSegment segment in block.Segments)
         {
             Vector2Int tile = WorldToTile(segment.transform.position + requiredMovement);
-            tileBlocks[tile] = segment;
+            tileBlocks[tile].Add(segment);
             blockTiles[segment] = tile;
         }
 
         block.Position2D = block.transform.position + requiredMovement;
         blocks.Add(block);
 
+        UpdateOverlapStates();
+
         return true;
     }
 
-    bool TryPlaceWithAnyPivot(Block block, Vector2Int pivotTile)
+    bool IsObstructed(Vector2Int tile, Block block) =>
+        tileBlocks.TryGetValue(tile, out HashSet<BlockSegment> occupants) && occupants.Any(segment => segment.GetParent() != block);
+
+    bool TryPlaceWithAnyPivot(Block block, Vector2Int pivotTile, bool ignoreOverlap)
     {
         foreach (BlockSegment segment in block.Segments)
-            if (TryPlaceBlock(block, pivotTile, segment)) return true;
+            if (TryPlaceBlock(block, pivotTile, segment, ignoreOverlap: ignoreOverlap)) return true;
         return false;
     }
 
+    public bool TryPlaceBlockClosest(Block block, Vector2Int nearTile, BlockSegment pivot)
+    {
+        foreach (Vector2Int tile in tileBlocks.Keys.OrderBy(t => (t - nearTile).sqrMagnitude))
+            if (TryPlaceBlock(block, tile, pivot, tryAllPivots: true)) return true;
+        return false;
+    }
+
+    // Marks the given tiles (e.g. the start/goal positions) as illegal to occupy - any block
+    // sitting on one is treated the same as overlapping another block.
+    public void SetReservedTiles(IEnumerable<Vector2Int> tiles)
+    {
+        reservedTiles.Clear();
+        foreach (Vector2Int tile in tiles) reservedTiles.Add(tile);
+        UpdateOverlapStates();
+    }
+
+    // A tile occupied by segments from more than one block, or by any block on a reserved
+    // tile, puts the involved blocks in the overlapping (red) state; everything else reverts
+    // to its original color.
+    void UpdateOverlapStates()
+    {
+        HashSet<Block> overlapping = new();
+
+        foreach (var pair in tileBlocks)
+        {
+            HashSet<BlockSegment> occupants = pair.Value;
+            if (occupants.Count == 0) continue;
+
+            bool illegal = reservedTiles.Contains(pair.Key) || occupants.Select(s => s.GetParent()).Distinct().Count() > 1;
+            if (illegal)
+                foreach (BlockSegment segment in occupants)
+                    overlapping.Add(segment.GetParent());
+        }
+
+        foreach (Block block in blocks)
+            block.SetOverlapping(block.MobilityType == Block.Mobility.Free && overlapping.Contains(block));
+    }
+
+    // Always rotates/flips exactly once around the segment that was actually clicked
+    // (block.Pivot for RotateOnly, which only ever turns around its one fixed pivot), then
+    // re-anchors it at the same tile. Overlapping another block is fine; only leaving the
+    // grid boundary genuinely fails, in which case the turn is undone so the block never ends
+    // up unregistered.
     public bool TryRotateBlock(Block block, BlockSegment pivot, bool clockwise)
     {
         if (block.MobilityType == Block.Mobility.RotateOnly) pivot = block.Pivot;
@@ -279,19 +322,14 @@ public class BoardGrid : MonoBehaviour
             return true;
         }
 
-        bool multiPivot = block.MobilityType == Block.Mobility.Free;
         Vector2Int pivotTile = WorldToTile(pivot.transform.position);
         RemoveBlock(block);
-
-        for (int i = 0; i < 3; i++)
-        {
-            block.Rotate(pivot, clockwise);
-            bool fits = multiPivot ? TryPlaceWithAnyPivot(block, pivotTile) : TryPlaceBlock(block, pivotTile, pivot);
-            if (fits) return true;
-        }
-
         block.Rotate(pivot, clockwise);
-        TryPlaceBlock(block, pivotTile, pivot);
+
+        if (TryPlaceBlock(block, pivotTile, pivot, ignoreOverlap: true)) return true;
+
+        block.Rotate(pivot, !clockwise);
+        TryPlaceBlock(block, pivotTile, pivot, ignoreOverlap: true);
         return false;
     }
 
@@ -307,12 +345,12 @@ public class BoardGrid : MonoBehaviour
 
         Vector2Int pivotTile = WorldToTile(pivot.transform.position);
         RemoveBlock(block);
+        block.Flip(pivot);
+
+        if (TryPlaceBlock(block, pivotTile, pivot, ignoreOverlap: true)) return true;
 
         block.Flip(pivot);
-        if (TryPlaceWithAnyPivot(block, pivotTile)) return true;
-
-        block.Flip(pivot);
-        TryPlaceBlock(block, pivotTile, pivot);
+        TryPlaceBlock(block, pivotTile, pivot, ignoreOverlap: true);
         return false;
     }
 

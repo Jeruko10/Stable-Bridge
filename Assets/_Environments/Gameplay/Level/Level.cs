@@ -60,6 +60,7 @@ public class Level : MonoBehaviour
 
         StartPosition = layout.StartPosition;
         EndPosition = layout.EndPosition;
+        Grid.SetReservedTiles(new[] { StartPosition, EndPosition });
 
         Inventory.Clear();
         SetCamera();
