@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
 
 public class PlayerInput : MonoBehaviour
 {
@@ -30,12 +29,6 @@ public class PlayerInput : MonoBehaviour
     bool isDragging, flipTriggered;
     float pressStartTime;
 
-    // While a touch is locked in, every other finger touching the screen is ignored
-    // until this one is released, so a second finger can't hijack or reset the interaction.
-    int activeTouchId = -1;
-    Vector2 currentPointerPosition;
-    int currentPointerIdForUI;
-
     void Awake()
     {
         mainCamera = Camera.main;
@@ -49,73 +42,16 @@ public class PlayerInput : MonoBehaviour
 
     void Update()
     {
-        if (!TryGetPointerState(out bool pressedThisFrame, out bool isPressed, out bool releasedThisFrame)) return;
+        if (Pointer.current == null) return;
 
-        if (pressedThisFrame) OnPointerPressed();
-        if (isPressed) OnPointerHeld();
-        if (releasedThisFrame) OnPointerReleased();
-    }
-
-    // Resolves a single, consistent pointer for this frame. On touchscreens, once a finger is
-    // locked in via activeTouchId, every other finger is ignored until that one is released -
-    // this is what prevents a second finger from resetting or hijacking an in-progress interaction.
-    bool TryGetPointerState(out bool pressedThisFrame, out bool isPressed, out bool releasedThisFrame)
-    {
-        pressedThisFrame = isPressed = releasedThisFrame = false;
-
-        Touchscreen touchscreen = Touchscreen.current;
-        if (touchscreen != null)
-        {
-            if (activeTouchId != -1)
-            {
-                foreach (TouchControl touch in touchscreen.touches)
-                {
-                    if (touch.touchId.ReadValue() != activeTouchId) continue;
-
-                    currentPointerPosition = touch.position.ReadValue();
-                    currentPointerIdForUI = activeTouchId;
-                    isPressed = touch.press.isPressed;
-                    releasedThisFrame = !isPressed;
-                    if (releasedThisFrame) activeTouchId = -1;
-                    return true;
-                }
-
-                // The tracked touch disappeared without going through Ended/Canceled - release it now.
-                currentPointerIdForUI = activeTouchId;
-                releasedThisFrame = true;
-                activeTouchId = -1;
-                return true;
-            }
-
-            foreach (TouchControl touch in touchscreen.touches)
-            {
-                if (!touch.press.wasPressedThisFrame) continue;
-
-                activeTouchId = touch.touchId.ReadValue();
-                currentPointerPosition = touch.position.ReadValue();
-                currentPointerIdForUI = activeTouchId;
-                pressedThisFrame = true;
-                isPressed = true;
-                return true;
-            }
-
-            return false;
-        }
-
-        Pointer pointer = Pointer.current;
-        if (pointer == null) return false;
-
-        currentPointerPosition = pointer.position.ReadValue();
-        currentPointerIdForUI = pointer.deviceId;
-        pressedThisFrame = pointer.press.wasPressedThisFrame;
-        isPressed = pointer.press.isPressed;
-        releasedThisFrame = pointer.press.wasReleasedThisFrame;
-        return true;
+        if (Pointer.current.press.wasPressedThisFrame) OnPointerPressed();
+        if (Pointer.current.press.isPressed) OnPointerHeld();
+        if (Pointer.current.press.wasReleasedThisFrame) OnPointerReleased();
     }
 
     void OnPointerPressed()
     {
-        pressStartPosition = currentPointerPosition;
+        pressStartPosition = Pointer.current.position.ReadValue();
         pressStartTime = Time.time;
         flipTriggered = false;
         activeSegment = null;
@@ -135,7 +71,7 @@ public class PlayerInput : MonoBehaviour
     {
         if (activeSegment == null) return;
 
-        bool dragThresholdExceeded = (currentPointerPosition - pressStartPosition).magnitude >= DragThresholdPixels;
+        bool dragThresholdExceeded = (Pointer.current.position.ReadValue() - pressStartPosition).magnitude >= DragThresholdPixels;
 
         if (dragThresholdExceeded)
         {
@@ -219,10 +155,6 @@ public class PlayerInput : MonoBehaviour
     {
         blockInventory.RemoveBlock(block);
 
-        // Lock onto whichever finger is currently down so Update() doesn't treat it as a
-        // fresh press, and so any other finger touching the screen keeps being ignored.
-        LockCurrentTouch();
-
         if (TryGetWorldPosition(out Vector3 worldPos))
         {
             // Teleport to cursor immediately so MoveDrag offset is correct from the first frame
@@ -232,37 +164,16 @@ public class PlayerInput : MonoBehaviour
 
         activeSegment = block.Pivot;
         savedPivotTile = default;
-        pressStartPosition = currentPointerPosition;
+        pressStartPosition = Pointer.current.position.ReadValue();
         flipTriggered = true;
         isDragging = true;
     }
 
-    void LockCurrentTouch()
-    {
-        Touchscreen touchscreen = Touchscreen.current;
-        if (touchscreen == null)
-        {
-            Pointer pointer = Pointer.current;
-            if (pointer != null) currentPointerPosition = pointer.position.ReadValue();
-            return;
-        }
-
-        foreach (TouchControl touch in touchscreen.touches)
-        {
-            if (!touch.press.isPressed) continue;
-
-            activeTouchId = touch.touchId.ReadValue();
-            currentPointerPosition = touch.position.ReadValue();
-            currentPointerIdForUI = activeTouchId;
-            return;
-        }
-    }
-
-    bool IsPointerOverUI() => Touchscreen.current != null
-        ? EventSystem.current.IsPointerOverGameObject(currentPointerIdForUI)
+    bool IsPointerOverUI() => Pointer.current is Touchscreen
+        ? EventSystem.current.IsPointerOverGameObject(Pointer.current.deviceId)
         : EventSystem.current.IsPointerOverGameObject();
 
-    Ray GetPointerRay() => mainCamera.ScreenPointToRay(currentPointerPosition);
+    Ray GetPointerRay() => mainCamera.ScreenPointToRay(Pointer.current.position.ReadValue());
 
     bool TryGetWorldPosition(out Vector3 worldPos)
     {
