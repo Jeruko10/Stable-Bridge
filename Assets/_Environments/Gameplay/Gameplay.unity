@@ -640,7 +640,7 @@ MonoBehaviour:
     m_Bits: 64
   <RayDistance>k__BackingField: 300
   <DragThresholdPixels>k__BackingField: 10
-  <FlipHoldTime>k__BackingField: 0.4
+  <FlipHoldTime>k__BackingField: 0.6
   <SnapLimitLeft>k__BackingField: 1
   <SnapLimitRight>k__BackingField: 2
   <SnapLimitDown>k__BackingField: 2

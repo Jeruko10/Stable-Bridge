@@ -10,6 +10,9 @@
       "Bash(dir \"c:\\\\Users\\\\jerui\\\\Documents\\\\_JERUDEV\\\\Unity\\\\SpatialReasoningInvestigation\" /s /b)",
       "Bash(grep -E \"\\\\.\\(sln|csproj\\)$\")",
       "PowerShell(cd \"c:\\\\Users\\\\jerui\\\\Documents\\\\_JERUDEV\\\\Unity\\\\SpatialReasoningInvestigation\"; $json = Get-Content \"Assets\\\\Resources\\\\PythonData\\\\Solutions.json\" -Raw | ConvertFrom-Json; $found = @\\(\\); foreach \\($key in $json.PSObject.Properties.Name\\) { $solList = $json.$key; for \\($si = 0; $si -lt $solList.Count; $si++\\) { foreach \\($p in $solList[$si].placements\\) { if \\($p.orientation -eq 'VERT' -and $p.is_inverted -eq $true\\) { $found += [PSCustomObject]@{key=$key; sol=$si; id=$p.id; pos=$p.position; size=$p.size} } } } }; Write-Host \"VERT inverted blocks found: $\\($found.Count\\)\"; $found | Select-Object -First 10 | Format-List)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\jerui\\.claude\\projects\\c--Users-jerui-Documents--JERUDEV-Unity-SpatialReasoningInvestigation\\memory"
     ]
   }
 }

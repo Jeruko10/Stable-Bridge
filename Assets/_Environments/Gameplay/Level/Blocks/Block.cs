@@ -113,35 +113,46 @@ public class Block : MonoBehaviour
     public void Rotate(BlockSegment pivotSegment, bool clockwise)
     {
         if (IsFlipped) clockwise = !clockwise;
-        
+
         int rotationIndex = (int)Rotation / 90;
         int nextIndex = (rotationIndex + (clockwise ? 3 : 1)) % 4;
-        BoardGrid.Rotation nextRotation = (BoardGrid.Rotation)(nextIndex * 90);
-        Debug.Log($"New Rotation: {nextRotation}. Clockwise: {clockwise}. IsFlipped: {IsFlipped}.");
-        SetRotation(pivotSegment, nextRotation);
+        SetRotation(pivotSegment, (BoardGrid.Rotation)(nextIndex * 90));
     }
 
     public void SetRotation(BlockSegment pivotSegment, BoardGrid.Rotation newRotation)
     {
-        Vector2 pivotBefore = pivotSegment.transform.position;
+        // Keep the pivot fixed at its logical position (not the animating transform, which may
+        // be mid-lerp) and snap the visual transform to match, so the turn reads as a crisp 90°
+        // pivot with no follow-up slide.
+        Vector2 pivotBefore = GetSegmentPosition(pivotSegment);
 
         Rotation = newRotation;
         transform.rotation = Quaternion.Euler(0f, IsFlipped ? 180f : 0f, (float)Rotation);
 
-        Vector2 delta = pivotBefore - (Vector2)pivotSegment.transform.position;
-        transform.position += (Vector3)delta;
-        Position2D += delta;
+        Position2D += pivotBefore - GetSegmentPosition(pivotSegment);
+        SnapToTarget();
     }
 
     public void Flip(BlockSegment pivotSegment)
     {
         IsFlipped = !IsFlipped;
-        
+
         SetRotation(pivotSegment, Rotation);
 
         foreach (BlockSegment segment in segments)
             segment.Flip();
     }
+
+    // Snaps the visual transform to the logical Position2D in XY (leaving Z to animate). Used
+    // to close the lerp gap after a turn, and after a drag-drop so the block is settled before
+    // the next click - otherwise rotating mid-glide pivots around a stale visual position.
+    public void SnapToTarget() =>
+        transform.position = new Vector3(Position2D.x, Position2D.y, transform.position.z);
+
+    // The segment's logical world position, derived from Position2D and the current rotation -
+    // stable even while transform.position is still lerping toward Position2D.
+    public Vector2 GetSegmentPosition(BlockSegment segment) =>
+        Position2D + (Vector2)(transform.rotation * segment.transform.localPosition);
 
     public bool ShapeMatchesPlacement(Vector2 rootWorld, BoardGrid.Rotation rotation, bool flipped)
     {

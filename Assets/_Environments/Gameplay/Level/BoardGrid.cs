@@ -306,59 +306,64 @@ public class BoardGrid : MonoBehaviour
             block.SetOverlapping(block.MobilityType == Block.Mobility.Free && overlapping.Contains(block));
     }
 
-    // Always rotates/flips exactly once around the segment that was actually clicked
-    // (block.Pivot for RotateOnly, which only ever turns around its one fixed pivot), then
-    // re-anchors it at the same tile. Overlapping another block is fine; only leaving the
-    // grid boundary genuinely fails, in which case the turn is undone so the block never ends
-    // up unregistered.
+    // Rotates the block 90° around the clicked segment. See TurnInPlace.
     public bool TryRotateBlock(Block block, BlockSegment pivot, bool clockwise)
     {
         if (block.MobilityType == Block.Mobility.RotateOnly) pivot = block.Pivot;
         else if (block.MobilityType != Block.Mobility.Free) return false;
 
-        if (!ContainsBlock(block))
-        {
-            block.Rotate(pivot, clockwise);
-            return true;
-        }
-
-        Vector2Int pivotTile = WorldToTile(pivot.transform.position);
-        RemoveBlock(block);
-        block.Rotate(pivot, clockwise);
-
-        if (TryPlaceBlock(block, pivotTile, pivot, ignoreOverlap: true)) return true;
-
-        block.Rotate(pivot, !clockwise);
-        TryPlaceBlock(block, pivotTile, pivot, ignoreOverlap: true);
-        return false;
+        TurnInPlace(block, () => block.Rotate(pivot, clockwise));
+        return true;
     }
 
+    // Flips the block across the clicked segment. See TurnInPlace.
     public bool TryFlipBlock(Block block, BlockSegment pivot)
     {
         if (block.MobilityType != Block.Mobility.Free) return false;
 
-        if (!ContainsBlock(block))
+        TurnInPlace(block, () => block.Flip(pivot));
+        return true;
+    }
+
+    // Turns (rotates/flips) the block around its clicked pivot, which Block keeps fixed in
+    // place. The turn always happens, anywhere on or off the grid - overlapping another block
+    // or a reserved tile just flags it red. A block already on the grid has its tile
+    // registration refreshed in place; one being dragged simply turns visually.
+    void TurnInPlace(Block block, System.Action turn)
+    {
+        bool onGrid = ContainsBlock(block);
+        if (onGrid) RemoveBlock(block);
+
+        turn();
+
+        if (onGrid) RegisterBlock(block);
+    }
+
+    // Registers the block on the tiles its segments currently occupy without moving it,
+    // skipping any segment that lands outside the grid. Overlap is allowed and flagged by
+    // UpdateOverlapStates.
+    void RegisterBlock(Block block)
+    {
+        foreach (BlockSegment segment in block.Segments)
         {
-            block.Flip(pivot);
-            return true;
+            Vector2Int tile = WorldToTile(block.GetSegmentPosition(segment));
+            if (!tileBlocks.TryGetValue(tile, out HashSet<BlockSegment> occupants)) continue;
+
+            occupants.Add(segment);
+            blockTiles[segment] = tile;
         }
 
-        Vector2Int pivotTile = WorldToTile(pivot.transform.position);
-        RemoveBlock(block);
-        block.Flip(pivot);
-
-        if (TryPlaceBlock(block, pivotTile, pivot, ignoreOverlap: true)) return true;
-
-        block.Flip(pivot);
-        TryPlaceBlock(block, pivotTile, pivot, ignoreOverlap: true);
-        return false;
+        blocks.Add(block);
+        UpdateOverlapStates();
     }
 
     public bool TrySlideBlock(Block block)
     {
         if (block.SlidePositions == null || block.SlidePositions.Length <= 1) return false;
 
-        Vector2Int pivotTile = WorldToTile(block.Pivot.transform.position);
+        // The current slide position is the logical source of truth - don't read it back from
+        // the animating transform, which may still be lerping toward its target.
+        Vector2Int currentTile = block.SlidePositions[block.SlidePositionIndex];
         int length = block.SlidePositions.Length;
 
         RemoveBlock(block);
@@ -373,7 +378,7 @@ public class BoardGrid : MonoBehaviour
             }
         }
 
-        TryPlaceBlock(block, pivotTile, block.Pivot);
+        TryPlaceBlock(block, currentTile, block.Pivot);
         return false;
     }
 }

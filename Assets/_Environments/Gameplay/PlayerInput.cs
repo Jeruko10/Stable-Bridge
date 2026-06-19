@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 public class PlayerInput : MonoBehaviour
 {
@@ -8,16 +9,24 @@ public class PlayerInput : MonoBehaviour
     [field: SerializeField] public LayerMask BlockLayer { get; private set; }
     [field: SerializeField] float RayDistance { get; set; } = 100f;
     [field: SerializeField] float DragThresholdPixels { get; set; } = 10f;
-    [field: SerializeField] float FlipHoldTime { get; set; } = 0.4f;
+    [field: SerializeField] float FlipHoldTime { get; set; } = 0.6f;
 
     [Header("Block Snapping")]
     [field: SerializeField] int SnapLimitLeft { get; set; } = 2;
     [field: SerializeField] int SnapLimitRight { get; set; } = 2;
     [field: SerializeField] int SnapLimitDown { get; set; } = 2;
     [field: SerializeField] int SnapLimitUp { get; set; } = 2;
-    
+
     [Header("References")]
     [field: SerializeField] BlockInventory blockInventory;
+
+    const int NoTouch = -1;
+
+    // A finger contact jitters by several pixels during a "still" tap, and on a dense display
+    // DragThresholdPixels is a tiny physical distance - so taps get misread as drags. Enforce
+    // a physical floor via DPI so a tap stays a tap while a deliberate drag still registers.
+    const float MinDragThresholdInches = 0.2f;
+    float DragDistanceThreshold => Mathf.Max(DragThresholdPixels, Screen.dpi * MinDragThresholdInches);
 
     Block ActiveBlock => activeSegment.GetParent();
     BlockSegment activeSegment;
@@ -28,6 +37,11 @@ public class PlayerInput : MonoBehaviour
     Vector2Int savedPivotTile;
     bool isDragging, flipTriggered;
     float pressStartTime;
+
+    // On a touchscreen we lock onto the first finger that pressed and follow only it until it
+    // lifts, so a second finger can't hijack the position or fire extra press/release events.
+    int activeTouchId = NoTouch;
+    Vector2 pointerPosition;
 
     void Awake()
     {
@@ -42,26 +56,79 @@ public class PlayerInput : MonoBehaviour
 
     void Update()
     {
-        if (Pointer.current == null) return;
+        if (!ResolvePointer(out bool pressed, out bool held, out bool released)) return;
 
-        if (Pointer.current.press.wasPressedThisFrame) OnPointerPressed();
-        if (Pointer.current.press.isPressed) OnPointerHeld();
-        if (Pointer.current.press.wasReleasedThisFrame) OnPointerReleased();
+        if (pressed) OnPointerPressed();
+        if (held) OnPointerHeld();
+        if (released) OnPointerReleased();
+    }
+
+    // Resolves a single, stable pointer for this frame and caches its position. Touch uses the
+    // locked-finger path; mouse and pen use the normal aggregated pointer.
+    bool ResolvePointer(out bool pressed, out bool held, out bool released)
+    {
+        pressed = held = released = false;
+
+        if (Pointer.current is Touchscreen touchscreen)
+            return ResolveTouch(touchscreen, out pressed, out held, out released);
+
+        if (Pointer.current == null) return false;
+
+        pointerPosition = Pointer.current.position.ReadValue();
+        pressed = Pointer.current.press.wasPressedThisFrame;
+        held = Pointer.current.press.isPressed;
+        released = Pointer.current.press.wasReleasedThisFrame;
+        return true;
+    }
+
+    bool ResolveTouch(Touchscreen touchscreen, out bool pressed, out bool held, out bool released)
+    {
+        pressed = held = released = false;
+
+        if (activeTouchId != NoTouch)
+        {
+            foreach (TouchControl touch in touchscreen.touches)
+            {
+                if (touch.touchId.ReadValue() != activeTouchId) continue;
+
+                pointerPosition = touch.position.ReadValue();
+                if (touch.press.isPressed) held = true;
+                else { released = true; activeTouchId = NoTouch; }
+                return true;
+            }
+
+            // The tracked finger disappeared without a release phase - end the interaction.
+            released = true;
+            activeTouchId = NoTouch;
+            return true;
+        }
+
+        foreach (TouchControl touch in touchscreen.touches)
+        {
+            if (!touch.press.wasPressedThisFrame) continue;
+
+            activeTouchId = touch.touchId.ReadValue();
+            pointerPosition = touch.position.ReadValue();
+            pressed = held = true;
+            return true;
+        }
+
+        return false;
     }
 
     void OnPointerPressed()
     {
-        pressStartPosition = Pointer.current.position.ReadValue();
+        pressStartPosition = pointerPosition;
         pressStartTime = Time.time;
         flipTriggered = false;
         activeSegment = null;
 
         if (IsPointerOverUI()) return;
         if (!TryRaycastToBlock(out BlockSegment segment)) return;
-        
+
         Block block = segment.GetParent();
         AudioManager.Play(AudioManager.Instance.Blocks);
-        
+
         if (block == null || block.MobilityType == Block.Mobility.Fixed || block.MobilityType == Block.Mobility.Ground) return;
 
         activeSegment = segment;
@@ -71,7 +138,7 @@ public class PlayerInput : MonoBehaviour
     {
         if (activeSegment == null) return;
 
-        bool dragThresholdExceeded = (Pointer.current.position.ReadValue() - pressStartPosition).magnitude >= DragThresholdPixels;
+        bool dragThresholdExceeded = (pointerPosition - pressStartPosition).magnitude >= DragDistanceThreshold;
 
         if (dragThresholdExceeded)
         {
@@ -140,9 +207,13 @@ public class PlayerInput : MonoBehaviour
         {
             bool restored = !moveToSlotOnFailure && grid.TryPlaceBlock(ActiveBlock, savedPivotTile, ActiveBlock.Pivot);
             if (!restored) blockInventory.AddBlock(ActiveBlock);
+            else ActiveBlock.SnapToTarget();
         }
         else
         {
+            // Settle the block on its tile immediately so a follow-up tap rotates around the
+            // real position instead of the still-gliding one.
+            ActiveBlock.SnapToTarget();
             AudioManager.Play(AudioManager.Instance.GridSnap);
             DataCollectionManager.Instance?.RecordMove();
         }
@@ -155,6 +226,10 @@ public class PlayerInput : MonoBehaviour
     {
         blockInventory.RemoveBlock(block);
 
+        // A drag started from a UI slot, outside the normal press flow - lock onto the finger
+        // that grabbed it so it's followed and other fingers stay ignored.
+        LockToCurrentTouch();
+
         if (TryGetWorldPosition(out Vector3 worldPos))
         {
             // Teleport to cursor immediately so MoveDrag offset is correct from the first frame
@@ -164,16 +239,32 @@ public class PlayerInput : MonoBehaviour
 
         activeSegment = block.Pivot;
         savedPivotTile = default;
-        pressStartPosition = Pointer.current.position.ReadValue();
+        pressStartPosition = pointerPosition;
         flipTriggered = true;
         isDragging = true;
+    }
+
+    void LockToCurrentTouch()
+    {
+        if (Pointer.current is Touchscreen touchscreen)
+        {
+            foreach (TouchControl touch in touchscreen.touches)
+                if (touch.press.isPressed)
+                {
+                    activeTouchId = touch.touchId.ReadValue();
+                    pointerPosition = touch.position.ReadValue();
+                    return;
+                }
+        }
+        else if (Pointer.current != null)
+            pointerPosition = Pointer.current.position.ReadValue();
     }
 
     bool IsPointerOverUI() => Pointer.current is Touchscreen
         ? EventSystem.current.IsPointerOverGameObject(Pointer.current.deviceId)
         : EventSystem.current.IsPointerOverGameObject();
 
-    Ray GetPointerRay() => mainCamera.ScreenPointToRay(Pointer.current.position.ReadValue());
+    Ray GetPointerRay() => mainCamera.ScreenPointToRay(pointerPosition);
 
     bool TryGetWorldPosition(out Vector3 worldPos)
     {
