@@ -405,8 +405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0835c733baeb1c543aefd94fb08ce61b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DataCollectionManager
-  firebaseProjectId: spatialreasoninginvestigation
-  firebaseApiKey: 978193579829
+  supabaseAnonKey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3dGZ5ZHl6eHF2anB3b3Rid2FmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTk1NzksImV4cCI6MjA5Nzk5NTU3OX0.Krhjvs621hQIjuHdH6y33YlCFG4EiRaWZGzMH7T4NtQ
 --- !u!4 &1157996108
 Transform:
   m_ObjectHideFlags: 0

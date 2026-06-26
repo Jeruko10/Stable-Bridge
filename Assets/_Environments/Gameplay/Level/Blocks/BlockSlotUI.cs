@@ -28,6 +28,9 @@ public class BlockSlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler
         imgRectTransform.sizeDelta *= scale;
     }
 
+    public void SetHighlight(Color c) => image.color = c;
+    public void ClearHighlight()      => image.color = Color.white;
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (eventData.button != PointerEventData.InputButton.Left) return;

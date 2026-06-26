@@ -43,4 +43,16 @@ public class BlockInventory : MonoBehaviour
         Destroy(entries[idx].slot.gameObject);
         entries.RemoveAt(idx);
     }
+
+    public void HighlightBlock(Block block, Color c)
+    {
+        int idx = entries.FindIndex(e => e.block == block);
+        if (idx >= 0) entries[idx].slot.SetHighlight(c);
+    }
+
+    public void ClearBlockHighlight(Block block)
+    {
+        int idx = entries.FindIndex(e => e.block == block);
+        if (idx >= 0) entries[idx].slot.ClearHighlight();
+    }
 }

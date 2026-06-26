@@ -7,12 +7,14 @@ using UnityEngine;
 public class HintRenderer : MonoBehaviour
 {
     [SerializeField] float depthOffset = -0.5f;
-    [SerializeField] Color color = Color.cyan;
+    [SerializeField] Color hintColor = Color.cyan;
+    BlockInventory blockInventory;
 
     Level level;
     BoardGrid grid;
     readonly List<Block> ghosts = new();
     readonly HashSet<int> ghostedBlockIds = new();
+    HintStep? highlightedStep;
     int? chosenSolutionIndex;
 
     struct HintStep
@@ -28,6 +30,7 @@ public class HintRenderer : MonoBehaviour
     {
         level = GetComponent<Level>();
         grid = GetComponent<BoardGrid>();
+        blockInventory = FindAnyObjectByType<BlockInventory>();
     }
 
     public void DisplayHint()
@@ -40,22 +43,50 @@ public class HintRenderer : MonoBehaviour
         }
 
         var idToBlock = BuildIdToBlock(layout);
-
         chosenSolutionIndex ??= SelectSolution(layout, idToBlock);
+        LevelSolution solution = layout.Solutions[chosenSolutionIndex.Value];
 
-        HintStep? step = FindNextStep(layout.Solutions[chosenSolutionIndex.Value], idToBlock);
-        if (step == null) return;
+        // Step 2: a block is already highlighted — advance it to ghost
+        if (highlightedStep.HasValue)
+        {
+            HintStep step = highlightedStep.Value;
+            if (blockInventory != null) blockInventory.ClearBlockHighlight(step.block);
+            highlightedStep = null;
 
-        ghostedBlockIds.Add(step.Value.blockId);
-        ghosts.Add(SpawnGhost(step.Value));
-        DataCollectionManager.Instance?.RecordHint();
-        Debug.Log($"HintRenderer: revealed hint for block {step.Value.block.name} (solution {chosenSolutionIndex}).");
+            // Only spawn ghost if the player hasn't already placed it correctly
+            bool alreadyPlaced = grid.ContainsBlock(step.block)
+                && step.block.ShapeMatchesPlacement(step.position, step.rotation, step.flipped);
+
+            if (!alreadyPlaced)
+            {
+                ghostedBlockIds.Add(step.blockId);
+                ghosts.Add(SpawnGhost(step));
+                if (DataCollectionManager.Instance != null) DataCollectionManager.Instance.RecordHint();
+                Debug.Log($"HintRenderer: spawned ghost for block {step.block.name} (solution {chosenSolutionIndex}).");
+            }
+            return;
+        }
+
+        // Step 1: highlight the next block in the inventory
+        HintStep? next = FindNextStep(solution, idToBlock);
+        if (next == null) return;
+
+        highlightedStep = next;
+        if (blockInventory != null) blockInventory.HighlightBlock(next.Value.block, hintColor);
+        if (DataCollectionManager.Instance != null) DataCollectionManager.Instance.RecordHint();
+        Debug.Log($"HintRenderer: highlighted block {next.Value.block.name} (solution {chosenSolutionIndex}).");
     }
 
     public void SpawnHardCodedHint() => DisplayHint();
 
     public void ResetHints()
     {
+        if (highlightedStep.HasValue)
+        {
+            if (blockInventory != null) blockInventory.ClearBlockHighlight(highlightedStep.Value.block);
+            highlightedStep = null;
+        }
+
         foreach (Block ghost in ghosts)
             if (ghost != null) Destroy(ghost.gameObject);
         ghosts.Clear();
@@ -130,6 +161,7 @@ public class HintRenderer : MonoBehaviour
         {
             if (!idToBlock.ContainsKey(p.blockId)) continue;
             if (ghostedBlockIds.Contains(p.blockId)) continue;
+            if (highlightedStep.HasValue && p.blockId == highlightedStep.Value.blockId) continue;
             if (IsCorrectlyPlaced(idToBlock[p.blockId], p)) continue;
 
             if (best == null
@@ -173,7 +205,7 @@ public class HintRenderer : MonoBehaviour
         ghost.transform.position = new Vector3(step.position.x, step.position.y, depthOffset);
         ghost.Position2D = step.position;
         ghost.DepthOffset = depthOffset;
-        ghost.Color = color;
+        ghost.Color = hintColor;
 
         return ghost;
     }

@@ -83,6 +83,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SimulationObserver
   stabilityRequiredFrames: 180
   unstabilityFrameLimit: 1000
+  unstableBreakDelay: 2
   positionThreshold: 0.15
   rotationThreshold: 5
   linearVelocityThreshold: 0.01
@@ -102,4 +103,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HintRenderer
   depthOffset: 0.05
-  color: {r: 0, g: 1, b: 1, a: 1}
+  ghostColor: {r: 0, g: 1, b: 1, a: 1}
+  highlightColor: {r: 0, g: 1, b: 1, a: 1}
