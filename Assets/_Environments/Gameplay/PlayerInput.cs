@@ -35,7 +35,7 @@ public class PlayerInput : MonoBehaviour
     BoardGrid grid;
     Vector2 pressStartPosition;
     Vector2Int savedPivotTile;
-    bool isDragging, flipTriggered;
+    bool isDragging, flipTriggered, blockDraggedFromGrid;
     float pressStartTime;
 
     // On a touchscreen we lock onto the first finger that pressed and follow only it until it
@@ -147,9 +147,11 @@ public class PlayerInput : MonoBehaviour
         }
         else if (!flipTriggered && Time.time - pressStartTime >= FlipHoldTime)
         {
-            grid.TryFlipBlock(ActiveBlock, activeSegment);
+            Block block = ActiveBlock;
+            bool flippedBefore = block.IsFlipped;
+            grid.TryFlipBlock(block, activeSegment);
             flipTriggered = true;
-            DataCollectionManager.Instance?.RecordMove();
+            DataCollectionManager.Instance?.RecordFlip(block, flippedBefore, block.IsFlipped);
         }
 
         if (isDragging && TryGetWorldPosition(out Vector3 pos))
@@ -169,8 +171,10 @@ public class PlayerInput : MonoBehaviour
 
         if (activeSegment != null && !flipTriggered)
         {
-            grid.TryRotateBlock(ActiveBlock, activeSegment, clockwise: true);
-            DataCollectionManager.Instance?.RecordMove();
+            Block block = ActiveBlock;
+            int rotBefore = (int)block.Rotation;
+            grid.TryRotateBlock(block, activeSegment, clockwise: true);
+            DataCollectionManager.Instance?.RecordRotation(block, rotBefore, (int)block.Rotation);
         }
     }
 
@@ -179,6 +183,7 @@ public class PlayerInput : MonoBehaviour
         if (ActiveBlock.MobilityType != Block.Mobility.Free) return;
 
         Vector2Int? savedTile = grid.GetTileOfBlock(ActiveBlock.Pivot);
+        blockDraggedFromGrid = savedTile.HasValue;
         if (savedTile.HasValue) savedPivotTile = savedTile.Value;
 
         AudioManager.Play(AudioManager.Instance.GridSnap);
@@ -213,9 +218,13 @@ public class PlayerInput : MonoBehaviour
         {
             // Settle the block on its tile immediately so a follow-up tap rotates around the
             // real position instead of the still-gliding one.
-            ActiveBlock.SnapToTarget();
+            Block placedBlock = ActiveBlock;
+            placedBlock.SnapToTarget();
             AudioManager.Play(AudioManager.Instance.GridSnap);
-            DataCollectionManager.Instance?.RecordMove();
+            Vector2Int? tileBefore = blockDraggedFromGrid ? savedPivotTile : (Vector2Int?)null;
+            Vector2Int? tileAfter = grid.GetTileOfBlock(placedBlock.Pivot);
+            if (tileAfter.HasValue)
+                DataCollectionManager.Instance?.RecordMove(placedBlock, tileBefore, tileAfter.Value);
         }
 
         isDragging = false;
@@ -239,6 +248,7 @@ public class PlayerInput : MonoBehaviour
 
         activeSegment = block.Pivot;
         savedPivotTile = default;
+        blockDraggedFromGrid = false;
         pressStartPosition = pointerPosition;
         flipTriggered = true;
         isDragging = true;
