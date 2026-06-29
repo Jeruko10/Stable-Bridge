@@ -60,14 +60,14 @@
         "*.asset": "yaml",
         "*.meta": "yaml",
         "*.prefab": "yaml",
-        "*.unity": "yaml",
+        "*.unity": "yaml"
     },
     "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "SpatialReasoningInvestigation.slnx",
+    "dotnet.defaultSolution": "Stable Bridge.slnx",
     "dotnet.enableWorkspaceBasedDevelopment": false,
     "cSpell.words": [
         "Behaviour"
