@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,14 +9,23 @@ public class HintRenderer : MonoBehaviour
 {
     [SerializeField] float depthOffset = -0.5f;
     [SerializeField] Color hintColor = Color.cyan;
+    [SerializeField] float ghostFadeDuration = 10f;
     BlockInventory blockInventory;
+
+    public event System.Action<int> HintsRemainingChanged;
+    public int HintsRemaining => HintLimit - hintsUsed;
 
     Level level;
     BoardGrid grid;
     readonly List<Block> ghosts = new();
     readonly HashSet<int> ghostedBlockIds = new();
+    readonly Dictionary<Block, Coroutine> fadeCoroutines = new();
     HintStep? highlightedStep;
     int? chosenSolutionIndex;
+    int hintsUsed;
+
+    int HintLimit => 2 * Mathf.CeilToInt(level.Inventory.Count / 2f);
+
 
     struct HintStep
     {
@@ -31,6 +41,7 @@ public class HintRenderer : MonoBehaviour
         level = GetComponent<Level>();
         grid = GetComponent<BoardGrid>();
         blockInventory = FindAnyObjectByType<BlockInventory>();
+        HintsRemainingChanged?.Invoke(HintsRemaining);
     }
 
     public void DisplayHint()
@@ -43,7 +54,20 @@ public class HintRenderer : MonoBehaviour
         }
 
         var idToBlock = BuildIdToBlock(layout);
-        chosenSolutionIndex ??= SelectSolution(layout, idToBlock);
+        int newSolutionIndex = SelectSolution(layout, idToBlock);
+
+        // If a strictly better solution was found, discard old hints and switch
+        if (newSolutionIndex != chosenSolutionIndex)
+        {
+            if (highlightedStep.HasValue)
+            {
+                if (blockInventory != null) blockInventory.ClearBlockHighlight(highlightedStep.Value.block);
+                highlightedStep = null;
+            }
+            ClearGhosts();
+            chosenSolutionIndex = newSolutionIndex;
+        }
+
         LevelSolution solution = layout.Solutions[chosenSolutionIndex.Value];
 
         // Step 2: a block is already highlighted — advance it to ghost
@@ -60,21 +84,34 @@ public class HintRenderer : MonoBehaviour
             if (!alreadyPlaced)
             {
                 ghostedBlockIds.Add(step.blockId);
-                ghosts.Add(SpawnGhost(step));
+                Block ghost = SpawnGhost(step);
+                ghosts.Add(ghost);
+                Coroutine fade = StartCoroutine(FadeAndDestroyGhost(ghost, step.blockId, ghostFadeDuration));
+                fadeCoroutines[ghost] = fade;
+                hintsUsed++;
+                HintsRemainingChanged?.Invoke(HintsRemaining);
                 if (DataCollectionManager.Instance != null) DataCollectionManager.Instance.RecordHint();
-                Debug.Log($"HintRenderer: spawned ghost for block {step.block.name} (solution {chosenSolutionIndex}).");
+                Debug.Log($"HintRenderer: spawned ghost for block {step.block.name} (solution {chosenSolutionIndex}). Hints used: {hintsUsed}/{HintLimit}");
             }
             return;
         }
 
         // Step 1: highlight the next block in the inventory
+        if (hintsUsed >= HintLimit)
+        {
+            Debug.Log($"HintRenderer: hint limit reached ({HintLimit}).");
+            return;
+        }
+
         HintStep? next = FindNextStep(solution, idToBlock);
         if (next == null) return;
 
         highlightedStep = next;
+        hintsUsed++;
+        HintsRemainingChanged?.Invoke(HintsRemaining);
         if (blockInventory != null) blockInventory.HighlightBlock(next.Value.block, hintColor);
         if (DataCollectionManager.Instance != null) DataCollectionManager.Instance.RecordHint();
-        Debug.Log($"HintRenderer: highlighted block {next.Value.block.name} (solution {chosenSolutionIndex}).");
+        Debug.Log($"HintRenderer: highlighted block {next.Value.block.name} (solution {chosenSolutionIndex}). Hints used: {hintsUsed}/{HintLimit}");
     }
 
     public void SpawnHardCodedHint() => DisplayHint();
@@ -87,11 +124,62 @@ public class HintRenderer : MonoBehaviour
             highlightedStep = null;
         }
 
+        ClearGhosts();
+        chosenSolutionIndex = null;
+        hintsUsed = 0;
+        HintsRemainingChanged?.Invoke(HintsRemaining);
+    }
+
+    void ClearGhosts()
+    {
         foreach (Block ghost in ghosts)
-            if (ghost != null) Destroy(ghost.gameObject);
+        {
+            if (ghost == null) continue;
+            if (fadeCoroutines.TryGetValue(ghost, out Coroutine c)) StopCoroutine(c);
+            Destroy(ghost.gameObject);
+        }
         ghosts.Clear();
         ghostedBlockIds.Clear();
-        chosenSolutionIndex = null;
+        fadeCoroutines.Clear();
+    }
+
+    IEnumerator FadeAndDestroyGhost(Block ghost, int blockId, float duration)
+    {
+        foreach (Renderer r in ghost.GetComponentsInChildren<Renderer>())
+            EnableURPTransparency(r.material);
+
+        Color startColor = hintColor;
+        const float startAlpha = 0.7f;
+        float elapsed = 0f;
+
+        ghost.Color = new Color(startColor.r, startColor.g, startColor.b, startAlpha);
+
+        while (elapsed < duration && ghost != null)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(startAlpha, 0f, elapsed / duration);
+            ghost.Color = new Color(startColor.r, startColor.g, startColor.b, alpha);
+            yield return null;
+        }
+
+        fadeCoroutines.Remove(ghost);
+        ghosts.Remove(ghost);
+        ghostedBlockIds.Remove(blockId);
+        if (ghost != null) Destroy(ghost.gameObject);
+    }
+
+    // Switches a URP material instance from Opaque to Alpha-blended Transparent at runtime
+    static void EnableURPTransparency(Material mat)
+    {
+        mat.SetFloat("_Surface", 1f);
+        mat.SetFloat("_Blend", 0f);
+        mat.SetFloat("_SrcBlend", 5f);
+        mat.SetFloat("_DstBlend", 10f);
+        mat.SetFloat("_SrcBlendAlpha", 1f);
+        mat.SetFloat("_DstBlendAlpha", 10f);
+        mat.SetFloat("_ZWrite", 0f);
+        mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
     }
 
     Dictionary<int, Block> BuildIdToBlock(LevelLayout layout)
@@ -110,7 +198,7 @@ public class HintRenderer : MonoBehaviour
     {
         bool anyPlaced = grid.GetAllBlocks().Any(b => b.MobilityType == Block.Mobility.Free);
         if (!anyPlaced)
-            return Random.Range(0, layout.Solutions.Count);
+            return chosenSolutionIndex ?? Random.Range(0, layout.Solutions.Count);
 
         int maxPossible = idToBlock.Values.Sum(b => b.Segments.Length);
         int bestScore = -1;
@@ -125,13 +213,17 @@ public class HintRenderer : MonoBehaviour
                 bestScore = score;
                 bestIndices.Clear();
                 bestIndices.Add(i);
-                if (score == maxPossible) break; // all blocks match — level is solved
+                if (score == maxPossible) break;
             }
             else if (score == bestScore)
             {
                 bestIndices.Add(i);
             }
         }
+
+        // Prefer the current solution if it's still among the best — only switch if a strictly better solution exists
+        if (chosenSolutionIndex.HasValue && bestIndices.Contains(chosenSolutionIndex.Value))
+            return chosenSolutionIndex.Value;
 
         return bestIndices[Random.Range(0, bestIndices.Count)];
     }

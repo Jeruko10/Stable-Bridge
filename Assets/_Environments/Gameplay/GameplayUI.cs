@@ -1,5 +1,6 @@
 using System.Linq;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 
 public class GameplayUI : MonoBehaviour
@@ -16,6 +17,7 @@ public class GameplayUI : MonoBehaviour
     [SerializeField] RectTransform readyButton;
     [SerializeField] RectTransform inventorySidebar;
     [SerializeField] CanvasGroup pauseMenuButtons;
+    [SerializeField] TMP_Text hintsRemainingText;
 
     Vector2 hintButtonShownPos;
     Vector2 readyButtonShownPos;
@@ -23,6 +25,7 @@ public class GameplayUI : MonoBehaviour
     CanvasGroup readyButtonGroup;
 
     Level currentLevel;
+    HintRenderer currentHintRenderer;
 
     void Start()
     {
@@ -57,14 +60,30 @@ public class GameplayUI : MonoBehaviour
         LevelManager.Victory -= OnVictory;
         LevelManager.LevelLoaded -= OnLevelLoaded;
         if (currentLevel != null) currentLevel.LevelComplete -= OnLevelComplete;
+        if (currentHintRenderer != null) currentHintRenderer.HintsRemainingChanged -= OnHintsRemainingChanged;
     }
 
     void OnLevelLoaded(Level level)
     {
         if (currentLevel != null) currentLevel.LevelComplete -= OnLevelComplete;
+        if (currentHintRenderer != null) currentHintRenderer.HintsRemainingChanged -= OnHintsRemainingChanged;
+
         currentLevel = level;
         currentLevel.LevelComplete += OnLevelComplete;
+
+        currentHintRenderer = level.GetComponent<HintRenderer>();
+        if (currentHintRenderer != null)
+        {
+            currentHintRenderer.HintsRemainingChanged += OnHintsRemainingChanged;
+            OnHintsRemainingChanged(currentHintRenderer.HintsRemaining);
+        }
+
         AnimateIn();
+    }
+
+    void OnHintsRemainingChanged(int remaining)
+    {
+        if (hintsRemainingText != null) hintsRemainingText.text = $"{remaining}";
     }
 
     void OnLevelComplete(bool success)
